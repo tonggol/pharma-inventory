@@ -100,7 +100,7 @@ public class MedicineService {
                 request.getDescription(),
                 request.getManufacturer(),
                 request.getUnit(),
-                request.getCategory(),
+                MedicineCategory.fromDescription(request.getCategory()),
                 request.getStorageCondition(),
                 request.getMinStockQuantity(),
                 request.getIsPrescriptionRequired()
@@ -130,7 +130,7 @@ public class MedicineService {
                 request.getDescription(),
                 request.getManufacturer(),
                 request.getUnit(),
-                request.getCategory(),
+                MedicineCategory.fromDescription(request.getCategory()),
                 request.getStorageCondition(),
                 request.getMinStockQuantity(),
                 request.getIsPrescriptionRequired(),
@@ -151,14 +151,13 @@ public class MedicineService {
         Medicine medicine = medicineRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("의약품을 찾을 수 없습니다. ID: " + id));
 
-        // updateFullInfo 메소드는 null이 아닌 값만 업데이트하므로 부분 수정에 활용 가능
         medicine.updateFullInfo(
                 (String) updates.get("name"),
                 (String) updates.get("nameEn"),
                 (String) updates.get("description"),
                 (String) updates.get("manufacturer"),
                 (String) updates.get("unit"),
-                updates.containsKey("category") ? MedicineCategory.valueOf((String) updates.get("category")) : null,
+                updates.containsKey("category") ? MedicineCategory.fromDescription((String) updates.get("category")) : null,
                 (String) updates.get("storageCondition"),
                 (Integer) updates.get("minStockQuantity"),
                 (Boolean) updates.get("isPrescriptionRequired"),
@@ -303,7 +302,7 @@ public class MedicineService {
             }
             
             if (request.getCategory() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("category"), request.getCategory()));
+                predicates.add(criteriaBuilder.equal(root.get("category"), MedicineCategory.fromDescription(request.getCategory())));
             }
             
             if (request.getIsActive() != null) {

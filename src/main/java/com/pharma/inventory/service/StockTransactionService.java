@@ -116,7 +116,7 @@ public class StockTransactionService {
                 // 출고: FEFO 방식으로 재고 차감
                 processOutbound(medicine, request.getQuantity(), request.getDepartment(), request.getRequesterName());
                 break;
-                
+
             case ADJUSTMENT:
                 // 조정: 재고 수량 직접 조정
                 if (request.getStockId() != null) {
@@ -127,7 +127,7 @@ public class StockTransactionService {
                     stockRepository.save(stock);
                 }
                 break;
-                
+
             case RETURN:
                 // 반품: 재고 증가
                 if (request.getStockId() != null) {
@@ -138,7 +138,7 @@ public class StockTransactionService {
                     stockRepository.save(stock);
                 }
                 break;
-                
+
             case DISPOSAL:
                 // 폐기: 재고 차감 및 상태 변경
                 if (request.getStockId() != null) {
@@ -153,7 +153,7 @@ public class StockTransactionService {
                     stockRepository.save(stock);
                 }
                 break;
-                
+
             case TRANSFER:
                 // 이동: 위치 변경
                 if (request.getStockId() != null) {
@@ -162,7 +162,7 @@ public class StockTransactionService {
                 }
                 break;
         }
-        
+
         // 트랜잭션 기록 - 생성자 사용
         StockTransaction transaction = new StockTransaction(
                 medicine,
@@ -174,7 +174,7 @@ public class StockTransactionService {
                 request.getTransactionDate() != null ? request.getTransactionDate() : LocalDateTime.now(),
                 request.getReason()
         );
-        
+
         StockTransaction saved = transactionRepository.save(transaction);
         return StockTransactionResponse.from(saved);
     }
@@ -185,10 +185,10 @@ public class StockTransactionService {
     @Transactional
     public StockTransactionController.BatchTransactionResult processBatchTransactions(BatchTransactionRequest request) {
         log.info("일괄 트랜잭션 처리 시작 - 개수: {}", request.getTransactions().size());
-        
+
         List<Long> successIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
-        
+
         for (BatchTransactionRequest.TransactionItem item : request.getTransactions()) {
             try {
                 StockTransactionRequest txRequest = StockTransactionRequest.builder()
@@ -204,15 +204,15 @@ public class StockTransactionService {
                         .referenceNumber(item.getReferenceNumber())
                         .remarks(item.getRemarks() != null ? item.getRemarks() : request.getRemarks())
                         .build();
-                
+
                 StockTransactionResponse response = processTransaction(txRequest);
                 successIds.add(response.getId());
-                
+
             } catch (Exception e) {
                 errors.add(String.format("의약품 ID %d: %s", item.getMedicineId(), e.getMessage()));
             }
         }
-        
+
         return StockTransactionController.BatchTransactionResult.builder()
                 .totalCount(request.getTransactions().size())
                 .successCount(successIds.size())
@@ -228,14 +228,14 @@ public class StockTransactionService {
     @Transactional
     public StockTransactionResponse cancelTransaction(Long id, String reason) {
         log.info("트랜잭션 취소 - ID: {}, 사유: {}", id, reason);
-        
+
         StockTransaction original = transactionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("트랜잭션을 찾을 수 없습니다. ID: " + id));
-        
+
         // 재고 원복
         if (original.getStock() != null) {
             Stock stock = original.getStock();
-            
+
             switch (original.getTransactionType()) {
                 case INBOUND:
                 case RETURN:
@@ -254,7 +254,7 @@ public class StockTransactionService {
             }
             stockRepository.save(stock);
         }
-        
+
         // 취소 트랜잭션 생성 - 생성자 사용
         StockTransaction cancelTx = new StockTransaction(
                 original.getMedicine(),
@@ -266,7 +266,7 @@ public class StockTransactionService {
                 LocalDateTime.now(),
                 TransactionReason.OTHER
         );
-        
+
         StockTransaction saved = transactionRepository.save(cancelTx);
         return StockTransactionResponse.from(saved);
     }
@@ -276,19 +276,19 @@ public class StockTransactionService {
      */
     public List<StockTransactionResponse> getTransactionsByMedicine(Long medicineId, int days) {
         log.debug("의약품별 트랜잭션 조회 - 의약품ID: {}, 기간: {}일", medicineId, days);
-        
+
         Medicine medicine = medicineRepository.findById(medicineId)
                 .orElseThrow(() -> new IllegalArgumentException("의약품을 찾을 수 없습니다. ID: " + medicineId));
-        
+
         LocalDateTime startDate = LocalDateTime.now().minusDays(days);
         LocalDateTime endDate = LocalDateTime.now();
-        
+
         List<StockTransaction> transactions = transactionRepository
                 .findByMedicine(medicine).stream()
                 .filter(tx -> tx.getTransactionDate().isAfter(startDate) && tx.getTransactionDate().isBefore(endDate))
                 .sorted(Comparator.comparing(StockTransaction::getTransactionDate).reversed())
                 .collect(Collectors.toList());
-        
+
         return transactions.stream()
                 .map(StockTransactionResponse::from)
                 .collect(Collectors.toList());
@@ -299,12 +299,12 @@ public class StockTransactionService {
      */
     public List<StockTransactionResponse> getTransactionsByLotNumber(String lotNumber) {
         log.debug("로트번호별 트랜잭션 조회 - 로트번호: {}", lotNumber);
-        
+
         Stock stock = stockRepository.findByLotNumber(lotNumber)
                 .orElseThrow(() -> new IllegalArgumentException("재고를 찾을 수 없습니다. 로트번호: " + lotNumber));
-        
+
         List<StockTransaction> transactions = transactionRepository.findByStock(stock);
-        
+
         return transactions.stream()
                 .map(StockTransactionResponse::from)
                 .sorted(Comparator.comparing(StockTransactionResponse::getTransactionDate).reversed())
@@ -316,20 +316,20 @@ public class StockTransactionService {
      */
     public StockTransactionController.DailyTransactionStatistics getDailyStatistics(LocalDate date) {
         log.debug("일별 트랜잭션 통계 조회 - 날짜: {}", date);
-        
+
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(23, 59, 59);
-        
+
         List<StockTransaction> transactions = transactionRepository
                 .findByTransactionDateBetween(startOfDay, endOfDay);
-        
+
         Map<TransactionType, Long> countByType = transactions.stream()
                 .collect(Collectors.groupingBy(StockTransaction::getTransactionType, Collectors.counting()));
-        
+
         Map<TransactionType, Long> quantityByType = transactions.stream()
                 .collect(Collectors.groupingBy(StockTransaction::getTransactionType,
                         Collectors.summingLong(StockTransaction::getQuantity)));
-        
+
         // Top 5 의약품
         Map<String, Long> topMedicines = transactions.stream()
                 .collect(Collectors.groupingBy(tx -> tx.getMedicine().getName(),
@@ -339,12 +339,12 @@ public class StockTransactionService {
                 .limit(5)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (e1, e2) -> e1, LinkedHashMap::new));
-        
+
         // 부서별 활동
         Map<String, Long> departmentActivity = transactions.stream()
                 .filter(tx -> tx.getDepartment() != null)
                 .collect(Collectors.groupingBy(StockTransaction::getDepartment, Collectors.counting()));
-        
+
         return StockTransactionController.DailyTransactionStatistics.builder()
                 .date(date)
                 .totalTransactions((long) transactions.size())
@@ -366,39 +366,39 @@ public class StockTransactionService {
      */
     public StockTransactionController.TransactionSummary getTransactionSummary(LocalDate startDate, LocalDate endDate) {
         log.debug("트랜잭션 요약 조회 - 기간: {} ~ {}", startDate, endDate);
-        
+
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-        
+
         List<StockTransaction> transactions = transactionRepository
                 .findByTransactionDateBetween(startDateTime, endDateTime);
-        
+
         Map<TransactionType, Long> transactionsByType = transactions.stream()
                 .collect(Collectors.groupingBy(StockTransaction::getTransactionType, Collectors.counting()));
-        
+
         Map<TransactionReason, Long> transactionsByReason = transactions.stream()
                 .filter(tx -> tx.getReason() != null)
                 .collect(Collectors.groupingBy(StockTransaction::getReason, Collectors.counting()));
-        
+
         Long totalQuantityIn = transactions.stream()
                 .filter(tx -> tx.getTransactionType() == TransactionType.INBOUND ||
                              tx.getTransactionType() == TransactionType.RETURN)
                 .mapToLong(StockTransaction::getQuantity)
                 .sum();
-        
+
         Long totalQuantityOut = transactions.stream()
                 .filter(tx -> tx.getTransactionType() == TransactionType.OUTBOUND ||
                              tx.getTransactionType() == TransactionType.DISPOSAL)
                 .mapToLong(StockTransaction::getQuantity)
                 .sum();
-        
+
         // Top Items 계산
         List<StockTransactionController.TransactionSummary.TopItem> topInboundItems = calculateTopItems(
                 transactions, TransactionType.INBOUND);
-        
+
         List<StockTransactionController.TransactionSummary.TopItem> topOutboundItems = calculateTopItems(
                 transactions, TransactionType.OUTBOUND);
-        
+
         return StockTransactionController.TransactionSummary.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -418,34 +418,34 @@ public class StockTransactionService {
      */
     public Map<String, StockTransactionController.DepartmentStatistics> getDepartmentStatistics(
             LocalDate startDate, LocalDate endDate) {
-        
+
         log.debug("부서별 통계 조회 - 기간: {} ~ {}", startDate, endDate);
-        
+
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-        
+
         List<Object[]> departmentStats = transactionRepository
                 .getDepartmentStatistics(startDateTime, endDateTime);
-        
+
         Map<String, StockTransactionController.DepartmentStatistics> result = new HashMap<>();
-        
+
         for (Object[] stat : departmentStats) {
             String department = (String) stat[0];
             Long totalQuantity = ((Number) stat[1]).longValue();
-            
+
             // 부서별 상세 트랜잭션 조회
             List<StockTransaction> deptTransactions = transactionRepository
                     .findByDepartment(department).stream()
-                    .filter(tx -> tx.getTransactionDate().isAfter(startDateTime) && 
+                    .filter(tx -> tx.getTransactionDate().isAfter(startDateTime) &&
                                  tx.getTransactionDate().isBefore(endDateTime))
                     .collect(Collectors.toList());
-            
+
             Map<String, Long> medicineUsage = deptTransactions.stream()
                     .collect(Collectors.groupingBy(
                             tx -> tx.getMedicine().getName(),
                             Collectors.summingLong(StockTransaction::getQuantity)
                     ));
-            
+
             List<String> frequentRequesters = deptTransactions.stream()
                     .filter(tx -> tx.getRequesterName() != null)
                     .collect(Collectors.groupingBy(StockTransaction::getRequesterName, Collectors.counting()))
@@ -454,7 +454,7 @@ public class StockTransactionService {
                     .limit(5)
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-            
+
             result.put(department, StockTransactionController.DepartmentStatistics.builder()
                     .department(department)
                     .transactionCount((long) deptTransactions.size())
@@ -463,7 +463,7 @@ public class StockTransactionService {
                     .frequentRequesters(frequentRequesters)
                     .build());
         }
-        
+
         return result;
     }
 
@@ -472,10 +472,10 @@ public class StockTransactionService {
      */
     public List<StockTransactionResponse> getRecentTransactions(int limit) {
         log.debug("최근 트랜잭션 조회 - 개수: {}", limit);
-        
+
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "transactionDate"));
         Page<StockTransaction> transactions = transactionRepository.findAllByOrderByTransactionDateDesc(pageable);
-        
+
         return transactions.getContent().stream()
                 .map(StockTransactionResponse::from)
                 .collect(Collectors.toList());
@@ -494,16 +494,16 @@ public class StockTransactionService {
      */
     public Map<String, Long> getDepartmentStatistics(LocalDateTime startDate, LocalDateTime endDate) {
         log.debug("부서별 출고 통계 조회 - {} ~ {}", startDate, endDate);
-        
+
         List<Object[]> stats = transactionRepository.getDepartmentStatistics(startDate, endDate);
         Map<String, Long> result = new HashMap<>();
-        
+
         for (Object[] stat : stats) {
             String department = (String) stat[0];
             Long quantity = ((Number) stat[1]).longValue();
             result.put(department, quantity);
         }
-        
+
         return result;
     }
 

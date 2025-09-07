@@ -155,15 +155,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     /**
-     * 기본 서블릿 핸들러 설정
-     * 정적 리소스를 기본 서블릿으로 처리
-     */
-    @Override
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable();
-    }
-
-    /**
      * 요청/응답 로깅 인터셉터
      */
     public static class LoggingInterceptor implements HandlerInterceptor {
