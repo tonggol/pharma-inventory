@@ -6,6 +6,7 @@ import com.pharma.inventory.dto.request.MedicineSearchRequest;
 import com.pharma.inventory.dto.request.MedicineUpdateRequest;
 import com.pharma.inventory.dto.response.MedicineResponse;
 import com.pharma.inventory.entity.Medicine;
+import com.pharma.inventory.entity.MedicineCategory;
 import com.pharma.inventory.entity.Stock;
 import com.pharma.inventory.repository.MedicineRepository;
 import com.pharma.inventory.repository.StockRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -87,32 +89,33 @@ public class MedicineService {
     public MedicineResponse createMedicine(MedicineCreateRequest request) {
         log.info("의약품 등록 - 코드: {}, 이름: {}", request.getCode(), request.getName());
         
-        // 중복 체크
         if (medicineRepository.existsByCode(request.getCode())) {
             throw new IllegalArgumentException("이미 존재하는 의약품 코드입니다: " + request.getCode());
         }
         
-        // Entity 변환 및 저장
-        Medicine medicine = Medicine.builder()
-                .code(request.getCode())
-                .name(request.getName())
-                .nameEn(request.getNameEn())
-                .description(request.getDescription())
-                .manufacturer(request.getManufacturer())
-                .unit(request.getUnit())
-                .category(request.getCategory())
-                .storageCondition(request.getStorageCondition())
-                .minStockQuantity(request.getMinStockQuantity())
-                .isPrescriptionRequired(request.getIsPrescriptionRequired())
-                .isActive(request.getIsActive())
-                .build();
-        
+        Medicine medicine = new Medicine(
+                request.getCode(),
+                request.getName(),
+                request.getNameEn(),
+                request.getDescription(),
+                request.getManufacturer(),
+                request.getUnit(),
+                request.getCategory(),
+                request.getStorageCondition(),
+                request.getMinStockQuantity(),
+                request.getIsPrescriptionRequired()
+        );
+
+        if (request.getIsActive() != null && !request.getIsActive()) {
+            medicine.deactivate();
+        }
+
         Medicine saved = medicineRepository.save(medicine);
-        return MedicineResponse.from(saved);
+        return convertToResponseWithStock(saved);
     }
 
     /**
-     * 의약품 수정
+     * 의약품 수정 (PUT)
      */
     @Transactional
     public MedicineResponse updateMedicine(Long id, MedicineUpdateRequest request) {
@@ -121,38 +124,47 @@ public class MedicineService {
         Medicine medicine = medicineRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("의약품을 찾을 수 없습니다. ID: " + id));
         
-        // 수정 가능한 필드만 업데이트
-        if (request.getName() != null) {
-            medicine.setName(request.getName());
-        }
-        if (request.getNameEn() != null) {
-            medicine.setNameEn(request.getNameEn());
-        }
-        if (request.getDescription() != null) {
-            medicine.setDescription(request.getDescription());
-        }
-        if (request.getManufacturer() != null) {
-            medicine.setManufacturer(request.getManufacturer());
-        }
-        if (request.getUnit() != null) {
-            medicine.setUnit(request.getUnit());
-        }
-        if (request.getCategory() != null) {
-            medicine.setCategory(request.getCategory());
-        }
-        if (request.getStorageCondition() != null) {
-            medicine.setStorageCondition(request.getStorageCondition());
-        }
-        if (request.getMinStockQuantity() != null) {
-            medicine.setMinStockQuantity(request.getMinStockQuantity());
-        }
-        if (request.getIsPrescriptionRequired() != null) {
-            medicine.setIsPrescriptionRequired(request.getIsPrescriptionRequired());
-        }
-        if (request.getIsActive() != null) {
-            medicine.setIsActive(request.getIsActive());
-        }
+        medicine.updateFullInfo(
+                request.getName(),
+                request.getNameEn(),
+                request.getDescription(),
+                request.getManufacturer(),
+                request.getUnit(),
+                request.getCategory(),
+                request.getStorageCondition(),
+                request.getMinStockQuantity(),
+                request.getIsPrescriptionRequired(),
+                request.getIsActive()
+        );
         
+        Medicine updated = medicineRepository.save(medicine);
+        return convertToResponseWithStock(updated);
+    }
+
+    /**
+     * 의약품 부분 수정 (PATCH)
+     */
+    @Transactional
+    public MedicineResponse patchMedicine(Long id, Map<String, Object> updates) {
+        log.info("의약품 부분 수정 - ID: {}, 필드: {}", id, updates.keySet());
+
+        Medicine medicine = medicineRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("의약품을 찾을 수 없습니다. ID: " + id));
+
+        // updateFullInfo 메소드는 null이 아닌 값만 업데이트하므로 부분 수정에 활용 가능
+        medicine.updateFullInfo(
+                (String) updates.get("name"),
+                (String) updates.get("nameEn"),
+                (String) updates.get("description"),
+                (String) updates.get("manufacturer"),
+                (String) updates.get("unit"),
+                updates.containsKey("category") ? MedicineCategory.valueOf((String) updates.get("category")) : null,
+                (String) updates.get("storageCondition"),
+                (Integer) updates.get("minStockQuantity"),
+                (Boolean) updates.get("isPrescriptionRequired"),
+                (Boolean) updates.get("isActive")
+        );
+
         Medicine updated = medicineRepository.save(medicine);
         return convertToResponseWithStock(updated);
     }
@@ -167,7 +179,7 @@ public class MedicineService {
         Medicine medicine = medicineRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("의약품을 찾을 수 없습니다. ID: " + id));
         
-        medicine.setIsActive(false);
+        medicine.deactivate();
         medicineRepository.save(medicine);
     }
 
@@ -177,15 +189,10 @@ public class MedicineService {
     public List<MedicineResponse> getLowStockMedicines() {
         log.debug("재고 부족 의약품 조회");
         
-        List<Medicine> medicines = medicineRepository.findByIsActiveTrue();
+        List<Medicine> medicines = medicineRepository.findLowStockMedicines();
         
         return medicines.stream()
                 .map(this::convertToResponseWithStock)
-                .filter(response -> {
-                    Integer currentStock = response.getCurrentStock();
-                    Integer minStock = response.getMinStockQuantity();
-                    return currentStock != null && minStock != null && currentStock < minStock;
-                })
                 .collect(Collectors.toList());
     }
 
@@ -210,16 +217,18 @@ public class MedicineService {
         for (Stock stock : stocks) {
             totalQuantity += stock.getQuantity();
             
-            switch (stock.getStatus()) {
-                case AVAILABLE:
-                    availableQuantity += stock.getQuantity();
-                    break;
-                case RESERVED:
-                    reservedQuantity += stock.getQuantity();
-                    break;
-                case EXPIRED:
-                    expiredQuantity += stock.getQuantity();
-                    break;
+            if (stock.getStatus() != null) {
+                switch (stock.getStatus()) {
+                    case AVAILABLE:
+                        availableQuantity += stock.getQuantity();
+                        break;
+                    case RESERVED:
+                        reservedQuantity += stock.getQuantity();
+                        break;
+                    case EXPIRED:
+                        expiredQuantity += stock.getQuantity();
+                        break;
+                }
             }
             
             if (stock.isExpiringSoon(30)) {
@@ -227,7 +236,7 @@ public class MedicineService {
             }
             
             if (stock.getPurchasePrice() != null) {
-                totalValue += stock.getQuantity() * stock.getPurchasePrice();
+                totalValue += stock.getQuantity() * stock.getPurchasePrice().doubleValue();
             }
         }
         
@@ -257,7 +266,6 @@ public class MedicineService {
         log.info("의약품 일괄 등록 시작 - 파일명: {}", file.getOriginalFilename());
         
         // TODO: Excel 파일 파싱 및 처리 로직 구현
-        // 임시 구현
         return MedicineController.BulkUploadResult.builder()
                 .totalCount(0)
                 .successCount(0)
@@ -273,14 +281,8 @@ public class MedicineService {
     private MedicineResponse convertToResponseWithStock(Medicine medicine) {
         MedicineResponse response = MedicineResponse.from(medicine);
         
-        // 현재 총 재고량 계산
-        Integer currentStock = stockRepository.findByMedicineId(medicine.getId())
-                .stream()
-                .filter(stock -> stock.getStatus() == Stock.StockStatus.AVAILABLE)
-                .mapToInt(Stock::getQuantity)
-                .sum();
-        
-        response.setCurrentStock(currentStock);
+        Integer currentStock = stockRepository.getTotalQuantityByMedicine(medicine);
+        response.setCurrentStock(currentStock != null ? currentStock : 0);
         return response;
     }
 
@@ -291,48 +293,17 @@ public class MedicineService {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             
-            // 통합 검색 (코드, 이름, 제조사)
             if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
                 String keyword = "%" + request.getKeyword().toLowerCase() + "%";
-                Predicate keywordPredicate = criteriaBuilder.or(
+                predicates.add(criteriaBuilder.or(
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), keyword),
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), keyword),
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("manufacturer")), keyword)
-                );
-                predicates.add(keywordPredicate);
-            }
-            
-            // 개별 필드 검색
-            if (request.getCode() != null && !request.getCode().isEmpty()) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("code")), 
-                        "%" + request.getCode().toLowerCase() + "%"
                 ));
             }
             
-            if (request.getName() != null && !request.getName().isEmpty()) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("name")), 
-                        "%" + request.getName().toLowerCase() + "%"
-                ));
-            }
-            
-            if (request.getManufacturer() != null && !request.getManufacturer().isEmpty()) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("manufacturer")), 
-                        "%" + request.getManufacturer().toLowerCase() + "%"
-                ));
-            }
-            
-            if (request.getCategory() != null && !request.getCategory().isEmpty()) {
+            if (request.getCategory() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("category"), request.getCategory()));
-            }
-            
-            if (request.getIsPrescriptionRequired() != null) {
-                predicates.add(criteriaBuilder.equal(
-                        root.get("isPrescriptionRequired"), 
-                        request.getIsPrescriptionRequired()
-                ));
             }
             
             if (request.getIsActive() != null) {
@@ -349,9 +320,9 @@ public class MedicineService {
     private String determineStockStatus(int currentStock, int minStock) {
         if (currentStock == 0) {
             return "OUT_OF_STOCK";
-        } else if (currentStock < minStock * 0.5) {
+        } else if (minStock > 0 && currentStock < minStock * 0.5) {
             return "CRITICAL";
-        } else if (currentStock < minStock) {
+        } else if (minStock > 0 && currentStock < minStock) {
             return "LOW";
         } else {
             return "SUFFICIENT";

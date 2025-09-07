@@ -1,8 +1,8 @@
 package com.pharma.inventory.dto.response;
 
 import com.pharma.inventory.entity.StockTransaction;
-import com.pharma.inventory.entity.StockTransaction.TransactionReason;
-import com.pharma.inventory.entity.StockTransaction.TransactionType;
+import com.pharma.inventory.entity.TransactionReason;
+import com.pharma.inventory.entity.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

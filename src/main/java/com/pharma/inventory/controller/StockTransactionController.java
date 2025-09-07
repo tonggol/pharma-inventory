@@ -8,6 +8,8 @@ import com.pharma.inventory.dto.request.StockTransactionRequest;
 import com.pharma.inventory.dto.request.TransactionSearchRequest;
 import com.pharma.inventory.dto.response.StockTransactionResponse;
 import com.pharma.inventory.entity.StockTransaction;
+import com.pharma.inventory.entity.TransactionType;
+import com.pharma.inventory.entity.TransactionReason;
 import com.pharma.inventory.service.StockTransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -111,7 +113,7 @@ public class StockTransactionController {
         log.info("입고 처리 - 의약품ID: {}, 수량: {}", request.getMedicineId(), request.getQuantity());
 
         // 트랜잭션 타입을 INBOUND로 설정
-        request.setTransactionType(StockTransaction.TransactionType.INBOUND);
+        request.setTransactionType(TransactionType.INBOUND);
 
         StockTransactionResponse transaction = stockTransactionService.processTransaction(request);
 
@@ -132,7 +134,7 @@ public class StockTransactionController {
         log.info("출고 처리 - 의약품ID: {}, 수량: {}", request.getMedicineId(), request.getQuantity());
 
         // 트랜잭션 타입을 OUTBOUND로 설정
-        request.setTransactionType(StockTransaction.TransactionType.OUTBOUND);
+        request.setTransactionType(TransactionType.OUTBOUND);
 
         StockTransactionResponse transaction = stockTransactionService.processTransaction(request);
 
@@ -152,7 +154,7 @@ public class StockTransactionController {
 
         log.info("재고 조정 - 의약품ID: {}, 수량: {}", request.getMedicineId(), request.getQuantity());
 
-        request.setTransactionType(StockTransaction.TransactionType.ADJUSTMENT);
+        request.setTransactionType(TransactionType.ADJUSTMENT);
 
         StockTransactionResponse transaction = stockTransactionService.processTransaction(request);
 
@@ -172,7 +174,7 @@ public class StockTransactionController {
 
         log.info("반품 처리 - 의약품ID: {}, 수량: {}", request.getMedicineId(), request.getQuantity());
 
-        request.setTransactionType(StockTransaction.TransactionType.RETURN);
+        request.setTransactionType(TransactionType.RETURN);
 
         StockTransactionResponse transaction = stockTransactionService.processTransaction(request);
 
@@ -192,7 +194,7 @@ public class StockTransactionController {
 
         log.info("폐기 처리 - 의약품ID: {}, 수량: {}", request.getMedicineId(), request.getQuantity());
 
-        request.setTransactionType(StockTransaction.TransactionType.DISPOSAL);
+        request.setTransactionType(TransactionType.DISPOSAL);
 
         StockTransactionResponse transaction = stockTransactionService.processTransaction(request);
 
@@ -212,7 +214,7 @@ public class StockTransactionController {
 
         log.info("재고 이동 - 의약품ID: {}, 수량: {}", request.getMedicineId(), request.getQuantity());
 
-        request.setTransactionType(StockTransaction.TransactionType.TRANSFER);
+        request.setTransactionType(TransactionType.TRANSFER);
 
         StockTransactionResponse transaction = stockTransactionService.processTransaction(request);
 
@@ -407,8 +409,8 @@ public class StockTransactionController {
         private LocalDate startDate;
         private LocalDate endDate;
         private Long totalTransactions;
-        private Map<StockTransaction.TransactionType, Long> transactionsByType;
-        private Map<StockTransaction.TransactionReason, Long> transactionsByReason;
+        private Map<TransactionType, Long> transactionsByType;
+        private Map<TransactionReason, Long> transactionsByReason;
         private Long totalQuantityIn;
         private Long totalQuantityOut;
         private Long netQuantityChange;

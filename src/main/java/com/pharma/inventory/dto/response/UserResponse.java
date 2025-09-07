@@ -1,7 +1,7 @@
 package com.pharma.inventory.dto.response;
 
 import com.pharma.inventory.entity.User;
-import com.pharma.inventory.entity.User.UserRole;
+import com.pharma.inventory.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

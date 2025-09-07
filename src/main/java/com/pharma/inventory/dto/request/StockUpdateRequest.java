@@ -1,6 +1,6 @@
 package com.pharma.inventory.dto.request;
 
-import com.pharma.inventory.entity.Stock.StockStatus;
+import com.pharma.inventory.entity.StockStatus;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

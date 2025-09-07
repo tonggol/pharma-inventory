@@ -7,7 +7,7 @@ import com.pharma.inventory.dto.request.PasswordChangeRequest;
 import com.pharma.inventory.dto.request.UserRegisterRequest;
 import com.pharma.inventory.dto.request.UserUpdateRequest;
 import com.pharma.inventory.dto.response.UserResponse;
-import com.pharma.inventory.entity.User;
+import com.pharma.inventory.entity.UserRole;
 import com.pharma.inventory.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -275,7 +275,7 @@ public class UserController {
 
         log.info("권한별 사용자 조회 - 권한: {}", role);
 
-        User.UserRole userRole = User.UserRole.valueOf(role.toUpperCase());
+        UserRole userRole = UserRole.valueOf(role.toUpperCase());
         List<UserResponse> users = userService.getUsersByRole(userRole);
 
         return ResponseEntity.ok(ApiResponse.success(users,
@@ -384,7 +384,7 @@ public class UserController {
         log.info("사용자 역할 변경 - ID: {}, 새 역할: {}", id, role);
 
         UserUpdateRequest updateRequest = UserUpdateRequest.builder()
-                .role(User.UserRole.valueOf(role.toUpperCase()))
+                .role(UserRole.valueOf(role.toUpperCase()))
                 .build();
 
         UserResponse user = userService.updateUser(id, updateRequest);
@@ -396,7 +396,7 @@ public class UserController {
     /**
      * 역할별 권한 조회
      */
-    private Map<String, Boolean> getPermissionsByRole(User.UserRole role) {
+    private Map<String, Boolean> getPermissionsByRole(UserRole role) {
         Map<String, Boolean> permissions = new java.util.HashMap<>();
 
         switch (role) {

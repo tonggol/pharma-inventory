@@ -1,9 +1,8 @@
 package com.pharma.inventory.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -16,13 +15,13 @@ import java.time.LocalDateTime;
 @Table(name = "stock_transactions",
        indexes = {
            @Index(name = "idx_transaction_date", columnList = "transaction_date"),
-           @Index(name = "idx_transaction_type", columnList = "transaction_type")
+           @Index(name = "idx_transaction_type", columnList = "transaction_type"),
+           @Index(name = "idx_medicine_id", columnList = "medicine_id"),
+           @Index(name = "idx_stock_id", columnList = "stock_id")
        })
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class StockTransaction {
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class StockTransaction extends BaseEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -75,62 +74,105 @@ public class StockTransaction {
     @JoinColumn(name = "created_by")
     private User createdBy;  // 작성자
     
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    // === 생성자 ===
+    public StockTransaction(Medicine medicine, Stock stock, TransactionType type, 
+                          Integer quantity, TransactionReason reason, User createdBy) {
+        validateTransaction(medicine, type, quantity, createdBy);
+        this.medicine = medicine;
+        this.stock = stock;
+        this.transactionType = type;
+        this.quantity = quantity;
+        this.reason = reason;
+        this.createdBy = createdBy;
+        this.transactionDate = LocalDateTime.now();
+    }
+    
+    // === 전체 필드 생성자 (Service용) ===
+    public StockTransaction(Medicine medicine, Stock stock, TransactionType transactionType,
+                          Integer quantity, Integer beforeQuantity, Integer afterQuantity,
+                          LocalDateTime transactionDate, TransactionReason reason) {
+        this.medicine = medicine;
+        this.stock = stock;
+        this.transactionType = transactionType;
+        this.quantity = quantity;
+        this.beforeQuantity = beforeQuantity;
+        this.afterQuantity = afterQuantity;
+        this.transactionDate = transactionDate != null ? transactionDate : LocalDateTime.now();
+        this.reason = reason;
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+    
+    // === 비즈니스 메소드 ===
     
     /**
-     * 거래 유형 Enum
+     * 재고 수량 기록
      */
-    public enum TransactionType {
-        INBOUND("입고"),
-        OUTBOUND("출고"),
-        ADJUSTMENT("조정"),
-        RETURN("반품"),
-        DISPOSAL("폐기"),
-        TRANSFER("이동");
-        
-        private final String description;
-        
-        TransactionType(String description) {
-            this.description = description;
-        }
-        
-        public String getDescription() {
-            return description;
-        }
+    public void recordQuantityChange(Integer before, Integer after) {
+        this.beforeQuantity = before;
+        this.afterQuantity = after;
     }
     
     /**
-     * 거래 사유 Enum
+     * 참조 정보 설정
      */
-    public enum TransactionReason {
-        PURCHASE("구매"),
-        SALES("판매"),
-        PRESCRIPTION("처방"),
-        INVENTORY_CHECK("재고실사"),
-        EXPIRED("유효기간만료"),
-        DAMAGED("파손"),
-        LOST("분실"),
-        SAMPLE("샘플"),
-        DONATION("기부"),
-        OTHER("기타");
-        
-        private final String description;
-        
-        TransactionReason(String description) {
-            this.description = description;
+    public void setReferenceInfo(String referenceNumber, String department) {
+        this.referenceNumber = referenceNumber;
+        this.department = department;
+    }
+    
+    /**
+     * 요청자/승인자 설정
+     */
+    public void setRequesterInfo(String requesterName, String approverName) {
+        this.requesterName = requesterName;
+        this.approverName = approverName;
+    }
+    
+    /**
+     * 비고 설정
+     */
+    public void addRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+    
+    // === Validation ===
+    private void validateTransaction(Medicine medicine, TransactionType type, 
+                                    Integer quantity, User createdBy) {
+        if (medicine == null) {
+            throw new IllegalArgumentException("의약품 정보는 필수입니다");
         }
-        
-        public String getDescription() {
-            return description;
+        if (type == null) {
+            throw new IllegalArgumentException("거래 유형은 필수입니다");
+        }
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("수량은 0보다 커야 합니다");
+        }
+        if (createdBy == null) {
+            throw new IllegalArgumentException("작성자 정보는 필수입니다");
         }
     }
     
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        if (transactionDate == null) {
-            transactionDate = LocalDateTime.now();
-        }
+    // === equals & hashCode ===
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StockTransaction)) return false;
+        StockTransaction that = (StockTransaction) o;
+        return id != null && id.equals(that.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+    
+    // === toString ===
+    @Override
+    public String toString() {
+        return String.format("StockTransaction[id=%d, type=%s, quantity=%d, date=%s]",
+            id, transactionType, quantity, transactionDate);
     }
 }

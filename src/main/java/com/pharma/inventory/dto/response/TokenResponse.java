@@ -3,8 +3,9 @@ package com.pharma.inventory.dto.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +13,8 @@ import java.time.LocalDateTime;
  * JWT 토큰 응답 DTO
  * 로그인 성공 시 클라이언트에게 전달되는 인증 토큰 정보
  */
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -71,7 +73,8 @@ public class TokenResponse {
     /**
      * 토큰에 포함된 사용자 기본 정보
      */
-    @Data
+    @Getter
+    @Setter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor

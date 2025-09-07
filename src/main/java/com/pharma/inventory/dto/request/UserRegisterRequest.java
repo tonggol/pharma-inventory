@@ -1,16 +1,18 @@
 package com.pharma.inventory.dto.request;
 
-import com.pharma.inventory.entity.User.UserRole;
+import com.pharma.inventory.entity.UserRole;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 사용자 등록 요청 DTO
  */
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

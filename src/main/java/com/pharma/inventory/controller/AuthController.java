@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -370,10 +370,11 @@ public class AuthController {
     /**
      * 세션 정보 DTO
      */
-    @lombok.Data
-    @lombok.Builder
-    @lombok.NoArgsConstructor
-    @lombok.AllArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SessionInfo {
         private String sessionId;
         private String deviceInfo;
@@ -387,10 +388,11 @@ public class AuthController {
     /**
      * 토큰 검증 응답 DTO
      */
-    @lombok.Data
-    @lombok.Builder
-    @lombok.NoArgsConstructor
-    @lombok.AllArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class TokenValidationResponse {
         private boolean valid;
         private String username;
@@ -398,15 +400,20 @@ public class AuthController {
         private Long expiresIn;  // 남은 시간 (초)
         private java.time.LocalDateTime issuedAt;
         private java.time.LocalDateTime expiresAt;
+
+        public boolean isValid() {
+            return valid;
+        }
     }
 
     /**
      * 사용자 권한 DTO
      */
-    @lombok.Data
-    @lombok.Builder
-    @lombok.NoArgsConstructor
-    @lombok.AllArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UserPermissions {
         private String username;
         private String role;

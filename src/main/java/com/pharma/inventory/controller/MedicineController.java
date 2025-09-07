@@ -1,8 +1,6 @@
 package com.pharma.inventory.controller;
 
 import com.pharma.inventory.dto.common.ApiResponse;
-import com.pharma.inventory.dto.common.PageRequest;
-import com.pharma.inventory.dto.common.PageResponse;
 import com.pharma.inventory.dto.request.MedicineCreateRequest;
 import com.pharma.inventory.dto.request.MedicineSearchRequest;
 import com.pharma.inventory.dto.request.MedicineUpdateRequest;
@@ -17,12 +15,17 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 의약품 관리 REST API Controller
@@ -43,26 +46,15 @@ public class MedicineController {
      */
     @Operation(summary = "의약품 목록 조회", description = "페이징된 의약품 목록을 조회합니다")
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<MedicineResponse>>> getMedicines(
-            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "20") int size,
-            @Parameter(description = "정렬 기준") @RequestParam(defaultValue = "id") String sortBy,
-            @Parameter(description = "정렬 방향") @RequestParam(defaultValue = "DESC") String direction) {
+    public ResponseEntity<Page<MedicineResponse>> getMedicines(
+            @PageableDefault(size = 20)
+            @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        log.info("의약품 목록 조회 요청 - page: {}, size: {}, sortBy: {}, direction: {}",
-                page, size, sortBy, direction);
+        log.info("의약품 목록 조회 요청 - page: {}, size: {}", 
+                pageable.getPageNumber(), pageable.getPageSize());
 
-        PageRequest pageRequest = PageRequest.builder()
-                .page(page)
-                .size(size)
-                .sortBy(sortBy)
-                .direction(org.springframework.data.domain.Sort.Direction.valueOf(direction))
-                .build();
-
-        Page<MedicineResponse> medicines = medicineService.getMedicines(pageRequest.toPageable());
-        PageResponse<MedicineResponse> pageResponse = PageResponse.from(medicines);
-
-        return ResponseEntity.ok(ApiResponse.success(pageResponse));
+        Page<MedicineResponse> medicines = medicineService.getMedicines(pageable);
+        return ResponseEntity.ok(medicines);
     }
 
     /**
@@ -70,19 +62,14 @@ public class MedicineController {
      */
     @Operation(summary = "의약품 검색", description = "조건에 따라 의약품을 검색합니다")
     @PostMapping("/search")
-    public ResponseEntity<ApiResponse<PageResponse<MedicineResponse>>> searchMedicines(
+    public ResponseEntity<Page<MedicineResponse>> searchMedicines(
             @Valid @RequestBody MedicineSearchRequest searchRequest,
-            @Parameter(description = "페이지 정보") @ModelAttribute PageRequest pageRequest) {
+            @PageableDefault(size = 20) Pageable pageable) {
 
         log.info("의약품 검색 요청 - 검색조건: {}", searchRequest);
 
-        Page<MedicineResponse> results = medicineService.searchMedicines(
-                searchRequest, pageRequest.toPageable());
-
-        return ResponseEntity.ok(ApiResponse.success(
-                PageResponse.from(results),
-                String.format("%d개의 의약품이 검색되었습니다", results.getTotalElements())
-        ));
+        Page<MedicineResponse> results = medicineService.searchMedicines(searchRequest, pageable);
+        return ResponseEntity.ok(results);
     }
 
     /**
@@ -132,20 +119,39 @@ public class MedicineController {
     }
 
     /**
-     * 의약품 수정
+     * 의약품 전체 수정 (PUT)
+     * 전체 리소스를 교체합니다
      */
-    @Operation(summary = "의약품 수정", description = "의약품 정보를 수정합니다")
+    @Operation(summary = "의약품 전체 수정", description = "의약품 정보를 완전히 교체합니다")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'PHARMACIST')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<ApiResponse<MedicineResponse>> updateMedicine(
             @Parameter(description = "의약품 ID", required = true) @PathVariable Long id,
             @Valid @RequestBody MedicineUpdateRequest request) {
 
-        log.info("의약품 수정 요청 - ID: {}", id);
+        log.info("의약품 전체 수정 요청 - ID: {}", id);
 
         MedicineResponse updated = medicineService.updateMedicine(id, request);
 
         return ResponseEntity.ok(ApiResponse.success(updated, "의약품 정보가 수정되었습니다"));
+    }
+    
+    /**
+     * 의약품 부분 수정 (PATCH)
+     * 일부 필드만 수정합니다
+     */
+    @Operation(summary = "의약품 부분 수정", description = "의약품 정보를 부분적으로 수정합니다")
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'PHARMACIST')")
+    public ResponseEntity<ApiResponse<MedicineResponse>> patchMedicine(
+            @Parameter(description = "의약품 ID", required = true) @PathVariable Long id,
+            @RequestBody Map<String, Object> updates) {
+
+        log.info("의약품 부분 수정 요청 - ID: {}, 수정 필드: {}", id, updates.keySet());
+
+        MedicineResponse updated = medicineService.patchMedicine(id, updates);
+
+        return ResponseEntity.ok(ApiResponse.success(updated, "의약품 정보가 부분 수정되었습니다"));
     }
 
     /**

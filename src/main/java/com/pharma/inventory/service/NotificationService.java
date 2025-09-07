@@ -2,6 +2,7 @@ package com.pharma.inventory.service;
 
 import com.pharma.inventory.dto.response.NotificationResponse;
 import com.pharma.inventory.entity.User;
+import com.pharma.inventory.entity.UserRole;
 import com.pharma.inventory.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -145,8 +146,8 @@ public class NotificationService {
                                   : NotificationResponse.NotificationPriority.HIGH;
         
         // 관리자와 약사에게만 알림
-        List<User> users = userRepository.findByRole(User.UserRole.ADMIN);
-        users.addAll(userRepository.findByRole(User.UserRole.PHARMACIST));
+        List<User> users = userRepository.findByRole(UserRole.ADMIN);
+        users.addAll(userRepository.findByRole(UserRole.PHARMACIST));
         
         for (User user : users) {
             createNotification(user.getUsername(), 
@@ -178,8 +179,8 @@ public class NotificationService {
                 NotificationResponse.NotificationPriority.HIGH;
         
         // 관리자와 약사에게만 알림
-        List<User> users = userRepository.findByRole(User.UserRole.ADMIN);
-        users.addAll(userRepository.findByRole(User.UserRole.PHARMACIST));
+        List<User> users = userRepository.findByRole(UserRole.ADMIN);
+        users.addAll(userRepository.findByRole(UserRole.PHARMACIST));
         
         for (User user : users) {
             createNotification(user.getUsername(), type, priority,
@@ -198,7 +199,7 @@ public class NotificationService {
                 requester, transactionType);
         
         // 관리자에게만 알림
-        List<User> admins = userRepository.findByRole(User.UserRole.ADMIN);
+        List<User> admins = userRepository.findByRole(UserRole.ADMIN);
         
         for (User admin : admins) {
             createNotification(admin.getUsername(), 

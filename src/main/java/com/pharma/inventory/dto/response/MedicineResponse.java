@@ -1,17 +1,14 @@
 package com.pharma.inventory.dto.response;
 
 import com.pharma.inventory.entity.Medicine;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 /**
  * 의약품 응답 DTO
  */
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

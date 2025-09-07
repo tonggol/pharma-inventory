@@ -5,6 +5,7 @@ import com.pharma.inventory.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,30 +28,127 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Spring Security 설정
- * JWT 기반 인증 및 권한 관리
- */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true) // 메소드 보안 활성화
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthEntryPoint;
     private final UserDetailsService userDetailsService;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    /**
-     * 비밀번호 인코더 빈
-     */
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            // CSRF 비활성화 (JWT 사용)
+            .csrf(AbstractHttpConfigurer::disable)
+            
+            // CORS 설정
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
+            // 세션 관리 설정 (STATELESS - JWT 사용)
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            
+            // 예외 처리
+            .exceptionHandling(exception -> 
+                exception.authenticationEntryPoint(jwtAuthEntryPoint)
+            )
+            
+            // H2 Console을 위한 설정 (개발 환경에서만 사용)
+            .headers(headers -> 
+                headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+            )
+            
+            // URL 기반 권한 설정
+            .authorizeHttpRequests(auth -> auth
+                // 공개 API
+                .requestMatchers(
+                    "/api/auth/**", 
+                    "/api/public/**",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-resources/**",
+                    "/webjars/**"
+                ).permitAll()
+                
+                // H2 Console (개발 환경)
+                .requestMatchers("/h2-console/**").permitAll()
+                
+                // 의약품 조회는 모든 인증 사용자
+                .requestMatchers(HttpMethod.GET, "/api/medicines/**").authenticated()
+                
+                // 의약품 생성/수정/삭제는 ADMIN만
+                .requestMatchers(HttpMethod.POST, "/api/medicines/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/medicines/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/medicines/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/medicines/**").hasRole("ADMIN")
+                
+                // 재고 관리는 MANAGER 이상
+                .requestMatchers("/api/stocks/**").hasAnyRole("MANAGER", "ADMIN")
+                
+                // 리포트는 인증된 사용자
+                .requestMatchers("/api/reports/**").authenticated()
+                
+                // Actuator endpoints
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
+                
+                // 나머지는 인증 필요
+                .anyRequest().authenticated()
+            )
+            
+            // JWT 필터 추가
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            
+            // Authentication Provider 설정
+            .authenticationProvider(authenticationProvider());
+        
+        return http.build();
     }
 
     /**
-     * AuthenticationProvider 빈
+     * CORS 설정
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // 허용할 Origin (프론트엔드 개발 서버)
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",
+            "http://localhost:8080"
+        ));
+        
+        // 허용할 HTTP 메소드
+        configuration.setAllowedMethods(Arrays.asList(
+            "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+        ));
+        
+        // 허용할 헤더
+        configuration.setAllowedHeaders(List.of("*"));
+        
+        // 인증 정보 허용
+        configuration.setAllowCredentials(true);
+        
+        // 노출할 헤더
+        configuration.setExposedHeaders(Arrays.asList(
+            "Authorization",
+            "Content-Type",
+            "X-Total-Count"
+        ));
+        
+        // 설정을 적용할 URL 패턴
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        
+        return source;
+    }
+
+    /**
+     * 인증 Provider 설정
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -60,145 +159,19 @@ public class SecurityConfig {
     }
 
     /**
-     * AuthenticationManager 빈
+     * 인증 Manager
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) 
+            throws Exception {
         return config.getAuthenticationManager();
     }
 
     /**
-     * Security Filter Chain 설정
+     * 패스워드 인코더
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                // CSRF 비활성화 (JWT 사용)
-                .csrf(AbstractHttpConfigurer::disable)
-
-                // CORS 설정
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // 세션 관리 정책 설정 (STATELESS - JWT 사용)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
-                // 인증 예외 처리
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                )
-
-                // URL별 접근 권한 설정
-                .authorizeHttpRequests(auth -> auth
-                        // 공개 API (인증 불필요)
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/auth/register",
-                                "/api/auth/refresh",
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password",
-                                "/api/auth/verify-email"
-                        ).permitAll()
-
-                        // Swagger UI (개발 환경에서만)
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
-
-                        // 정적 리소스
-                        .requestMatchers(
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/favicon.ico"
-                        ).permitAll()
-
-                        // 건강 체크 엔드포인트
-                        .requestMatchers(
-                                "/actuator/health",
-                                "/actuator/info"
-                        ).permitAll()
-
-                        // 관리자 전용 API
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
-                        // 사용자 관리 API
-                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // 의약품 관리 API
-                        .requestMatchers(
-                                "/api/medicines/**",
-                                "/api/stocks/**",
-                                "/api/transactions/**"
-                        ).hasAnyRole("ADMIN", "MANAGER", "PHARMACIST")
-
-                        // 보고서 API
-                        .requestMatchers("/api/reports/**").hasAnyRole("ADMIN", "MANAGER", "PHARMACIST", "USER")
-
-                        // 나머지 모든 요청은 인증 필요
-                        .anyRequest().authenticated()
-                )
-
-                // Authentication Provider 설정
-                .authenticationProvider(authenticationProvider())
-
-                // JWT 필터 추가
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
-
-    /**
-     * CORS 설정
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // 허용할 Origin
-        configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000",     // React 개발 서버
-                "http://localhost:8080",     // Spring Boot 개발 서버
-                "http://localhost:4200",     // Angular 개발 서버
-                "https://*.yourdomain.com"  // 프로덕션 도메인
-        ));
-
-        // 허용할 HTTP 메서드
-        configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
-        ));
-
-        // 허용할 헤더
-        configuration.setAllowedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type",
-                "X-Requested-With",
-                "Accept",
-                "Origin",
-                "Access-Control-Request-Method",
-                "Access-Control-Request-Headers"
-        ));
-
-        // 노출할 헤더
-        configuration.setExposedHeaders(Arrays.asList(
-                "Access-Control-Allow-Origin",
-                "Access-Control-Allow-Credentials",
-                "Authorization"
-        ));
-
-        // 인증 정보 포함 허용
-        configuration.setAllowCredentials(true);
-
-        // Preflight 요청 캐시 시간 (초)
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

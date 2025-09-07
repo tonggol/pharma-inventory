@@ -1,6 +1,6 @@
 package com.pharma.inventory.dto.request;
 
-import com.pharma.inventory.entity.User.UserRole;
+import com.pharma.inventory.entity.UserRole;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

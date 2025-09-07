@@ -4,6 +4,7 @@ import com.pharma.inventory.dto.request.UserRegisterRequest;
 import com.pharma.inventory.dto.request.UserUpdateRequest;
 import com.pharma.inventory.dto.response.UserResponse;
 import com.pharma.inventory.entity.User;
+import com.pharma.inventory.entity.UserRole;
 import com.pharma.inventory.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -108,19 +109,22 @@ public class UserService {
             throw new IllegalArgumentException("이미 등록된 사원번호입니다: " + request.getEmployeeId());
         }
 
-        // 사용자 생성
-        User user = User.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .email(request.getEmail())
-                .fullName(request.getFullName())
-                .employeeId(request.getEmployeeId())
-                .department(request.getDepartment())
-                .position(request.getPosition())
-                .phoneNumber(request.getPhoneNumber())
-                .role(request.getRole())
-                .isActive(true)
-                .build();
+        // 사용자 생성 - 생성자 사용
+        User user = new User(
+            request.getUsername(),
+            passwordEncoder.encode(request.getPassword()),
+            request.getEmail(),
+            request.getFullName(),
+            request.getRole()
+        );
+        
+        // 추가 정보 설정
+        user.updateUserInfo(
+            request.getFullName(),
+            request.getDepartment(),
+            request.getPosition(),
+            request.getPhoneNumber()
+        );
 
         User savedUser = userRepository.save(user);
         log.info("사용자 등록 완료 - ID: {}, 사용자명: {}", savedUser.getId(), savedUser.getUsername());
@@ -143,27 +147,25 @@ public class UserService {
             if (userRepository.existsByEmail(request.getEmail())) {
                 throw new IllegalArgumentException("이미 사용 중인 이메일입니다: " + request.getEmail());
             }
-            user.setEmail(request.getEmail());
+            user.updateEmail(request.getEmail());
         }
 
-        // 수정 가능한 필드 업데이트
-        if (request.getFullName() != null) {
-            user.setFullName(request.getFullName());
-        }
-        if (request.getDepartment() != null) {
-            user.setDepartment(request.getDepartment());
-        }
-        if (request.getPosition() != null) {
-            user.setPosition(request.getPosition());
-        }
-        if (request.getPhoneNumber() != null) {
-            user.setPhoneNumber(request.getPhoneNumber());
-        }
+        // 사용자 정보 업데이트
+        user.updateUserInfo(
+                request.getFullName(),
+                request.getDepartment(),
+                request.getPosition(),
+                request.getPhoneNumber()
+        );
+
+        // 역할 업데이트
         if (request.getRole() != null) {
-            user.setRole(request.getRole());
+            user.updateRole(request.getRole());
         }
+        
+        // 활성 상태 업데이트
         if (request.getIsActive() != null) {
-            user.setIsActive(request.getIsActive());
+            user.setActiveStatus(request.getIsActive());
         }
 
         User updatedUser = userRepository.save(user);
@@ -182,7 +184,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + id));
 
-        user.setIsActive(false);
+        user.deactivate();
         userRepository.save(user);
 
         log.info("사용자 비활성화 완료 - ID: {}", id);
@@ -198,7 +200,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + id));
 
-        user.setIsActive(true);
+        user.activate();
         userRepository.save(user);
 
         log.info("사용자 활성화 완료 - ID: {}", id);
@@ -265,7 +267,7 @@ public class UserService {
     /**
      * 권한별 사용자 조회
      */
-    public List<UserResponse> getUsersByRole(User.UserRole role) {
+    public List<UserResponse> getUsersByRole(UserRole role) {
         log.debug("권한별 사용자 조회 - 권한: {}", role);
 
         List<User> users = userRepository.findByRole(role);

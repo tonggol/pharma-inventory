@@ -2,6 +2,7 @@ package com.pharma.inventory.repository;
 
 import com.pharma.inventory.entity.Medicine;
 import com.pharma.inventory.entity.Stock;
+import com.pharma.inventory.entity.StockStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -40,15 +41,15 @@ public interface StockRepository extends JpaRepository<Stock, Long>, JpaSpecific
     Optional<Stock> findByMedicineAndLotNumber(Medicine medicine, String lotNumber);
     
     /**
-     * 사용 가능한 재고만 조회 (상태가 AVAILABLE)
+     * 사용 가능한 재고만 조회
      */
-    @Query("SELECT s FROM Stock s WHERE s.status = 'AVAILABLE'")
+    @Query("SELECT s FROM Stock s WHERE s.status = com.pharma.inventory.entity.StockStatus.AVAILABLE")
     List<Stock> findAvailableStocks();
     
     /**
      * 의약품별 사용 가능한 재고 조회
      */
-    @Query("SELECT s FROM Stock s WHERE s.medicine = :medicine AND s.status = 'AVAILABLE' AND s.quantity > 0")
+    @Query("SELECT s FROM Stock s WHERE s.medicine = :medicine AND s.status = com.pharma.inventory.entity.StockStatus.AVAILABLE AND s.quantity > 0")
     List<Stock> findAvailableStocksByMedicine(@Param("medicine") Medicine medicine);
     
     /**
@@ -60,24 +61,24 @@ public interface StockRepository extends JpaRepository<Stock, Long>, JpaSpecific
     /**
      * 유효기간이 임박한 재고 조회 (N일 이내)
      */
-    @Query("SELECT s FROM Stock s WHERE s.expiryDate BETWEEN :currentDate AND :limitDate AND s.status = 'AVAILABLE'")
+    @Query("SELECT s FROM Stock s WHERE s.expiryDate BETWEEN :currentDate AND :limitDate AND s.status = com.pharma.inventory.entity.StockStatus.AVAILABLE")
     List<Stock> findExpiringSoonStocks(@Param("currentDate") LocalDate currentDate, 
                                        @Param("limitDate") LocalDate limitDate);
     
     /**
-     * 재고 부족 의약품 조회 (최소 재고 수량 이하)
+     * 재고 부족 의약품 조회 (최소 재고 수준 이하)
      */
     @Query("SELECT s.medicine, SUM(s.quantity) as totalQuantity " +
            "FROM Stock s " +
-           "WHERE s.status = 'AVAILABLE' " +
+           "WHERE s.status = com.pharma.inventory.entity.StockStatus.AVAILABLE " +
            "GROUP BY s.medicine " +
-           "HAVING SUM(s.quantity) <= s.medicine.minStockQuantity")
+           "HAVING SUM(s.quantity) <= s.medicine.minStockLevel")
     List<Object[]> findLowStockMedicines();
     
     /**
      * 의약품별 총 재고 수량 계산
      */
-    @Query("SELECT SUM(s.quantity) FROM Stock s WHERE s.medicine = :medicine AND s.status = 'AVAILABLE'")
+    @Query("SELECT SUM(s.quantity) FROM Stock s WHERE s.medicine = :medicine AND s.status = com.pharma.inventory.entity.StockStatus.AVAILABLE")
     Integer getTotalQuantityByMedicine(@Param("medicine") Medicine medicine);
     
     /**
@@ -111,17 +112,29 @@ public interface StockRepository extends JpaRepository<Stock, Long>, JpaSpecific
     /**
      * 유효기간이 가장 빠른 재고부터 조회 (FEFO - First Expired First Out)
      */
-    @Query("SELECT s FROM Stock s WHERE s.medicine = :medicine AND s.status = 'AVAILABLE' AND s.quantity > 0 ORDER BY s.expiryDate ASC")
+    @Query("SELECT s FROM Stock s WHERE s.medicine = :medicine AND s.status = com.pharma.inventory.entity.StockStatus.AVAILABLE AND s.quantity > 0 ORDER BY s.expiryDate ASC")
     List<Stock> findAvailableStocksByMedicineOrderByExpiryDate(@Param("medicine") Medicine medicine);
     
     /**
      * 상태별 재고 조회
      */
-    List<Stock> findByStatus(Stock.StockStatus status);
+    List<Stock> findByStatus(StockStatus status);
     
     /**
      * 만료 예정 재고 조회 (지정 날짜까지)
      */
-    @Query("SELECT s FROM Stock s WHERE s.expiryDate <= :expiryDate AND s.expiryDate >= CURRENT_DATE")
+    @Query("SELECT s FROM Stock s WHERE s.expiryDate <= :expiryDate AND s.expiryDate >= CURRENT_DATE AND s.status != com.pharma.inventory.entity.StockStatus.EXPIRED")
     List<Stock> findExpiringStocks(@Param("expiryDate") LocalDate expiryDate);
+    
+    /**
+     * 의약품별 재고 존재 여부 확인
+     */
+    boolean existsByMedicineAndStatusAndQuantityGreaterThan(Medicine medicine, StockStatus status, Integer quantity);
+    
+    /**
+     * 의약품별 활성 재고 총량 조회 (Native Query 예제)
+     */
+    @Query(value = "SELECT COALESCE(SUM(s.quantity), 0) FROM stocks s WHERE s.medicine_id = :medicineId AND s.status = 'AVAILABLE'", 
+           nativeQuery = true)
+    Integer getTotalAvailableQuantityByMedicineId(@Param("medicineId") Long medicineId);
 }

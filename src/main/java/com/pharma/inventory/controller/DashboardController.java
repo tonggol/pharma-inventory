@@ -2,7 +2,10 @@ package com.pharma.inventory.controller;
 
 import com.pharma.inventory.dto.common.ApiResponse;
 import com.pharma.inventory.dto.response.DashboardResponse;
+import com.pharma.inventory.dto.response.DashboardSummary;
+import com.pharma.inventory.dto.response.MedicineStockStatus;
 import com.pharma.inventory.dto.response.NotificationResponse;
+import com.pharma.inventory.dto.response.StockAlerts;
 import com.pharma.inventory.dto.response.StockResponse;
 import com.pharma.inventory.dto.response.StockTransactionResponse;
 import com.pharma.inventory.service.DashboardService;
@@ -58,11 +61,11 @@ public class DashboardController {
     @Operation(summary = "요약 정보", description = "대시보드 요약 통계를 조회합니다")
     @GetMapping("/summary")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<DashboardResponse.DashboardSummary>> getSummary() {
+    public ResponseEntity<ApiResponse<DashboardSummary>> getSummary() {
 
         log.info("대시보드 요약 조회");
 
-        DashboardResponse.DashboardSummary summary = dashboardService.getSummary();
+        DashboardSummary summary = dashboardService.getSummary();
 
         return ResponseEntity.ok(ApiResponse.success(summary));
     }
@@ -73,11 +76,11 @@ public class DashboardController {
     @Operation(summary = "재고 알림", description = "재고 관련 알림을 조회합니다")
     @GetMapping("/alerts")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<DashboardResponse.StockAlerts>> getStockAlerts() {
+    public ResponseEntity<ApiResponse<StockAlerts>> getStockAlerts() {
 
         log.info("재고 알림 조회");
 
-        DashboardResponse.StockAlerts alerts = dashboardService.getStockAlerts();
+        StockAlerts alerts = dashboardService.getStockAlerts();
 
         return ResponseEntity.ok(ApiResponse.success(alerts));
     }
@@ -121,11 +124,11 @@ public class DashboardController {
     @Operation(summary = "재고 부족 의약품", description = "재고가 부족한 의약품 목록을 조회합니다")
     @GetMapping("/low-stock-medicines")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<DashboardResponse.MedicineStockStatus>>> getLowStockMedicines() {
+    public ResponseEntity<ApiResponse<List<MedicineStockStatus>>> getLowStockMedicines() {
 
         log.info("재고 부족 의약품 조회");
 
-        List<DashboardResponse.MedicineStockStatus> medicines = dashboardService.getLowStockMedicines();
+        List<MedicineStockStatus> medicines = dashboardService.getLowStockMedicines();
 
         return ResponseEntity.ok(ApiResponse.success(medicines,
                 String.format("%d개의 의약품이 재고 부족 상태입니다", medicines.size())));

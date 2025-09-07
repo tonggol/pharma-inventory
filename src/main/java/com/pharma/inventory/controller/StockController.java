@@ -10,6 +10,7 @@ import com.pharma.inventory.dto.request.StockSearchRequest;
 import com.pharma.inventory.dto.request.StockUpdateRequest;
 import com.pharma.inventory.dto.response.StockResponse;
 import com.pharma.inventory.entity.Stock;
+import com.pharma.inventory.entity.StockStatus;
 import com.pharma.inventory.service.StockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -206,11 +207,11 @@ public class StockController {
      */
     @Operation(summary = "재고 상태별 통계", description = "재고 상태별 수량 통계를 조회합니다")
     @GetMapping("/statistics/status")
-    public ResponseEntity<ApiResponse<Map<Stock.StockStatus, StockStatusStatistics>>> getStockStatusStatistics() {
+    public ResponseEntity<ApiResponse<Map<StockStatus, StockStatusStatistics>>> getStockStatusStatistics() {
 
         log.info("재고 상태별 통계 조회 요청");
 
-        Map<Stock.StockStatus, StockStatusStatistics> statistics = stockService.getStockStatusStatistics();
+        Map<StockStatus, StockStatusStatistics> statistics = stockService.getStockStatusStatistics();
 
         return ResponseEntity.ok(ApiResponse.success(statistics));
     }
@@ -303,7 +304,7 @@ public class StockController {
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
     public static class StockStatusStatistics {
-        private Stock.StockStatus status;
+        private StockStatus status;
         private String statusDescription;
         private Long count;
         private Long totalQuantity;

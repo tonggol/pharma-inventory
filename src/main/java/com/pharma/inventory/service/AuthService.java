@@ -175,18 +175,21 @@ public class AuthService {
         }
 
         // 사용자 생성
-        User user = User.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .email(request.getEmail())
-                .fullName(request.getFullName())
-                .employeeId(request.getEmployeeId())
-                .department(request.getDepartment())
-                .position(request.getPosition())
-                .phoneNumber(request.getPhoneNumber())
-                .role(request.getRole())
-                .isActive(true)
-                .build();
+        User user = new User(
+                request.getUsername(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getEmail(),
+                request.getFullName(),
+                request.getRole()
+        );
+        
+        // 추가 정보 설정
+        user.updateUserInfo(
+                request.getFullName(),
+                request.getDepartment(),
+                request.getPosition(),
+                request.getPhoneNumber()
+        );
 
         User savedUser = userRepository.save(user);
 

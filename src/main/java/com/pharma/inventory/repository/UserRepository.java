@@ -1,6 +1,9 @@
 package com.pharma.inventory.repository;
 
 import com.pharma.inventory.entity.User;
+import com.pharma.inventory.entity.UserRole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -41,7 +44,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * 권한별 사용자 조회
      */
-    List<User> findByRole(User.UserRole role);
+    List<User> findByRole(UserRole role);
     
     /**
      * 활성 사용자만 조회
@@ -95,13 +98,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * 부서와 권한으로 사용자 조회
      */
-    List<User> findByDepartmentAndRole(String department, User.UserRole role);
+    List<User> findByDepartmentAndRole(String department, UserRole role);
     
     /**
      * 최근 로그인한 사용자 조회
      */
     @Query("SELECT u FROM User u WHERE u.lastLoginAt IS NOT NULL ORDER BY u.lastLoginAt DESC")
-    List<User> findRecentlyLoggedInUsers(org.springframework.data.domain.Pageable pageable);
+    Page<User> findRecentlyLoggedInUsers(Pageable pageable);
     
     /**
      * 권한별 사용자 수 집계
@@ -120,4 +123,40 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Query("SELECT u FROM User u WHERE u.lastLoginAt < :inactiveDate OR u.lastLoginAt IS NULL")
     List<User> findInactiveUsers(@Param("inactiveDate") LocalDateTime inactiveDate);
+    
+    /**
+     * 비밀번호 재설정이 필요한 사용자 조회
+     */
+    @Query("SELECT u FROM User u WHERE u.passwordChangedAt < :expiryDate AND u.isActive = true")
+    List<User> findUsersWithExpiredPassword(@Param("expiryDate") LocalDateTime expiryDate);
+    
+    /**
+     * 특정 권한을 가진 활성 사용자 수
+     */
+    long countByRoleAndIsActive(UserRole role, Boolean isActive);
+    
+    /**
+     * 사용자명 또는 이메일로 조회 (로그인용)
+     */
+    @Query("SELECT u FROM User u WHERE (u.username = :identifier OR u.email = :identifier) AND u.isActive = true")
+    Optional<User> findActiveUserByUsernameOrEmail(@Param("identifier") String identifier);
+    
+    /**
+     * 사용자 활성/비활성 토글
+     */
+    @Modifying
+    @Query("UPDATE User u SET u.isActive = :isActive WHERE u.id = :userId")
+    void updateUserActiveStatus(@Param("userId") Long userId, @Param("isActive") Boolean isActive);
+    
+    /**
+     * 사용자 권한 변경
+     */
+    @Modifying
+    @Query("UPDATE User u SET u.role = :role WHERE u.id = :userId")
+    void updateUserRole(@Param("userId") Long userId, @Param("role") UserRole role);
+    
+    /**
+     * 전체 활성 사용자 수
+     */
+    long countByIsActive(Boolean isActive);
 }

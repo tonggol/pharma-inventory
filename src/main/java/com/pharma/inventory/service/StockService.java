@@ -5,7 +5,10 @@ import com.pharma.inventory.dto.request.*;
 import com.pharma.inventory.dto.response.StockResponse;
 import com.pharma.inventory.entity.Medicine;
 import com.pharma.inventory.entity.Stock;
+import com.pharma.inventory.entity.StockStatus;
 import com.pharma.inventory.entity.StockTransaction;
+import com.pharma.inventory.entity.TransactionType;
+import com.pharma.inventory.entity.TransactionReason;
 import com.pharma.inventory.repository.MedicineRepository;
 import com.pharma.inventory.repository.StockRepository;
 import com.pharma.inventory.repository.StockTransactionRepository;
@@ -90,34 +93,34 @@ public class StockService {
             throw new IllegalArgumentException("이미 존재하는 로트번호입니다: " + request.getLotNumber());
         }
         
-        // 재고 생성
-        Stock stock = Stock.builder()
-                .medicine(medicine)
-                .lotNumber(request.getLotNumber())
-                .quantity(request.getQuantity())
-                .expiryDate(request.getExpiryDate())
-                .manufactureDate(request.getManufactureDate())
-                .receivedDate(request.getReceivedDate())
-                .supplierName(request.getSupplierName())
-                .purchasePrice(request.getPurchasePrice())
-                .location(request.getLocation())
-                .status(Stock.StockStatus.AVAILABLE)
-                .remarks(request.getRemarks())
-                .build();
+        // 재고 생성 - 생성자 사용
+        Stock stock = new Stock(
+            medicine,
+            request.getLotNumber(), 
+            request.getQuantity(),
+            request.getManufactureDate(),
+            request.getExpiryDate(),
+            request.getReceivedDate(),
+            request.getLocation(),
+            request.getSupplierName(),
+            request.getPurchasePrice(),
+            StockStatus.AVAILABLE,
+            request.getRemarks()
+        );
         
         Stock saved = stockRepository.save(stock);
         
-        // 입고 트랜잭션 기록
-        StockTransaction transaction = StockTransaction.builder()
-                .medicine(medicine)
-                .stock(saved)
-                .transactionType(StockTransaction.TransactionType.INBOUND)
-                .quantity(request.getQuantity())
-                .beforeQuantity(0)
-                .afterQuantity(request.getQuantity())
-                .transactionDate(LocalDateTime.now())
-                .reason(StockTransaction.TransactionReason.PURCHASE)
-                .build();
+        // 입고 트랜잭션 기록 - 생성자 사용
+        StockTransaction transaction = new StockTransaction(
+            medicine,
+            saved,
+            TransactionType.INBOUND,
+            request.getQuantity(),
+            0,
+            request.getQuantity(),
+            LocalDateTime.now(),
+            TransactionReason.PURCHASE
+        );
         
         transactionRepository.save(transaction);
         
@@ -134,17 +137,18 @@ public class StockService {
         Stock stock = stockRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("재고를 찾을 수 없습니다. ID: " + id));
         
+        // 비즈니스 메서드를 사용한 업데이트
         if (request.getQuantity() != null) {
-            stock.setQuantity(request.getQuantity());
+            stock.adjustQuantity(request.getQuantity());
         }
         if (request.getLocation() != null) {
-            stock.setLocation(request.getLocation());
+            stock.updateLocation(request.getLocation());
         }
         if (request.getStatus() != null) {
-            stock.setStatus(request.getStatus());
+            stock.updateStatus(request.getStatus());
         }
         if (request.getRemarks() != null) {
-            stock.setRemarks(request.getRemarks());
+            stock.updateRemarks(request.getRemarks());
         }
         
         Stock updated = stockRepository.save(stock);
@@ -165,14 +169,15 @@ public class StockService {
             try {
                 Stock stock = stockRepository.findById(stockId).orElseThrow();
                 
+                // 비즈니스 메서드 사용
                 if (request.getStatus() != null) {
-                    stock.setStatus(request.getStatus());
+                    stock.updateStatus(request.getStatus());
                 }
                 if (request.getLocation() != null) {
-                    stock.setLocation(request.getLocation());
+                    stock.updateLocation(request.getLocation());
                 }
                 if (request.getRemarks() != null) {
-                    stock.setRemarks(request.getRemarks());
+                    stock.updateRemarks(request.getRemarks());
                 }
                 
                 stockRepository.save(stock);
@@ -233,18 +238,18 @@ public class StockService {
     /**
      * 재고 상태별 통계
      */
-    public Map<Stock.StockStatus, StockController.StockStatusStatistics> getStockStatusStatistics() {
+    public Map<StockStatus, StockController.StockStatusStatistics> getStockStatusStatistics() {
         log.debug("재고 상태별 통계 조회");
         
-        Map<Stock.StockStatus, StockController.StockStatusStatistics> result = new HashMap<>();
+        Map<StockStatus, StockController.StockStatusStatistics> result = new HashMap<>();
         List<Stock> allStocks = stockRepository.findAll();
         long totalCount = allStocks.size();
         
-        Map<Stock.StockStatus, List<Stock>> groupedByStatus = allStocks.stream()
+        Map<StockStatus, List<Stock>> groupedByStatus = allStocks.stream()
                 .collect(Collectors.groupingBy(Stock::getStatus));
         
-        for (Map.Entry<Stock.StockStatus, List<Stock>> entry : groupedByStatus.entrySet()) {
-            Stock.StockStatus status = entry.getKey();
+        for (Map.Entry<StockStatus, List<Stock>> entry : groupedByStatus.entrySet()) {
+            StockStatus status = entry.getKey();
             List<Stock> stocks = entry.getValue();
             
             long count = stocks.size();
@@ -276,17 +281,17 @@ public class StockService {
                 .findByTransactionDateBetween(startDateTime, endDateTime);
         
         long totalInbound = transactions.stream()
-                .filter(t -> t.getTransactionType() == StockTransaction.TransactionType.INBOUND)
+                .filter(t -> t.getTransactionType() == TransactionType.INBOUND)
                 .mapToLong(StockTransaction::getQuantity)
                 .sum();
         
         long totalOutbound = transactions.stream()
-                .filter(t -> t.getTransactionType() == StockTransaction.TransactionType.OUTBOUND)
+                .filter(t -> t.getTransactionType() == TransactionType.OUTBOUND)
                 .mapToLong(StockTransaction::getQuantity)
                 .sum();
         
         long totalAdjustment = transactions.stream()
-                .filter(t -> t.getTransactionType() == StockTransaction.TransactionType.ADJUSTMENT)
+                .filter(t -> t.getTransactionType() == TransactionType.ADJUSTMENT)
                 .mapToLong(StockTransaction::getQuantity)
                 .sum();
         
@@ -296,9 +301,9 @@ public class StockService {
                 .collect(Collectors.groupingBy(
                         t -> t.getTransactionDate().toLocalDate().toString(),
                         Collectors.summingLong(t -> {
-                            if (t.getTransactionType() == StockTransaction.TransactionType.INBOUND) {
+                            if (t.getTransactionType() == TransactionType.INBOUND) {
                                 return t.getQuantity();
-                            } else if (t.getTransactionType() == StockTransaction.TransactionType.OUTBOUND) {
+                            } else if (t.getTransactionType() == TransactionType.OUTBOUND) {
                                 return -t.getQuantity();
                             }
                             return 0;
@@ -336,22 +341,21 @@ public class StockService {
             int difference = actualQuantity - systemQuantity;
             
             if (difference != 0) {
-                // 차이가 있으면 조정
-                stock.setQuantity(actualQuantity);
+                // 차이가 있으면 조정 - 비즈니스 메서드 사용
+                stock.adjustQuantity(actualQuantity);
                 stockRepository.save(stock);
                 
-                // 조정 트랜잭션 기록
-                StockTransaction transaction = StockTransaction.builder()
-                        .medicine(stock.getMedicine())
-                        .stock(stock)
-                        .transactionType(StockTransaction.TransactionType.ADJUSTMENT)
-                        .quantity(Math.abs(difference))
-                        .beforeQuantity(systemQuantity)
-                        .afterQuantity(actualQuantity)
-                        .transactionDate(LocalDateTime.now())
-                        .reason(StockTransaction.TransactionReason.INVENTORY_CHECK)
-                        .remarks(item.getDiscrepancyReason())
-                        .build();
+                // 조정 트랜잭션 기록 - 생성자 사용
+                StockTransaction transaction = new StockTransaction(
+                    stock.getMedicine(),
+                    stock,
+                    TransactionType.ADJUSTMENT,
+                    Math.abs(difference),
+                    systemQuantity,
+                    actualQuantity,
+                    LocalDateTime.now(),
+                    TransactionReason.INVENTORY_CHECK
+                );
                 
                 transactionRepository.save(transaction);
                 
@@ -506,21 +510,20 @@ public class StockService {
             throw new IllegalArgumentException("이미 존재하는 로트번호입니다: " + stock.getLotNumber());
         }
 
-        stock.setQuantity(quantity);
-        stock.setStatus(Stock.StockStatus.AVAILABLE);
+        stock.adjustQuantity(quantity);
+        stock.updateStatus(StockStatus.AVAILABLE);
         Stock savedStock = stockRepository.save(stock);
 
-        StockTransaction transaction = StockTransaction.builder()
-                .medicine(stock.getMedicine())
-                .stock(savedStock)
-                .transactionType(StockTransaction.TransactionType.INBOUND)
-                .quantity(quantity)
-                .beforeQuantity(0)
-                .afterQuantity(quantity)
-                .transactionDate(LocalDateTime.now())
-                .requesterName(requesterName)
-                .reason(StockTransaction.TransactionReason.PURCHASE)
-                .build();
+        StockTransaction transaction = new StockTransaction(
+                stock.getMedicine(),
+                savedStock,
+                TransactionType.INBOUND,
+                quantity,
+                0,
+                quantity,
+                LocalDateTime.now(),
+                TransactionReason.PURCHASE
+        );
 
         transactionRepository.save(transaction);
 
@@ -558,21 +561,19 @@ public class StockService {
             int stockQuantity = stock.getQuantity();
             int deductQuantity = Math.min(stockQuantity, remainingQuantity);
 
-            stock.setQuantity(stockQuantity - deductQuantity);
+            stock.adjustQuantity(stockQuantity - deductQuantity);
             stockRepository.save(stock);
 
-            StockTransaction transaction = StockTransaction.builder()
-                    .medicine(medicine)
-                    .stock(stock)
-                    .transactionType(StockTransaction.TransactionType.OUTBOUND)
-                    .quantity(deductQuantity)
-                    .beforeQuantity(stockQuantity)
-                    .afterQuantity(stock.getQuantity())
-                    .transactionDate(LocalDateTime.now())
-                    .department(department)
-                    .requesterName(requesterName)
-                    .reason(StockTransaction.TransactionReason.PRESCRIPTION)
-                    .build();
+            StockTransaction transaction = new StockTransaction(
+                    medicine,
+                    stock,
+                    TransactionType.OUTBOUND,
+                    deductQuantity,
+                    stockQuantity,
+                    stock.getQuantity(),
+                    LocalDateTime.now(),
+                    TransactionReason.PRESCRIPTION
+            );
 
             transactionRepository.save(transaction);
 

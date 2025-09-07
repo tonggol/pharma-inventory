@@ -1,17 +1,19 @@
 package com.pharma.inventory.service;
 
-import com.pharma.inventory.controller.DashboardController;
 import com.pharma.inventory.dto.response.DashboardResponse;
+import com.pharma.inventory.dto.response.DashboardSummary;
+import com.pharma.inventory.dto.response.MedicineStockStatus;
+import com.pharma.inventory.dto.response.StockAlerts;
 import com.pharma.inventory.dto.response.StockResponse;
 import com.pharma.inventory.dto.response.StockTransactionResponse;
 import com.pharma.inventory.entity.Medicine;
 import com.pharma.inventory.entity.Stock;
+import com.pharma.inventory.entity.StockStatus;
 import com.pharma.inventory.entity.StockTransaction;
-import com.pharma.inventory.entity.User;
+import com.pharma.inventory.entity.TransactionType;
 import com.pharma.inventory.repository.MedicineRepository;
 import com.pharma.inventory.repository.StockRepository;
 import com.pharma.inventory.repository.StockTransactionRepository;
-import com.pharma.inventory.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +40,6 @@ public class DashboardService {
     private final MedicineRepository medicineRepository;
     private final StockRepository stockRepository;
     private final StockTransactionRepository transactionRepository;
-    private final UserRepository userRepository;
 
     /**
      * 종합 대시보드 데이터 조회
@@ -46,10 +48,10 @@ public class DashboardService {
         log.info("대시보드 데이터 조회 - 사용자: {}", username);
         
         // 요약 정보
-        DashboardResponse.DashboardSummary summary = getSummary();
+        DashboardSummary summary = getSummary();
         
         // 재고 알림
-        DashboardResponse.StockAlerts alerts = getStockAlerts();
+        StockAlerts alerts = getStockAlerts();
         
         // 최근 트랜잭션
         List<StockTransactionResponse> recentTransactions = getRecentActivities(10);
@@ -58,7 +60,7 @@ public class DashboardService {
         List<StockResponse> expiringStocks = getExpiringStocks(30);
         
         // 재고 부족 의약품
-        List<DashboardResponse.MedicineStockStatus> lowStockMedicines = getLowStockMedicines();
+        List<MedicineStockStatus> lowStockMedicines = getLowStockMedicines();
         
         return DashboardResponse.builder()
                 .summary(summary)
@@ -72,7 +74,7 @@ public class DashboardService {
     /**
      * 대시보드 요약 정보
      */
-    public DashboardResponse.DashboardSummary getSummary() {
+    public DashboardSummary getSummary() {
         log.debug("대시보드 요약 정보 조회");
         
         // 총 의약품 수
@@ -90,18 +92,18 @@ public class DashboardService {
                 .findByTransactionDateBetween(startOfDay, endOfDay);
         
         long todayInboundCount = todayTransactions.stream()
-                .filter(t -> t.getTransactionType() == StockTransaction.TransactionType.INBOUND)
+                .filter(t -> t.getTransactionType() == TransactionType.INBOUND)
                 .count();
         
         long todayOutboundCount = todayTransactions.stream()
-                .filter(t -> t.getTransactionType() == StockTransaction.TransactionType.OUTBOUND)
+                .filter(t -> t.getTransactionType() == TransactionType.OUTBOUND)
                 .count();
         
         // 만료 재고
         long expiredCount = stockRepository.findExpiredStocks(LocalDate.now()).size();
         long expiringSoonCount = stockRepository.findExpiringStocks(LocalDate.now().plusDays(30)).size();
         
-        return DashboardResponse.DashboardSummary.builder()
+        return DashboardSummary.builder()
                 .totalMedicines(totalMedicines)
                 .activeMedicines(activeMedicines)
                 .totalStockItems(totalStockItems)
@@ -116,13 +118,13 @@ public class DashboardService {
     /**
      * 재고 알림
      */
-    public DashboardResponse.StockAlerts getStockAlerts() {
+    public StockAlerts getStockAlerts() {
         log.debug("재고 알림 조회");
         
         // 재고 수준별 카운트
         long criticalStockCount = 0;
         long lowStockCount = 0;
-        long quarantineCount = 0;
+        long quarantineCount;
         
         List<Medicine> allMedicines = medicineRepository.findAll();
         for (Medicine medicine : allMedicines) {
@@ -137,13 +139,13 @@ public class DashboardService {
         }
         
         // 격리 재고
-        quarantineCount = stockRepository.findByStatus(Stock.StockStatus.QUARANTINE).size();
+        quarantineCount = stockRepository.findByStatus(StockStatus.QUARANTINE).size();
         
         // 만료 재고
         long expiredCount = stockRepository.findExpiredStocks(LocalDate.now()).size();
         long expiringSoonCount = stockRepository.findExpiringStocks(LocalDate.now().plusDays(30)).size();
         
-        return DashboardResponse.StockAlerts.builder()
+        return StockAlerts.builder()
                 .criticalStockCount(criticalStockCount)
                 .lowStockCount(lowStockCount)
                 .expiredCount(expiredCount)
@@ -184,7 +186,7 @@ public class DashboardService {
     /**
      * 재고 부족 의약품
      */
-    public List<DashboardResponse.MedicineStockStatus> getLowStockMedicines() {
+    public List<MedicineStockStatus> getLowStockMedicines() {
         log.debug("재고 부족 의약품 조회");
         
         List<Medicine> medicines = medicineRepository.findLowStockMedicines();
@@ -196,7 +198,7 @@ public class DashboardService {
                     
                     int minStock = medicine.getMinimumStock();
                     
-                    return DashboardResponse.MedicineStockStatus.builder()
+                    return MedicineStockStatus.builder()
                             .medicineId(medicine.getId())
                             .medicineName(medicine.getName())
                             .medicineCode(medicine.getCode())
@@ -206,7 +208,7 @@ public class DashboardService {
                             .status(calculateStockStatus(currentStock, minStock))
                             .build();
                 })
-                .sorted(Comparator.comparing(DashboardResponse.MedicineStockStatus::getStockPercentage))
+                .sorted(Comparator.comparing(MedicineStockStatus::getStockPercentage))
                 .collect(Collectors.toList());
     }
 
@@ -214,7 +216,8 @@ public class DashboardService {
 
     private double calculateTotalStockValue() {
         return stockRepository.findAll().stream()
-                .mapToDouble(s -> s.getQuantity() * s.getUnitPrice())
+                .filter(s -> s.getPurchasePrice() != null)
+                .mapToDouble(s -> s.getQuantity() * s.getPurchasePrice().doubleValue())
                 .sum();
     }
 

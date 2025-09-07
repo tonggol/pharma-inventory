@@ -7,7 +7,10 @@ import com.pharma.inventory.dto.request.TransactionSearchRequest;
 import com.pharma.inventory.dto.response.StockTransactionResponse;
 import com.pharma.inventory.entity.Medicine;
 import com.pharma.inventory.entity.Stock;
+import com.pharma.inventory.entity.StockStatus;
 import com.pharma.inventory.entity.StockTransaction;
+import com.pharma.inventory.entity.TransactionType;
+import com.pharma.inventory.entity.TransactionReason;
 import com.pharma.inventory.entity.User;
 import com.pharma.inventory.repository.MedicineRepository;
 import com.pharma.inventory.repository.StockRepository;
@@ -103,7 +106,7 @@ public class StockTransactionService {
                 if (request.getStockId() != null) {
                     stock = stockRepository.findById(request.getStockId()).orElseThrow();
                     beforeQuantity = stock.getQuantity();
-                    stock.setQuantity(beforeQuantity + request.getQuantity());
+                    stock.increaseQuantity(request.getQuantity());
                     afterQuantity = stock.getQuantity();
                     stockRepository.save(stock);
                 }
@@ -120,7 +123,7 @@ public class StockTransactionService {
                     stock = stockRepository.findById(request.getStockId()).orElseThrow();
                     beforeQuantity = stock.getQuantity();
                     afterQuantity = request.getQuantity();
-                    stock.setQuantity(afterQuantity);
+                    stock.adjustQuantity(afterQuantity);
                     stockRepository.save(stock);
                 }
                 break;
@@ -130,7 +133,7 @@ public class StockTransactionService {
                 if (request.getStockId() != null) {
                     stock = stockRepository.findById(request.getStockId()).orElseThrow();
                     beforeQuantity = stock.getQuantity();
-                    stock.setQuantity(beforeQuantity + request.getQuantity());
+                    stock.increaseQuantity(request.getQuantity());
                     afterQuantity = stock.getQuantity();
                     stockRepository.save(stock);
                 }
@@ -141,10 +144,11 @@ public class StockTransactionService {
                 if (request.getStockId() != null) {
                     stock = stockRepository.findById(request.getStockId()).orElseThrow();
                     beforeQuantity = stock.getQuantity();
-                    stock.setQuantity(Math.max(0, beforeQuantity - request.getQuantity()));
+                    int deductQuantity = Math.min(beforeQuantity, request.getQuantity());
+                    stock.decreaseQuantity(deductQuantity);
                     afterQuantity = stock.getQuantity();
                     if (afterQuantity == 0) {
-                        stock.setStatus(Stock.StockStatus.EXPIRED);
+                        stock.updateStatus(StockStatus.EXPIRED);
                     }
                     stockRepository.save(stock);
                 }
@@ -159,23 +163,17 @@ public class StockTransactionService {
                 break;
         }
         
-        // 트랜잭션 기록
-        StockTransaction transaction = StockTransaction.builder()
-                .medicine(medicine)
-                .stock(stock)
-                .transactionType(request.getTransactionType())
-                .quantity(request.getQuantity())
-                .beforeQuantity(beforeQuantity)
-                .afterQuantity(afterQuantity)
-                .transactionDate(request.getTransactionDate() != null ? request.getTransactionDate() : LocalDateTime.now())
-                .referenceNumber(request.getReferenceNumber())
-                .department(request.getDepartment())
-                .requesterName(request.getRequesterName())
-                .approverName(request.getApproverName())
-                .reason(request.getReason())
-                .remarks(request.getRemarks())
-                .createdBy(getCurrentUser())
-                .build();
+        // 트랜잭션 기록 - 생성자 사용
+        StockTransaction transaction = new StockTransaction(
+                medicine,
+                stock,
+                request.getTransactionType(),
+                request.getQuantity(),
+                beforeQuantity,
+                afterQuantity,
+                request.getTransactionDate() != null ? request.getTransactionDate() : LocalDateTime.now(),
+                request.getReason()
+        );
         
         StockTransaction saved = transactionRepository.save(transaction);
         return StockTransactionResponse.from(saved);
@@ -242,35 +240,32 @@ public class StockTransactionService {
                 case INBOUND:
                 case RETURN:
                     // 입고/반품 취소: 재고 차감
-                    stock.setQuantity(stock.getQuantity() - original.getQuantity());
+                    stock.decreaseQuantity(original.getQuantity());
                     break;
                 case OUTBOUND:
                 case DISPOSAL:
                     // 출고/폐기 취소: 재고 증가
-                    stock.setQuantity(stock.getQuantity() + original.getQuantity());
+                    stock.increaseQuantity(original.getQuantity());
                     break;
                 case ADJUSTMENT:
                     // 조정 취소: 이전 수량으로 복원
-                    stock.setQuantity(original.getBeforeQuantity());
+                    stock.adjustQuantity(original.getBeforeQuantity());
                     break;
             }
             stockRepository.save(stock);
         }
         
-        // 취소 트랜잭션 생성
-        StockTransaction cancelTx = StockTransaction.builder()
-                .medicine(original.getMedicine())
-                .stock(original.getStock())
-                .transactionType(StockTransaction.TransactionType.ADJUSTMENT)
-                .quantity(original.getQuantity())
-                .beforeQuantity(original.getAfterQuantity())
-                .afterQuantity(original.getBeforeQuantity())
-                .transactionDate(LocalDateTime.now())
-                .referenceNumber("CANCEL-" + original.getId())
-                .reason(StockTransaction.TransactionReason.OTHER)
-                .remarks("트랜잭션 #" + original.getId() + " 취소: " + reason)
-                .createdBy(getCurrentUser())
-                .build();
+        // 취소 트랜잭션 생성 - 생성자 사용
+        StockTransaction cancelTx = new StockTransaction(
+                original.getMedicine(),
+                original.getStock(),
+                TransactionType.ADJUSTMENT,
+                original.getQuantity(),
+                original.getAfterQuantity(),
+                original.getBeforeQuantity(),
+                LocalDateTime.now(),
+                TransactionReason.OTHER
+        );
         
         StockTransaction saved = transactionRepository.save(cancelTx);
         return StockTransactionResponse.from(saved);
@@ -328,10 +323,10 @@ public class StockTransactionService {
         List<StockTransaction> transactions = transactionRepository
                 .findByTransactionDateBetween(startOfDay, endOfDay);
         
-        Map<StockTransaction.TransactionType, Long> countByType = transactions.stream()
+        Map<TransactionType, Long> countByType = transactions.stream()
                 .collect(Collectors.groupingBy(StockTransaction::getTransactionType, Collectors.counting()));
         
-        Map<StockTransaction.TransactionType, Long> quantityByType = transactions.stream()
+        Map<TransactionType, Long> quantityByType = transactions.stream()
                 .collect(Collectors.groupingBy(StockTransaction::getTransactionType,
                         Collectors.summingLong(StockTransaction::getQuantity)));
         
@@ -353,14 +348,14 @@ public class StockTransactionService {
         return StockTransactionController.DailyTransactionStatistics.builder()
                 .date(date)
                 .totalTransactions((long) transactions.size())
-                .inboundCount(countByType.getOrDefault(StockTransaction.TransactionType.INBOUND, 0L))
-                .outboundCount(countByType.getOrDefault(StockTransaction.TransactionType.OUTBOUND, 0L))
-                .adjustmentCount(countByType.getOrDefault(StockTransaction.TransactionType.ADJUSTMENT, 0L))
-                .returnCount(countByType.getOrDefault(StockTransaction.TransactionType.RETURN, 0L))
-                .disposalCount(countByType.getOrDefault(StockTransaction.TransactionType.DISPOSAL, 0L))
-                .transferCount(countByType.getOrDefault(StockTransaction.TransactionType.TRANSFER, 0L))
-                .totalInboundQuantity(quantityByType.getOrDefault(StockTransaction.TransactionType.INBOUND, 0L))
-                .totalOutboundQuantity(quantityByType.getOrDefault(StockTransaction.TransactionType.OUTBOUND, 0L))
+                .inboundCount(countByType.getOrDefault(TransactionType.INBOUND, 0L))
+                .outboundCount(countByType.getOrDefault(TransactionType.OUTBOUND, 0L))
+                .adjustmentCount(countByType.getOrDefault(TransactionType.ADJUSTMENT, 0L))
+                .returnCount(countByType.getOrDefault(TransactionType.RETURN, 0L))
+                .disposalCount(countByType.getOrDefault(TransactionType.DISPOSAL, 0L))
+                .transferCount(countByType.getOrDefault(TransactionType.TRANSFER, 0L))
+                .totalInboundQuantity(quantityByType.getOrDefault(TransactionType.INBOUND, 0L))
+                .totalOutboundQuantity(quantityByType.getOrDefault(TransactionType.OUTBOUND, 0L))
                 .topMedicines(topMedicines)
                 .departmentActivity(departmentActivity)
                 .build();
@@ -378,31 +373,31 @@ public class StockTransactionService {
         List<StockTransaction> transactions = transactionRepository
                 .findByTransactionDateBetween(startDateTime, endDateTime);
         
-        Map<StockTransaction.TransactionType, Long> transactionsByType = transactions.stream()
+        Map<TransactionType, Long> transactionsByType = transactions.stream()
                 .collect(Collectors.groupingBy(StockTransaction::getTransactionType, Collectors.counting()));
         
-        Map<StockTransaction.TransactionReason, Long> transactionsByReason = transactions.stream()
+        Map<TransactionReason, Long> transactionsByReason = transactions.stream()
                 .filter(tx -> tx.getReason() != null)
                 .collect(Collectors.groupingBy(StockTransaction::getReason, Collectors.counting()));
         
         Long totalQuantityIn = transactions.stream()
-                .filter(tx -> tx.getTransactionType() == StockTransaction.TransactionType.INBOUND ||
-                             tx.getTransactionType() == StockTransaction.TransactionType.RETURN)
+                .filter(tx -> tx.getTransactionType() == TransactionType.INBOUND ||
+                             tx.getTransactionType() == TransactionType.RETURN)
                 .mapToLong(StockTransaction::getQuantity)
                 .sum();
         
         Long totalQuantityOut = transactions.stream()
-                .filter(tx -> tx.getTransactionType() == StockTransaction.TransactionType.OUTBOUND ||
-                             tx.getTransactionType() == StockTransaction.TransactionType.DISPOSAL)
+                .filter(tx -> tx.getTransactionType() == TransactionType.OUTBOUND ||
+                             tx.getTransactionType() == TransactionType.DISPOSAL)
                 .mapToLong(StockTransaction::getQuantity)
                 .sum();
         
         // Top Items 계산
         List<StockTransactionController.TransactionSummary.TopItem> topInboundItems = calculateTopItems(
-                transactions, StockTransaction.TransactionType.INBOUND);
+                transactions, TransactionType.INBOUND);
         
         List<StockTransactionController.TransactionSummary.TopItem> topOutboundItems = calculateTopItems(
-                transactions, StockTransaction.TransactionType.OUTBOUND);
+                transactions, TransactionType.OUTBOUND);
         
         return StockTransactionController.TransactionSummary.builder()
                 .startDate(startDate)
@@ -546,7 +541,7 @@ public class StockTransactionService {
      * Top Items 계산
      */
     private List<StockTransactionController.TransactionSummary.TopItem> calculateTopItems(
-            List<StockTransaction> transactions, StockTransaction.TransactionType type) {
+            List<StockTransaction> transactions, TransactionType type) {
         
         Map<Medicine, Long> quantityByMedicine = transactions.stream()
                 .filter(tx -> tx.getTransactionType() == type)

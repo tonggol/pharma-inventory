@@ -1,13 +1,14 @@
 package com.pharma.inventory.dto.request;
 
-import com.pharma.inventory.entity.StockTransaction.TransactionReason;
-import com.pharma.inventory.entity.StockTransaction.TransactionType;
+import com.pharma.inventory.entity.TransactionReason;
+import com.pharma.inventory.entity.TransactionType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +16,8 @@ import java.util.List;
 /**
  * 트랜잭션 일괄 처리 요청 DTO
  */
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,7 +33,8 @@ public class BatchTransactionRequest {
     private String approverName;
     private String remarks;
 
-    @Data
+    @Getter
+    @Setter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
