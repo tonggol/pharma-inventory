@@ -86,8 +86,8 @@ public class JwtTokenProvider {
         }
 
         return Jwts.builder()
-                .setSubject(username)
-                .setClaims(claims)
+                .setClaims(claims)      // 사용자 정의 클레임을 먼저 설정
+                .setSubject(username)   // 그 다음 표준 클레임(subject)을 설정하여 덮어쓰기 방지
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .setIssuer(issuer)

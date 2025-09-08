@@ -66,12 +66,25 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 공개 API
                 .requestMatchers(
-                    "/api/auth/**", 
+                    // 인증 관련 공개 API
+                    "/api/auth/login",
+                    "/api/auth/register",
+                    "/api/auth/refresh",
+                    "/api/auth/forgot-password",
+                    "/api/auth/reset-password",
+                    "/api/auth/verify-email",
+                    "/api/auth/validate",
+                    
+                    // 기타 공개 API
                     "/api/public/**",
+                    
+                    // Swagger UI
                     "/swagger-ui/**",
+                    "/swagger-ui.html",
                     "/v3/api-docs/**",
                     "/swagger-resources/**",
-                    "/webjars/**"
+                    "/webjars/**",
+                    "/error"
                 ).permitAll()
                 
                 // H2 Console (개발 환경)

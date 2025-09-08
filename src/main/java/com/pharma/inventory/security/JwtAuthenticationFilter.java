@@ -70,18 +70,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
 
                         log.debug("JWT 인증 성공 - 사용자: {}, URI: {}", username, request.getRequestURI());
-                    } else {
-                        log.debug("JWT 토큰 검증 실패 - 사용자: {}", username);
                     }
                 }
-            } else if (StringUtils.hasText(token)) {
-                log.debug("유효하지 않은 JWT 토큰");
             }
-
         } catch (Exception e) {
             log.error("JWT 인증 처리 중 오류 발생: {}", e.getMessage());
-            // 예외가 발생해도 필터 체인은 계속 진행
-            // JwtAuthenticationEntryPoint에서 처리됨
+            // 예외가 발생해도 필터 체인은 계속 진행되어, SecurityConfig의 예외 처리 로직이 담당하게 됨
         }
 
         // 다음 필터로 요청 전달
@@ -106,25 +100,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return null;
-    }
-
-    /**
-     * 필터를 적용하지 않을 경로 설정
-     */
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getServletPath();
-
-        // 인증이 필요 없는 경로는 필터 적용 제외
-        return path.startsWith("/api/auth/login") ||
-                path.startsWith("/api/auth/register") ||
-                path.startsWith("/api/auth/refresh") ||
-                path.startsWith("/api/auth/forgot-password") ||
-                path.startsWith("/swagger-ui") ||
-                path.startsWith("/v3/api-docs") ||
-                path.startsWith("/actuator/health") ||
-                path.startsWith("/css") ||
-                path.startsWith("/js") ||
-                path.startsWith("/images");
     }
 }

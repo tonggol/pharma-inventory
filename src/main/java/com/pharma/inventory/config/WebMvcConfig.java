@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * - 날짜/시간 포맷터 등록
  */
 @Configuration
-@EnableWebMvc
 public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
@@ -139,19 +138,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(object);
             }
         });
-    }
-
-    /**
-     * 콘텐츠 협상 설정
-     */
-    @Override
-    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-        configurer
-                .favorParameter(false)  // URL 파라미터로 포맷 지정 비활성화
-                .defaultContentType(org.springframework.http.MediaType.TEXT_HTML)
-                .mediaType("html", org.springframework.http.MediaType.TEXT_HTML)
-                .mediaType("json", org.springframework.http.MediaType.APPLICATION_JSON)
-                .mediaType("xml", org.springframework.http.MediaType.APPLICATION_XML);
     }
 
     /**
