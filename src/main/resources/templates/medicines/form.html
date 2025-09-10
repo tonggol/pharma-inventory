@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 th:text="${medicine.id == null ? 'Add New Medicine' : 'Edit Medicine'}">Add/Edit Medicine</h1>
+    </div>
+
+    <form th:action="${medicine.id == null ? '/api/medicines' : '/api/medicines/' + medicine.id}" th:object="${medicine}" method="post">
+        <input type="hidden" th:if="${medicine.id != null}" name="_method" value="put"/>
+
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <i data-feather="edit-3" class="me-2"></i>
+                <span>Medicine Information</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="code" class="form-label">Code</label>
+                        <input type="text" id="code" th:field="*{code}" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" id="name" th:field="*{name}" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="category" class="form-label">Category</label>
+                        <input type="text" id="category" th:field="*{category}" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="manufacturer" class="form-label">Manufacturer</label>
+                        <input type="text" id="manufacturer" th:field="*{manufacturer}" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="price" class="form-label">Unit Price</label>
+                        <input type="number" id="price" th:field="*{price}" class="form-control" step="0.01" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" th:field="*{description}" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="active" th:field="*{active}">
+                            <label class="form-check-label" for="active">Medicine is Active</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <a th:href="@{/medicines}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary d-flex align-items-center d-inline-flex">
+                    <i data-feather="save" class="me-2"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</html>

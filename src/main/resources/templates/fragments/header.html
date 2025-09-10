@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<header th:fragment="header" class="navbar sticky-top p-3">
+    <!-- This can be a placeholder for breadcrumbs or page title in the future -->
+    <div class="me-auto"></div>
+
+    <div class="navbar-nav">
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i data-feather="user" class="me-2"></i>
+                <!-- Display username if authenticated -->
+                <span th:if="${#authentication != null}" th:text="${#authentication.name}">Username</span>
+                <span th:if="${#authentication == null}">User</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                <li><a class="dropdown-item" href="#">My Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/auth/login">Sign out</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+</html>

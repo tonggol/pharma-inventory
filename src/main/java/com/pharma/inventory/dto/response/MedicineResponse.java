@@ -1,7 +1,6 @@
 package com.pharma.inventory.dto.response;
 
 import com.pharma.inventory.entity.Medicine;
-import com.pharma.inventory.entity.MedicineCategory;
 import lombok.*;
 
 import java.time.LocalDateTime;

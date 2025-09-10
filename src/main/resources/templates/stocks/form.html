@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 th:text="${stock.id == null ? 'Add New Stock (Inbound)' : 'Edit Stock'}">Add/Edit Stock</h1>
+    </div>
+
+    <form th:action="${stock.id == null ? '/api/stocks' : '/api/stocks/' + stock.id}" th:object="${stock}" method="post">
+        <input type="hidden" th:if="${stock.id != null}" name="_method" value="put"/>
+
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <i data-feather="edit-3" class="me-2"></i>
+                <span>Stock Information</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="medicineId" class="form-label">Medicine ID</label>
+                        <input type="number" id="medicineId" th:field="*{medicineId}" class="form-control" th:readonly="${stock.id != null}" required>
+                        <!-- In a real application, this would be a searchable dropdown -->
+                    </div>
+                    <div class="col-md-6">
+                        <label for="lotNumber" class="form-label">Lot Number</label>
+                        <input type="text" id="lotNumber" th:field="*{lotNumber}" class="form-control" th:readonly="${stock.id != null}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" id="quantity" th:field="*{quantity}" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" id="location" th:field="*{location}" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="expiryDate" class="form-label">Expiry Date</label>
+                        <input type="date" id="expiryDate" th:field="*{expiryDate}" class="form-control" required>
+                    </div>
+                    <div class="col-md-6" th:if="${stock.id == null}">
+                        <label for="inboundDate" class="form-label">Inbound Date</label>
+                        <input type="date" id="inboundDate" th:field="*{inboundDate}" class="form-control">
+                    </div>
+                    <div class="col-md-6" th:if="${stock.id != null}">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" th:field="*{status}" class="form-select">
+                            <option th:each="s : ${T(com.pharma.inventory.entity.StockStatus).values()}" th:value="${s}" th:text="${s.description}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <a th:href="@{/stocks}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary d-flex align-items-center d-inline-flex">
+                    <i data-feather="save" class="me-2"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</html>

@@ -7,7 +7,6 @@ import com.pharma.inventory.dto.request.BatchTransactionRequest;
 import com.pharma.inventory.dto.request.StockTransactionRequest;
 import com.pharma.inventory.dto.request.TransactionSearchRequest;
 import com.pharma.inventory.dto.response.StockTransactionResponse;
-import com.pharma.inventory.entity.StockTransaction;
 import com.pharma.inventory.entity.TransactionType;
 import com.pharma.inventory.entity.TransactionReason;
 import com.pharma.inventory.service.StockTransactionService;

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 th:text="${medicine.name}">Medicine Name</h1>
+        <div>
+            <a th:href="@{/medicines/{id}/edit(id=${medicine.id})}" class="btn btn-primary d-flex align-items-center">
+                <i data-feather="edit-2" class="me-2"></i> Edit Medicine
+            </a>
+            <a th:href="@{/medicines}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Main Details -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <i data-feather="package" class="me-2"></i> Medicine Details
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Code</dt>
+                        <dd class="col-sm-9" th:text="${medicine.code}">MED001</dd>
+
+                        <dt class="col-sm-3">Category</dt>
+                        <dd class="col-sm-9" th:text="${medicine.category}">Pain Reliever</dd>
+
+                        <dt class="col-sm-3">Manufacturer</dt>
+                        <dd class="col-sm-9" th:text="${medicine.manufacturer}">PharmaCorp</dd>
+
+                        <dt class="col-sm-3">Description</dt>
+                        <dd class="col-sm-9">
+                            <p th:text="${medicine.description}">Standard over-the-counter pain reliever.</p>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Status & Price -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <i data-feather="info" class="me-2"></i> Status & Pricing
+                </div>
+                <div class="card-body">
+                    <dl>
+                        <dt>Status</dt>
+                        <dd>
+                            <span class="badge fs-6" th:classappend="${medicine.active ? 'bg-success-soft' : 'bg-secondary-soft'}" th:text="${medicine.active ? 'Active' : 'Inactive'}">Active</span>
+                        </dd>
+
+                        <dt class="mt-3">Unit Price</dt>
+                        <dd class="fs-4 fw-bold" th:text="'₩' + ${#numbers.formatDecimal(medicine.price, 1, 'COMMA', 0, 'POINT')}">₩1,000</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Information Card -->
+    <div class="card mt-4">
+        <div class="card-header d-flex align-items-center">
+            <i data-feather="layers" class="me-2"></i> Stock Information
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Stock ID</th>
+                        <th>Lot Number</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-center">Status</th>
+                        <th>Expiry Date</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="stock : ${stocks}">
+                        <td th:text="${stock.id}">101</td>
+                        <td th:text="${stock.lotNumber}">L12345</td>
+                        <td class="text-end" th:text="${stock.quantity}">100</td>
+                        <td class="text-center">
+                            <span class="badge" th:classappend="${stock.status.name() == 'AVAILABLE' ? 'bg-success-soft' : 'bg-secondary-soft'}" th:text="${stock.status.description}">Available</span>
+                        </td>
+                        <td th:text="${#temporals.format(stock.expiryDate, 'yyyy-MM-dd')}">2024-12-31</td>
+                        <td th:text="${stock.location}">Shelf A-1</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(stocks)}">
+                        <td colspan="6" class="text-center p-4">No stock information available for this medicine.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</html>

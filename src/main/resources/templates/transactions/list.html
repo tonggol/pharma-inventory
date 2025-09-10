@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Transaction List</h1>
+        <a th:href="@{/transactions/new}" class="btn btn-primary d-flex align-items-center">
+            <i data-feather="plus" class="me-2"></i> New Transaction
+        </a>
+    </div>
+
+    <!-- Search & Filter Card -->
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center">
+            <i data-feather="search" class="me-2"></i> Filter Transactions
+        </div>
+        <div class="card-body">
+            <form th:action="@{/transactions/search}" method="post" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="medicineName" class="form-label">Medicine Name</label>
+                    <input type="text" id="medicineName" name="medicineName" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label for="transactionType" class="form-label">Type</label>
+                    <select id="transactionType" name="transactionType" class="form-select">
+                        <option value="">All</option>
+                        <option th:each="t : ${T(com.pharma.inventory.entity.TransactionType).values()}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-secondary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transaction List Card -->
+    <div class="card">
+        <div class="card-header">
+            <span>Transaction Records</span>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Medicine</th>
+                        <th>Type</th>
+                        <th>Reason</th>
+                        <th class="text-end">Quantity</th>
+                        <th>User</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="tx : ${transactions.content}">
+                        <td th:text="${#temporals.format(tx.transactionDate, 'yyyy-MM-dd HH:mm')}">2023-10-27 10:00</td>
+                        <td th:text="${tx.medicineName}">Aspirin</td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${tx.transactionType.name() == 'INBOUND' or tx.transactionType.name() == 'RETURN' ? 'bg-success-soft' : (tx.transactionType.name() == 'OUTBOUND' or tx.transactionType.name() == 'DISPOSAL' ? 'bg-danger-soft' : 'bg-secondary-soft')}" 
+                                  th:text="${tx.transactionType}">OUTBOUND</span>
+                        </td>
+                        <td th:text="${tx.reason}">Prescription</td>
+                        <td class="text-end fw-bold" th:classappend="${tx.quantity < 0 ? 'text-danger' : 'text-success'}" th:text="${tx.quantity}">-10</td>
+                        <td th:text="${tx.username}">user1</td>
+                        <td class="text-center">
+                            <a th:href="@{/transactions/{id}(id=${tx.id})}" class="btn btn-sm btn-outline-secondary border-0" title="View">
+                                <i data-feather="eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-end">
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${transactions.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/transactions(page=${transactions.number - 1}, size=${transactions.size})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, transactions.totalPages - 1)}" th:classappend="${i == transactions.number} ? 'active'">
+                        <a class="page-link" th:href="@{/transactions(page=${i}, size=${transactions.size})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${transactions.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/transactions(page=${transactions.number + 1}, size=${transactions.size})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</html>

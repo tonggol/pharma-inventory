@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Stock List</h1>
+        <a th:href="@{/stocks/new}" class="btn btn-primary d-flex align-items-center">
+            <i data-feather="plus" class="me-2"></i> Add New Stock (Inbound)
+        </a>
+    </div>
+
+    <!-- Search & Filter Card -->
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center">
+            <i data-feather="search" class="me-2"></i> Filter Stocks
+        </div>
+        <div class="card-body">
+            <form th:action="@{/stocks/search}" method="post" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="medicineName" class="form-label">Medicine Name</label>
+                    <input type="text" id="medicineName" name="medicineName" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label for="lotNumber" class="form-label">Lot Number</label>
+                    <input type="text" id="lotNumber" name="lotNumber" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="">All</option>
+                        <option th:each="s : ${T(com.pharma.inventory.entity.StockStatus).values()}" th:value="${s}" th:text="${s.description}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" id="location" name="location" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary w-100">Apply Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock List Card -->
+    <div class="card">
+        <div class="card-header">
+            <span>Stock Records</span>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Lot No.</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-center">Status</th>
+                        <th>Expiry Date</th>
+                        <th>Location</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="stock : ${stocks.content}">
+                        <td th:text="${stock.medicineName}">Aspirin</td>
+                        <td th:text="${stock.lotNumber}">L12345</td>
+                        <td class="text-end" th:text="${stock.quantity}">100</td>
+                        <td class="text-center">
+                            <span class="badge" th:classappend="${stock.status.name() == 'AVAILABLE' ? 'bg-success-soft' : 'bg-secondary-soft'}" th:text="${stock.status.description}">Available</span>
+                        </td>
+                        <td th:text="${#temporals.format(stock.expiryDate, 'yyyy-MM-dd')}">2024-12-31</td>
+                        <td th:text="${stock.location}">Shelf A-1</td>
+                        <td class="text-center">
+                            <a th:href="@{/stocks/{id}(id=${stock.id})}" class="btn btn-sm btn-outline-secondary border-0" title="View">
+                                <i data-feather="eye"></i>
+                            </a>
+                            <a th:href="@{/stocks/{id}/edit(id=${stock.id})}" class="btn btn-sm btn-outline-primary border-0" title="Edit">
+                                <i data-feather="edit-2"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-end">
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${stocks.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/stocks(page=${stocks.number - 1}, size=${stocks.size})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, stocks.totalPages - 1)}" th:classappend="${i == stocks.number} ? 'active'">
+                        <a class="page-link" th:href="@{/stocks(page=${i}, size=${stocks.size})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${stocks.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/stocks(page=${stocks.number + 1}, size=${stocks.size})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</html>

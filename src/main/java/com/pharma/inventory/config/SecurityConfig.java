@@ -64,9 +64,21 @@ public class SecurityConfig {
             
             // URL 기반 권한 설정
             .authorizeHttpRequests(auth -> auth
-                // 공개 API
+                // 공개 API & UI 경로
                 .requestMatchers(
-                    // 인증 관련 공개 API
+                    // === UI / Views (Thymeleaf) ===
+                    "/",
+                    "/auth/login",
+                    "/auth/register",
+
+                    // === Static Resources ===
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/webjars/**",
+                    "/favicon.ico",
+
+                    // === API ===
                     "/api/auth/login",
                     "/api/auth/register",
                     "/api/auth/refresh",
@@ -74,21 +86,17 @@ public class SecurityConfig {
                     "/api/auth/reset-password",
                     "/api/auth/verify-email",
                     "/api/auth/validate",
-                    
-                    // 기타 공개 API
                     "/api/public/**",
                     
-                    // Swagger UI
+                    // === Swagger & H2 & Error ===
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
                     "/swagger-resources/**",
                     "/webjars/**",
+                    "/h2-console/**",
                     "/error"
                 ).permitAll()
-                
-                // H2 Console (개발 환경)
-                .requestMatchers("/h2-console/**").permitAll()
                 
                 // 의약품 조회는 모든 인증 사용자
                 .requestMatchers(HttpMethod.GET, "/api/medicines/**").authenticated()

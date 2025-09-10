@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Medicine List</h1>
+        <a th:href="@{/medicines/new}" class="btn btn-primary d-flex align-items-center">
+            <i data-feather="plus" class="me-2"></i> Add New Medicine
+        </a>
+    </div>
+
+    <!-- Search & Filter Card -->
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center">
+            <i data-feather="search" class="me-2"></i> Filter Medicines
+        </div>
+        <div class="card-body">
+            <form th:action="@{/medicines/search}" method="post" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="keyword" class="form-label">Search Keyword</label>
+                    <input type="text" id="keyword" name="keyword" class="form-control" th:value="${searchRequest?.keyword}" placeholder="Enter name, code, or manufacturer...">
+                </div>
+                <div class="col-md-4">
+                    <label for="category" class="form-label">Category</label>
+                    <input type="text" id="category" name="category" class="form-control" th:value="${searchRequest?.category}" placeholder="e.g., Pain Reliever">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-secondary w-100">Apply Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Medicine List Card -->
+    <div class="card">
+        <div class="card-header">
+            <span>Medicine Records</span>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Manufacturer</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="medicine : ${medicines.content}">
+                        <td th:text="${medicine.code}">MED001</td>
+                        <td th:text="${medicine.name}">Aspirin</td>
+                        <td th:text="${medicine.category}">Pain Reliever</td>
+                        <td th:text="${medicine.manufacturer}">PharmaCorp</td>
+                        <td class="text-end" th:text="'₩' + ${#numbers.formatDecimal(medicine.price, 1, 'COMMA', 0, 'POINT')}">₩1,000</td>
+                        <td class="text-center">
+                            <span class="badge" th:classappend="${medicine.active ? 'bg-success-soft' : 'bg-secondary-soft'}" th:text="${medicine.active ? 'Active' : 'Inactive'}">Active</span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/medicines/{id}(id=${medicine.id})}" class="btn btn-sm btn-outline-secondary border-0" title="View">
+                                <i data-feather="eye"></i>
+                            </a>
+                            <a th:href="@{/medicines/{id}/edit(id=${medicine.id})}" class="btn btn-sm btn-outline-primary border-0" title="Edit">
+                                <i data-feather="edit-2"></i>
+                            </a>
+                            <form th:action="@{/medicines/{id}/delete(id=${medicine.id})}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to deactivate this medicine?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Deactivate">
+                                    <i data-feather="trash-2"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-end">
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${medicines.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/medicines(page=${medicines.number - 1}, size=${medicines.size}, keyword=${searchRequest?.keyword}, category=${searchRequest?.category})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, medicines.totalPages - 1)}" th:classappend="${i == medicines.number} ? 'active'">
+                        <a class="page-link" th:href="@{/medicines(page=${i}, size=${medicines.size}, keyword=${searchRequest?.keyword}, category=${searchRequest?.category})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${medicines.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/medicines(page=${medicines.number + 1}, size=${medicines.size}, keyword=${searchRequest?.keyword}, category=${searchRequest?.category})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</html>

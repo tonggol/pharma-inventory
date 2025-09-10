@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>User List</h1>
+        <a th:href="@{/users/new}" class="btn btn-primary d-flex align-items-center">
+            <i data-feather="plus" class="me-2"></i> Add New User
+        </a>
+    </div>
+
+    <!-- User List Card -->
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <i data-feather="users" class="me-2"></i>
+            <span>User Records</span>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th class="text-center">Status</th>
+                        <th>Last Login</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users.content}">
+                        <td th:text="${user.username}">admin</td>
+                        <td th:text="${user.fullName}">Administrator</td>
+                        <td th:text="${user.email}">admin@example.com</td>
+                        <td th:text="${user.roleDescription}">System Administrator</td>
+                        <td class="text-center">
+                            <span class="badge" th:classappend="${user.isActive ? 'bg-success-soft' : 'bg-danger-soft'}" th:text="${user.isActive ? 'Active' : 'Inactive'}">Active</span>
+                        </td>
+                        <td th:text="${user.lastLoginDate != null ? #temporals.format(user.lastLoginDate, 'yyyy-MM-dd HH:mm') : 'N/A'}">2023-10-27 10:00</td>
+                        <td class="text-center">
+                            <a th:href="@{/users/{id}(id=${user.id})}" class="btn btn-sm btn-outline-secondary border-0" title="View">
+                                <i data-feather="eye"></i>
+                            </a>
+                            <a th:href="@{/users/{id}/edit(id=${user.id})}" class="btn btn-sm btn-outline-primary border-0" title="Edit">
+                                <i data-feather="edit-2"></i>
+                            </a>
+                            <form th:action="@{/users/{id}/delete(id=${user.id})}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to deactivate this user?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Deactivate">
+                                    <i data-feather="user-x"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-end">
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${users.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/users(page=${users.number - 1}, size=${users.size})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}" th:classappend="${i == users.number} ? 'active'">
+                        <a class="page-link" th:href="@{/users(page=${i}, size=${users.size})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${users.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/users(page=${users.number + 1}, size=${users.size})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</html>

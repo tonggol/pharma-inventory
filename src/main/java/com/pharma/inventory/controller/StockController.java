@@ -9,7 +9,6 @@ import com.pharma.inventory.dto.request.StockCreateRequest;
 import com.pharma.inventory.dto.request.StockSearchRequest;
 import com.pharma.inventory.dto.request.StockUpdateRequest;
 import com.pharma.inventory.dto.response.StockResponse;
-import com.pharma.inventory.entity.Stock;
 import com.pharma.inventory.entity.StockStatus;
 import com.pharma.inventory.service.StockService;
 import io.swagger.v3.oas.annotations.Operation;

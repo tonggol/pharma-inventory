@@ -7,7 +7,6 @@ import com.pharma.inventory.dto.response.StockAlerts;
 import com.pharma.inventory.dto.response.StockResponse;
 import com.pharma.inventory.dto.response.StockTransactionResponse;
 import com.pharma.inventory.entity.Medicine;
-import com.pharma.inventory.entity.Stock;
 import com.pharma.inventory.entity.StockStatus;
 import com.pharma.inventory.entity.StockTransaction;
 import com.pharma.inventory.entity.TransactionType;

@@ -1,13 +1,12 @@
 package com.pharma.inventory.config;
 
 import com.pharma.inventory.entity.*;
+import com.pharma.inventory.entity.*;
 import com.pharma.inventory.repository.MedicineRepository;
 import com.pharma.inventory.repository.StockRepository;
 import com.pharma.inventory.repository.StockTransactionRepository;
 import com.pharma.inventory.repository.UserRepository;
 
-import com.pharma.inventory.entity.TransactionType;
-import com.pharma.inventory.entity.TransactionReason;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;

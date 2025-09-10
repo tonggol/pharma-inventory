@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content" class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="my-4">Login</h2>
+            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign in</button>
+                <a href="/auth/register" class="btn btn-link" data-no-spa>Register</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessageDiv = document.getElementById('error-message');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.data && result.data.accessToken) {
+                    const accessToken = result.data.accessToken;
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', result.data.refreshToken);
+                    
+                    // Fetch the dashboard content with the new token
+                    const dashboardResponse = await fetch('/dashboard', {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (dashboardResponse.ok) {
+                        const dashboardHtml = await dashboardResponse.text();
+                        // Replace the entire page content with the new dashboard page
+                        document.documentElement.innerHTML = dashboardHtml;
+                        // Update the URL in the browser's address bar
+                        history.pushState({url: '/dashboard'}, '', '/dashboard');
+                        // The global script in the new layout will handle subsequent navigation
+                    } else {
+                         errorMessageDiv.textContent = 'Could not load dashboard.';
+                         errorMessageDiv.style.display = 'block';
+                    }
+
+                } else {
+                    const message = result.message || 'Login failed. Please check your credentials.';
+                    errorMessageDiv.textContent = message;
+                    errorMessageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessageDiv.textContent = 'An unexpected error occurred. Please try again.';
+                errorMessageDiv.style.display = 'block';
+            }
+        });
+    </script>
+</div>
+</html>

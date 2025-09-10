@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content" class="container-fluid">
+    <h1 class="h2">Inventory Audit</h1>
+
+    <form th:action="@{/api/stocks/audit}" method="post">
+        <div id="audit-items">
+            <div class="row audit-item mb-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Stock ID</label>
+                    <input type="number" name="auditItems[0].stockId" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Actual Quantity</label>
+                    <input type="number" name="auditItems[0].actualQuantity" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Reason for Discrepancy</label>
+                    <input type="text" name="auditItems[0].reason" class="form-control">
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger" disabled>Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="add-item-btn" class="btn btn-success mt-2">Add Item</button>
+        <hr>
+        <button type="submit" class="btn btn-primary">Perform Audit</button>
+        <a href="/stocks" class="btn btn-secondary">Cancel</a>
+    </form>
+
+    <!-- Basic script to add more items -->
+    <script>
+        document.getElementById('add-item-btn').addEventListener('click', function() {
+            const container = document.getElementById('audit-items');
+            const index = container.getElementsByClassName('audit-item').length;
+            const newItem = document.createElement('div');
+            newItem.className = 'row audit-item mb-2 align-items-end';
+            newItem.innerHTML = `
+                <div class="col-md-4">
+                    <input type="number" name="auditItems[${index}].stockId" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="auditItems[${index}].actualQuantity" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="auditItems[${index}].reason" class="form-control">
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()">Remove</button>
+                </div>
+            `;
+            container.appendChild(newItem);
+        });
+    </script>
+</div>
+</html>

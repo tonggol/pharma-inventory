@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div layout:fragment="content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1>Transaction Details</h1>
+            <p class="text-muted fs-5" th:text="'ID: ' + ${transaction.id}">ID: 12345</p>
+        </div>
+        <a th:href="@{/transactions}" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <i data-feather="repeat" class="me-2"></i>
+            <span>Transaction Record</span>
+        </div>
+        <div class="card-body">
+            <h5 class="mb-3">Transaction Information</h5>
+            <dl class="row">
+                <dt class="col-sm-3">Date & Time</dt>
+                <dd class="col-sm-9" th:text="${#temporals.format(transaction.transactionDate, 'yyyy-MM-dd HH:mm:ss')}">2023-10-27 10:00:00</dd>
+
+                <dt class="col-sm-3">Type</dt>
+                <dd class="col-sm-9">
+                    <span class="badge fs-6" 
+                          th:classappend="${transaction.transactionType.name() == 'INBOUND' or transaction.transactionType.name() == 'RETURN' ? 'bg-success-soft' : (transaction.transactionType.name() == 'OUTBOUND' or transaction.transactionType.name() == 'DISPOSAL' ? 'bg-danger-soft' : 'bg-secondary-soft')}" 
+                          th:text="${transaction.transactionType}">OUTBOUND</span>
+                </dd>
+
+                <dt class="col-sm-3">Reason</dt>
+                <dd class="col-sm-9" th:text="${transaction.reason}">Prescription</dd>
+
+                <dt class="col-sm-3">User</dt>
+                <dd class="col-sm-9" th:text="${transaction.username}">user1</dd>
+
+                <dt class="col-sm-3">Department</dt>
+                <dd class="col-sm-9" th:text="${transaction.department}">Cardiology</dd>
+
+                <dt class="col-sm-3">Notes</dt>
+                <dd class="col-sm-9" th:text="${transaction.notes}">Urgent request</dd>
+            </dl>
+
+            <hr class="my-4">
+
+            <h5 class="mb-3">Stock & Quantity Details</h5>
+            <dl class="row">
+                <dt class="col-sm-3">Medicine</dt>
+                <dd class="col-sm-9">
+                    <a th:href="@{/medicines/{id}(id=${transaction.medicineId})}" th:text="${transaction.medicineName}">Aspirin</a>
+                </dd>
+
+                <dt class="col-sm-3">Stock / Lot</dt>
+                <dd class="col-sm-9">
+                    <a th:href="@{/stocks/{id}(id=${transaction.stockId})}" th:text="'ID: ' + ${transaction.stockId}">ID: 101</a>
+                    <span class="text-muted" th:text="'(Lot: ' + ${transaction.lotNumber} + ')'">(Lot: L12345)</span>
+                </dd>
+
+                <dt class="col-sm-3">Quantity Change</dt>
+                <dd class="col-sm-9 fs-5 fw-bold" th:classappend="${transaction.quantity < 0 ? 'text-danger' : 'text-success'}" th:text="${transaction.quantity}">-10</dd>
+
+                <dt class="col-sm-3">Quantity Before</dt>
+                <dd class="col-sm-9" th:text="${transaction.quantityBefore}">110</dd>
+
+                <dt class="col-sm-3">Quantity After</dt>
+                <dd class="col-sm-9" th:text="${transaction.quantityAfter}">100</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+</html>
