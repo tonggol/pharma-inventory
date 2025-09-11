@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>유효기간 보고서 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 보고서 특화 스타일 */
+        .report-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .report-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .report-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .report-title-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .report-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .report-info {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* 알림 섹션 */
+        .alert-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .alert-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .alert-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .alert-card.critical {
+            border-left-color: var(--danger-color);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.02));
+        }
+
+        .alert-card.warning {
+            border-left-color: var(--warning-color);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.02));
+        }
+
+        .alert-card.info {
+            border-left-color: var(--info-color);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(30, 64, 175, 0.02));
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .alert-icon.critical { background: var(--danger-color); }
+        .alert-icon.warning { background: var(--warning-color); }
+        .alert-icon.info { background: var(--info-color); }
+
+        .alert-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .alert-count {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-count.critical { color: var(--danger-color); }
+        .alert-count.warning { color: var(--warning-color); }
+        .alert-count.info { color: var(--info-color); }
+
+        .alert-description {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* 필터 섹션 */
+        .filter-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            grid-column: 1 / -1;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        /* 차트 섹션 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .chart-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chart-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--danger-color);
+            font-size: 0.85rem;
+        }
+
+        .chart-content {
+            padding: 2rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* 유효기간 상태별 리스트 */
+        .expiry-status-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .expiry-status-item {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .expiry-status-item:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
+        }
+
+        .expiry-status-item.expired {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: var(--danger-color);
+        }
+
+        .expiry-status-item.warning {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: var(--warning-color);
+        }
+
+        .expiry-status-item.critical {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: var(--danger-color);
+            border-width: 2px;
+        }
+
+        .expiry-period {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .expiry-count {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* 테이블 섹션 */
+        .table-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .expiry-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .expiry-table th {
+            background: #f8fafc;
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .expiry-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .expiry-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .expiry-table tbody tr:hover {
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .expiry-table tbody tr.expired {
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .expiry-table tbody tr.warning {
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .expiry-date-cell {
+            font-weight: 600;
+        }
+
+        .expiry-date-cell.expired {
+            color: var(--danger-color);
+        }
+
+        .expiry-date-cell.warning {
+            color: var(--warning-color);
+        }
+
+        .expiry-date-cell.normal {
+            color: var(--success-color);
+        }
+
+        .days-remaining {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .days-remaining.expired {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .days-remaining.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .days-remaining.normal {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        /* 인쇄 스타일 */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .main-header, .sidebar, .btn, .dropdown {
+                display: none !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                margin-top: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-container {
+                max-width: none !important;
+            }
+
+            .report-header, .filter-section, .chart-card, .table-section {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: avoid;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr !important;
+                page-break-inside: avoid;
+            }
+
+            .chart-container {
+                height: 250px !important;
+            }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .alert-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-actions {
+                grid-column: 1;
+                justify-content: stretch;
+            }
+
+            .filter-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .table-actions {
+                justify-content: stretch;
+            }
+
+            .table-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .alert-section {
+                grid-template-columns: 1fr;
+            }
+
+            .report-meta {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .report-actions {
+                justify-content: center;
+            }
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 로딩 상태 */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="report-container">
+        <!-- 보고서 헤더 -->
+        <div class="report-header fade-in">
+            <div class="report-title-icon">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+            <div style="flex: 1;">
+                <h1 class="report-title">유효기간 보고서</h1>
+                <p class="report-subtitle">의약품 유효기간 현황과 만료 예정 리스트를 확인할 수 있습니다.</p>
+            </div>
+
+            <div class="report-meta">
+                <div class="report-info">
+                    <div>생성일시: <span id="reportGeneratedTime">-</span></div>
+                    <div>보고서 범위: <span id="reportPeriod">전체 기간</span></div>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-outline-secondary" onclick="printReport()">
+                        <i class="fas fa-print"></i>
+                        인쇄
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-download"></i>
+                            내보내기
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportReport('excel')"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportReport('pdf')"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportReport('csv')"><i class="fas fa-file-csv me-2"></i>CSV</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 알림 섹션 -->
+        <div class="alert-section slide-up">
+            <div class="alert-card critical">
+                <div class="alert-header">
+                    <div class="alert-icon critical">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="alert-title">만료된 의약품</h3>
+                </div>
+                <div class="alert-count critical" id="expiredCount">-</div>
+                <div class="alert-description">즉시 폐기 처리가 필요한 의약품</div>
+            </div>
+
+            <div class="alert-card warning">
+                <div class="alert-header">
+                    <div class="alert-icon warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="alert-title">만료 임박 (30일 이내)</h3>
+                </div>
+                <div class="alert-count warning" id="expiringSoonCount">-</div>
+                <div class="alert-description">빠른 사용 또는 재고 조정 필요</div>
+            </div>
+
+            <div class="alert-card info">
+                <div class="alert-header">
+                    <div class="alert-icon info">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h3 class="alert-title">주의 필요 (90일 이내)</h3>
+                </div>
+                <div class="alert-count info" id="attentionNeededCount">-</div>
+                <div class="alert-description">계획적인 재고 관리 권장</div>
+            </div>
+        </div>
+
+        <!-- 필터 섹션 -->
+        <div class="filter-section slide-up">
+            <div class="filter-header">
+                <h3 class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    필터 옵션
+                </h3>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                    <i class="fas fa-undo"></i>
+                    초기화
+                </button>
+            </div>
+
+            <form id="filterForm">
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="expiryStatus">유효기간 상태</label>
+                        <select class="form-select" id="expiryStatus" name="expiryStatus">
+                            <option value="">전체</option>
+                            <option value="expired">만료됨</option>
+                            <option value="critical">만료 임박 (7일 이내)</option>
+                            <option value="warning">만료 예정 (30일 이내)</option>
+                            <option value="attention">주의 필요 (90일 이내)</option>
+                            <option value="normal">정상</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="category">카테고리</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">전체 카테고리</option>
+                            <option value="PAINKILLER">해열진통제</option>
+                            <option value="ANTIBIOTIC">항생제</option>
+                            <option value="DIGESTIVE">소화기계약물</option>
+                            <option value="IV_SOLUTION">수액제</option>
+                            <option value="HORMONE">호르몬제</option>
+                            <option value="VITAMIN">비타민제</option>
+                            <option value="TOPICAL">외용제</option>
+                            <option value="ANTIHISTAMINE">항히스타민제</option>
+                            <option value="OTHER">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="location">보관 위치</label>
+                        <select class="form-select" id="location" name="location">
+                            <option value="">전체 위치</option>
+                            <option value="A구역">A구역</option>
+                            <option value="B구역">B구역</option>
+                            <option value="C구역">C구역</option>
+                            <option value="냉장고">냉장고</option>
+                            <option value="특수보관">특수보관</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="dateRange">조회 기간</label>
+                        <select class="form-select" id="dateRange" name="dateRange">
+                            <option value="7">7일 이내 만료</option>
+                            <option value="30" selected>30일 이내 만료</option>
+                            <option value="90">90일 이내 만료</option>
+                            <option value="180">180일 이내 만료</option>
+                            <option value="all">전체</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="sortBy">정렬 기준</label>
+                        <select class="form-select" id="sortBy" name="sortBy">
+                            <option value="expiryDate">유효기간 순</option>
+                            <option value="name">의약품명 순</option>
+                            <option value="quantity">수량 순</option>
+                            <option value="category">카테고리 순</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
+                            <i class="fas fa-undo"></i>
+                            초기화
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            보고서 생성
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 차트 섹션 -->
+        <div class="charts-section slide-up">
+            <!-- 유효기간 추이 차트 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        유효기간별 분포 추이
+                    </h3>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-calendar"></i>
+                            월별
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('weekly')">주별</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('monthly')">월별</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('quarterly')">분기별</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-content">
+                    <div class="chart-container">
+                        <canvas id="expiryTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 유효기간 상태별 현황 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        유효기간 상태별 현황
+                    </h3>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshExpiryStatus()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="chart-content">
+                    <div class="expiry-status-list" id="expiryStatusList">
+                        <div class="expiry-status-item critical">
+                            <div class="expiry-period">만료됨</div>
+                            <div class="expiry-count">5개 의약품</div>
+                        </div>
+                        <div class="expiry-status-item warning">
+                            <div class="expiry-period">7일 이내</div>
+                            <div class="expiry-count">12개 의약품</div>
+                        </div>
+                        <div class="expiry-status-item warning">
+                            <div class="expiry-period">30일 이내</div>
+                            <div class="expiry-count">28개 의약품</div>
+                        </div>
+                        <div class="expiry-status-item">
+                            <div class="expiry-period">90일 이내</div>
+                            <div class="expiry-count">45개 의약품</div>
+                        </div>
+                        <div class="expiry-status-item">
+                            <div class="expiry-period">정상</div>
+                            <div class="expiry-count">187개 의약품</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상세 데이터 테이블 -->
+        <div class="table-section slide-up">
+            <div class="table-header">
+                <h3 class="table-title">
+                    유효기간 상세 현황
+                    <span class="badge bg-primary" id="tableRowCount">0</span>
+                </h3>
+                <div class="table-actions">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="showOnlyProblems" onchange="toggleProblemsOnly()">
+                        <label class="form-check-label" for="showOnlyProblems">문제 의약품만 표시</label>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshTable()">
+                        <i class="fas fa-sync-alt"></i>
+                        새로고침
+                    </button>
+                </div>
+            </div>
+
+            <div style="position: relative;">
+                <div class="table-responsive">
+                    <table class="expiry-table" id="expiryReportTable">
+                        <thead>
+                        <tr>
+                            <th onclick="sortTable('code')">
+                                코드 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('name')">
+                                의약품명 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('lotNumber')">
+                                로트번호 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('category')">
+                                카테고리 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('quantity')">
+                                수량 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('expiryDate')">
+                                유효기간 <i class="fas fa-sort"></i>
+                            </th>
+                            <th>남은 일수</th>
+                            <th onclick="sortTable('location')">
+                                보관 위치 <i class="fas fa-sort"></i>
+                            </th>
+                            <th>조치 필요</th>
+                        </tr>
+                        </thead>
+                        <tbody id="expiryTableBody">
+                        <!-- 동적으로 로드됨 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 로딩 오버레이 -->
+                <div class="loading-overlay" id="tableLoadingOverlay" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="pagination-container" id="paginationContainer" style="display: none;">
+                <div class="pagination-info">
+                    <span id="paginationInfo">총 0개 중 0-0개 표시</span>
+                </div>
+                <nav>
+                    <ul class="pagination" id="pagination">
+                        <!-- 동적으로 생성됨 -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="javascript">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // 전역 변수
+        let expiryTrendChart = null;
+        let currentFilters = {};
+        let currentPage = 0;
+        let itemsPerPage = 20;
+        let sortColumn = 'expiryDate';
+        let sortOrder = 'asc';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadReportData();
+            initializeCharts();
+            setupEventListeners();
+        });
+
+        // 페이지 초기화
+        function initializePage() {
+            // 현재 시간 설정
+            const now = new Date();
+            document.getElementById('reportGeneratedTime').textContent =
+                now.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+            // 기본 필터 설정
+            updateReportPeriod();
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // 필터 폼 제출
+            document.getElementById('filterForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                applyFilters();
+            });
+
+            // 기타 필터 변경
+            ['expiryStatus', 'category', 'location', 'dateRange', 'sortBy'].forEach(id => {
+                document.getElementById(id).addEventListener('change', applyFilters);
+            });
+        }
+
+        // 보고서 기간 업데이트
+        function updateReportPeriod() {
+            const dateRange = document.getElementById('dateRange').value;
+            const periodMap = {
+                '7': '7일 이내 만료 예정',
+                '30': '30일 이내 만료 예정',
+                '90': '90일 이내 만료 예정',
+                '180': '180일 이내 만료 예정',
+                'all': '전체 기간'
+            };
+            document.getElementById('reportPeriod').textContent = periodMap[dateRange] || '전체 기간';
+        }
+
+        // 보고서 데이터 로드
+        async function loadReportData() {
+            try {
+                await Promise.all([
+                    loadAlertCounts(),
+                    loadExpiryData(),
+                    loadChartData()
+                ]);
+            } catch (error) {
+                console.error('보고서 데이터 로드 오류:', error);
+                showAlert('보고서 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 알림 카운트 로드
+        async function loadAlertCounts() {
+            try {
+                // 실제 구현에서는 API 호출
+                const counts = {
+                    expired: 5,
+                    expiringSoon: 23,
+                    attentionNeeded: 45
+                };
+
+                document.getElementById('expiredCount').textContent = formatNumber(counts.expired);
+                document.getElementById('expiringSoonCount').textContent = formatNumber(counts.expiringSoon);
+                document.getElementById('attentionNeededCount').textContent = formatNumber(counts.attentionNeeded);
+            } catch (error) {
+                console.error('알림 카운트 로드 오류:', error);
+            }
+        }
+
+        // 유효기간 데이터 로드
+        async function loadExpiryData(page = 0, filters = {}) {
+            showTableLoading(true);
+
+            try {
+                // 실제 구현에서는 API 호출
+                const mockData = generateMockExpiryData();
+                renderExpiryTable(mockData.content);
+                updateTableInfo(mockData);
+            } catch (error) {
+                console.error('유효기간 데이터 로드 오류:', error);
+                showAlert('유효기간 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+            } finally {
+                showTableLoading(false);
+            }
+        }
+
+        // 모의 유효기간 데이터 생성
+        function generateMockExpiryData() {
+            const categories = ['해열진통제', '항생제', '소화기계약물', '수액제', '호르몬제'];
+            const locations = ['A구역', 'B구역', 'C구역', '냉장고', '특수보관'];
+            const medicines = [];
+
+            for (let i = 1; i <= 50; i++) {
+                const expiryDate = new Date();
+                const daysToExpiry = Math.floor(Math.random() * 365) - 30; // -30 ~ 335일
+                expiryDate.setDate(expiryDate.getDate() + daysToExpiry);
+
+                const quantity = Math.floor(Math.random() * 200) + 10;
+
+                medicines.push({
+                    id: i,
+                    code: `MED${String(i).padStart(3, '0')}`,
+                    name: `의약품명 ${i}`,
+                    lotNumber: `LOT${String(i).padStart(4, '0')}`,
+                    category: categories[Math.floor(Math.random() * categories.length)],
+                    quantity: quantity,
+                    expiryDate: expiryDate,
+                    location: locations[Math.floor(Math.random() * locations.length)],
+                    daysToExpiry: daysToExpiry,
+                    status: getExpiryStatus(daysToExpiry)
+                });
+            }
+
+            // 정렬 적용
+            medicines.sort((a, b) => {
+                if (sortColumn === 'expiryDate') {
+                    return sortOrder === 'asc' ? a.expiryDate - b.expiryDate : b.expiryDate - a.expiryDate;
+                }
+                return 0;
+            });
+
+            return {
+                content: medicines.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage),
+                totalElements: medicines.length,
+                totalPages: Math.ceil(medicines.length / itemsPerPage),
+                number: currentPage,
+                size: itemsPerPage
+            };
+        }
+
+        // 유효기간 상태 판단
+        function getExpiryStatus(daysToExpiry) {
+            if (daysToExpiry < 0) return 'expired';
+            if (daysToExpiry <= 7) return 'critical';
+            if (daysToExpiry <= 30) return 'warning';
+            if (daysToExpiry <= 90) return 'attention';
+            return 'normal';
+        }
+
+        // 유효기간 테이블 렌더링
+        function renderExpiryTable(expiryData) {
+            const tbody = document.getElementById('expiryTableBody');
+
+            tbody.innerHTML = expiryData.map(medicine => {
+                const statusClass = medicine.status;
+                const expiryDateClass = medicine.status === 'expired' ? 'expired' :
+                    medicine.status === 'warning' || medicine.status === 'critical' ? 'warning' : 'normal';
+
+                return `
+                    <tr class="${statusClass}">
+                        <td>
+                            <span class="medicine-code">${medicine.code}</span>
+                        </td>
+                        <td>
+                            <div class="medicine-name">${medicine.name}</div>
+                        </td>
+                        <td>
+                            <span class="lot-number">${medicine.lotNumber}</span>
+                        </td>
+                        <td>
+                            <span class="category-badge">${medicine.category}</span>
+                        </td>
+                        <td>
+                            <strong>${formatNumber(medicine.quantity)}</strong>
+                        </td>
+                        <td>
+                            <div class="expiry-date-cell ${expiryDateClass}">
+                                ${formatDate(medicine.expiryDate)}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="days-remaining ${medicine.status}">
+                                ${medicine.daysToExpiry < 0 ? '만료됨' : `${medicine.daysToExpiry}일`}
+                            </span>
+                        </td>
+                        <td>${medicine.location}</td>
+                        <td>
+                            ${getActionRequired(medicine.status)}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 필요 조치 텍스트 반환
+        function getActionRequired(status) {
+            const actionMap = {
+                'expired': '<span class="text-danger"><i class="fas fa-trash"></i> 즉시 폐기</span>',
+                'critical': '<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> 긴급 사용</span>',
+                'warning': '<span class="text-warning"><i class="fas fa-clock"></i> 우선 사용</span>',
+                'attention': '<span class="text-info"><i class="fas fa-eye"></i> 모니터링</span>',
+                'normal': '<span class="text-muted">-</span>'
+            };
+            return actionMap[status] || '-';
+        }
+
+        // 테이블 정보 업데이트
+        function updateTableInfo(data) {
+            document.getElementById('tableRowCount').textContent = data.totalElements;
+
+            const start = data.number * data.size + 1;
+            const end = Math.min((data.number + 1) * data.size, data.totalElements);
+            document.getElementById('paginationInfo').textContent =
+                `총 ${data.totalElements}개 중 ${start}-${end}개 표시`;
+
+            // 페이지네이션 표시/숨김
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (data.totalPages > 1) {
+                paginationContainer.style.display = 'flex';
+                renderPagination(data);
+            } else {
+                paginationContainer.style.display = 'none';
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(data) {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+
+            // 이전 페이지 버튼
+            html += `
+                <li class="page-item ${data.number === 0 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${data.number - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // 페이지 번호들
+            const startPage = Math.max(0, data.number - 2);
+            const endPage = Math.min(data.totalPages - 1, data.number + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <li class="page-item ${i === data.number ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i + 1}</a>
+                    </li>
+                `;
+            }
+
+            // 다음 페이지 버튼
+            html += `
+                <li class="page-item ${data.number === data.totalPages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${data.number + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        // 차트 초기화
+        function initializeCharts() {
+            initializeExpiryTrendChart();
+        }
+
+        // 유효기간 추이 차트 초기화
+        function initializeExpiryTrendChart() {
+            const ctx = document.getElementById('expiryTrendChart').getContext('2d');
+
+            expiryTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '만료됨',
+                        data: [],
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: '만료 임박',
+                        data: [],
+                        borderColor: 'rgb(245, 158, 11)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }, {
+                        label: '주의 필요',
+                        data: [],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        }
+                    }
+                }
+            });
+
+            loadExpiryTrendData('monthly');
+        }
+
+        // 차트 데이터 로드
+        async function loadChartData() {
+            await loadExpiryTrendData('monthly');
+        }
+
+        // 유효기간 추이 데이터 로드
+        async function loadExpiryTrendData(period) {
+            try {
+                // 모의 데이터 생성
+                const labels = [];
+                const expiredData = [];
+                const expiringSoonData = [];
+                const attentionNeededData = [];
+                const today = new Date();
+
+                for (let i = 11; i >= 0; i--) {
+                    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                    labels.push(date.toLocaleDateString('ko-KR', { month: 'short' }));
+                    expiredData.push(Math.floor(Math.random() * 10) + 1);
+                    expiringSoonData.push(Math.floor(Math.random() * 20) + 5);
+                    attentionNeededData.push(Math.floor(Math.random() * 30) + 10);
+                }
+
+                expiryTrendChart.data.labels = labels;
+                expiryTrendChart.data.datasets[0].data = expiredData;
+                expiryTrendChart.data.datasets[1].data = expiringSoonData;
+                expiryTrendChart.data.datasets[2].data = attentionNeededData;
+                expiryTrendChart.update();
+            } catch (error) {
+                console.error('유효기간 추이 데이터 로드 오류:', error);
+            }
+        }
+
+        // 유틸리티 함수들
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('ko-KR');
+        }
+
+        // 이벤트 핸들러들
+        function applyFilters() {
+            currentPage = 0;
+            currentFilters = {
+                expiryStatus: document.getElementById('expiryStatus').value,
+                category: document.getElementById('category').value,
+                location: document.getElementById('location').value,
+                dateRange: document.getElementById('dateRange').value,
+                sortBy: document.getElementById('sortBy').value
+            };
+
+            loadExpiryData(currentPage, currentFilters);
+            updateReportPeriod();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterForm').reset();
+            document.getElementById('dateRange').value = '30';
+            currentFilters = {};
+            applyFilters();
+        }
+
+        function toggleProblemsOnly() {
+            const showOnlyProblems = document.getElementById('showOnlyProblems').checked;
+            if (showOnlyProblems) {
+                currentFilters.expiryStatus = 'expired,critical,warning';
+            } else {
+                delete currentFilters.expiryStatus;
+                document.getElementById('expiryStatus').value = '';
+            }
+            loadExpiryData(currentPage, currentFilters);
+        }
+
+        function changePage(page) {
+            if (page >= 0) {
+                currentPage = page;
+                loadExpiryData(currentPage, currentFilters);
+            }
+        }
+
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = 'asc';
+            }
+
+            // 정렬 아이콘 업데이트
+            updateSortIcons();
+
+            // 데이터 재로드
+            loadExpiryData(currentPage, currentFilters);
+        }
+
+        function updateSortIcons() {
+            // 모든 정렬 아이콘 초기화
+            document.querySelectorAll('th i.fas').forEach(icon => {
+                icon.className = 'fas fa-sort';
+            });
+
+            // 현재 정렬 열 아이콘 업데이트
+            const currentHeader = document.querySelector(`th[onclick="sortTable('${sortColumn}')"] i`);
+            if (currentHeader) {
+                currentHeader.className = `fas fa-sort-${sortOrder === 'asc' ? 'up' : 'down'}`;
+            }
+        }
+
+        function updateExpiryTrendChart(period) {
+            loadExpiryTrendData(period);
+        }
+
+        function refreshExpiryStatus() {
+            loadAlertCounts();
+        }
+
+        function refreshTable() {
+            loadExpiryData(currentPage, currentFilters);
+        }
+
+        function showTableLoading(show) {
+            const overlay = document.getElementById('tableLoadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function exportReport(format) {
+            const params = new URLSearchParams({
+                format: format,
+                ...currentFilters
+            });
+
+            const url = `/api/reports/expiry/export?${params.toString()}`;
+
+            // 다운로드 링크 생성
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `유효기간보고서_${new Date().toISOString().split('T')[0]}.${format}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showAlert(`${format.toUpperCase()} 파일이 다운로드됩니다.`, 'success');
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + P: 인쇄
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                printReport();
+            }
+
+            // F5: 새로고침
+            if (e.key === 'F5') {
+                e.preventDefault();
+                loadReportData();
+            }
+        });
+    </script>
+</th:block>
+
+</html>

@@ -1,98 +1,932 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>의약품 관리 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 의약품 목록 특화 스타일 */
+        .page-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+        .search-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 1rem;
+            grid-column: 1 / -1;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .content-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .medicines-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .medicines-table th {
+            background: #f8fafc;
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .medicines-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .medicines-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .medicines-table tbody tr:hover {
+            background: rgba(44, 90, 160, 0.05);
+            transform: scale(1.002);
+        }
+
+        .medicine-code {
+            font-family: 'Courier New', monospace;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .medicine-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .medicine-name-en {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .manufacturer {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .category-badge {
+            background: linear-gradient(135deg, var(--secondary-color), #10b981);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .stock-info {
+            text-align: center;
+        }
+
+        .current-stock {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .min-stock {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .stock-status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .stock-status.sufficient {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .stock-status.low {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+        }
+
+        .stock-status.critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .status-badge.inactive {
+            background: rgba(107, 114, 128, 0.1);
+            color: #374151;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        .btn-outline-primary {
+            background: white;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-warning {
+            background: white;
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .pagination-container {
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .pagination-info {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .pagination .page-item {
+            display: block;
+        }
+
+        .pagination .page-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .pagination .page-link:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background: #f8fafc;
+            color: #94a3b8;
+            border-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .empty-state-description {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .search-actions {
+                grid-column: 1;
+                justify-content: stretch;
+            }
+
+            .search-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .content-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .content-actions {
+                justify-content: stretch;
+            }
+
+            .content-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .medicines-table {
+                font-size: 0.85rem;
+            }
+
+            .medicines-table th,
+            .medicines-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* 로딩 상태 */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</th:block>
+
 <div layout:fragment="content">
-
-    <!-- Page Header -->
+    <!-- 페이지 헤더 -->
     <div class="page-header">
-        <h1>Medicine List</h1>
-        <a th:href="@{/medicines/new}" class="btn btn-primary d-flex align-items-center">
-            <i data-feather="plus" class="me-2"></i> Add New Medicine
-        </a>
-    </div>
-
-    <!-- Search & Filter Card -->
-    <div class="card mb-4">
-        <div class="card-header d-flex align-items-center">
-            <i data-feather="search" class="me-2"></i> Filter Medicines
-        </div>
-        <div class="card-body">
-            <form th:action="@{/medicines/search}" method="post" class="row g-3 align-items-end">
-                <div class="col-md-5">
-                    <label for="keyword" class="form-label">Search Keyword</label>
-                    <input type="text" id="keyword" name="keyword" class="form-control" th:value="${searchRequest?.keyword}" placeholder="Enter name, code, or manufacturer...">
-                </div>
-                <div class="col-md-4">
-                    <label for="category" class="form-label">Category</label>
-                    <input type="text" id="category" name="category" class="form-control" th:value="${searchRequest?.category}" placeholder="e.g., Pain Reliever">
-                </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-secondary w-100">Apply Filter</button>
-                </div>
-            </form>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">의약품 관리</h1>
+                <p class="page-subtitle">등록된 의약품을 관리하고 재고 현황을 확인할 수 있습니다.</p>
+            </div>
+            <div>
+                <a href="/medicines/new" class="btn btn-success" sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                    <i class="fas fa-plus"></i>
+                    새 의약품 등록
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Medicine List Card -->
-    <div class="card">
-        <div class="card-header">
-            <span>Medicine Records</span>
+    <!-- 검색 필터 -->
+    <div class="search-card">
+        <form class="search-form" id="searchForm" th:object="${searchRequest}">
+            <div class="form-group">
+                <label class="form-label" for="keyword">통합 검색</label>
+                <input type="text"
+                       class="form-control"
+                       id="keyword"
+                       name="keyword"
+                       th:field="*{keyword}"
+                       placeholder="코드, 이름, 제조사로 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="category">카테고리</label>
+                <select class="form-select" id="category" name="category" th:field="*{category}">
+                    <option value="">전체 카테고리</option>
+                    <option value="PAINKILLER">해열진통제</option>
+                    <option value="ANTIBIOTIC">항생제</option>
+                    <option value="DIGESTIVE">소화기계약물</option>
+                    <option value="IV_SOLUTION">수액제</option>
+                    <option value="HORMONE">호르몬제</option>
+                    <option value="VITAMIN">비타민제</option>
+                    <option value="TOPICAL">외용제</option>
+                    <option value="ANTIHISTAMINE">항히스타민제</option>
+                    <option value="OTHER">기타</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="manufacturer">제조사</label>
+                <input type="text"
+                       class="form-control"
+                       id="manufacturer"
+                       name="manufacturer"
+                       th:field="*{manufacturer}"
+                       placeholder="제조사명">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="isActive">상태</label>
+                <select class="form-select" id="isActive" name="isActive" th:field="*{isActive}">
+                    <option value="">전체</option>
+                    <option value="true">활성</option>
+                    <option value="false">비활성</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="isBelowMinStock">재고 상태</label>
+                <select class="form-select" id="isBelowMinStock" name="isBelowMinStock" th:field="*{isBelowMinStock}">
+                    <option value="">전체</option>
+                    <option value="true">재고 부족</option>
+                    <option value="false">재고 충분</option>
+                </select>
+            </div>
+
+            <div class="search-actions">
+                <button type="button" class="btn btn-outline-secondary" onclick="resetSearch()">
+                    <i class="fas fa-undo"></i>
+                    초기화
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    검색
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 의약품 목록 -->
+    <div class="content-card" id="medicinesContainer">
+        <div class="content-header">
+            <h2 class="content-title">
+                의약품 목록
+                <span class="badge bg-primary" th:text="${medicines?.totalElements ?: 0}">0</span>
+            </h2>
+            <div class="content-actions">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-download"></i>
+                        내보내기
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/api/medicines/export?format=excel"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
+                        <li><a class="dropdown-item" href="/api/medicines/export?format=csv"><i class="fas fa-file-csv me-2"></i>CSV</a></li>
+                        <li><a class="dropdown-item" href="/api/medicines/export?format=pdf"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-outline-secondary" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                    새로고침
+                </button>
+            </div>
         </div>
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
+
+        <div class="table-container">
+            <table class="medicines-table" th:if="${medicines != null and #lists.size(medicines.content) > 0}">
                 <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Manufacturer</th>
-                        <th class="text-end">Price</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
+                <tr>
+                    <th>코드</th>
+                    <th>의약품명</th>
+                    <th>제조사</th>
+                    <th>카테고리</th>
+                    <th>현재 재고</th>
+                    <th>재고 상태</th>
+                    <th>상태</th>
+                    <th>등록일</th>
+                    <th>작업</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="medicine : ${medicines.content}">
-                        <td th:text="${medicine.code}">MED001</td>
-                        <td th:text="${medicine.name}">Aspirin</td>
-                        <td th:text="${medicine.category}">Pain Reliever</td>
-                        <td th:text="${medicine.manufacturer}">PharmaCorp</td>
-                        <td class="text-end" th:text="'₩' + ${#numbers.formatDecimal(medicine.price, 1, 'COMMA', 0, 'POINT')}">₩1,000</td>
-                        <td class="text-center">
-                            <span class="badge" th:classappend="${medicine.active ? 'bg-success-soft' : 'bg-secondary-soft'}" th:text="${medicine.active ? 'Active' : 'Inactive'}">Active</span>
-                        </td>
-                        <td class="text-center">
-                            <a th:href="@{/medicines/{id}(id=${medicine.id})}" class="btn btn-sm btn-outline-secondary border-0" title="View">
-                                <i data-feather="eye"></i>
+                <tr th:each="medicine : ${medicines.content}">
+                    <td>
+                        <span class="medicine-code" th:text="${medicine.code}">MED001</span>
+                    </td>
+                    <td>
+                        <div class="medicine-name" th:text="${medicine.name}">아스피린</div>
+                        <div class="medicine-name-en" th:text="${medicine.nameEn}" th:if="${medicine.nameEn}">Aspirin</div>
+                    </td>
+                    <td>
+                        <span class="manufacturer" th:text="${medicine.manufacturer ?: '-'}">제조사명</span>
+                    </td>
+                    <td>
+                        <span class="category-badge" th:text="${medicine.category ?: '미분류'}">해열진통제</span>
+                    </td>
+                    <td class="stock-info">
+                        <div class="current-stock" th:text="${medicine.currentStock ?: 0}">150</div>
+                        <div class="min-stock">최소: <span th:text="${medicine.minStockQuantity ?: 0}">10</span></div>
+                    </td>
+                    <td>
+                            <span class="stock-status"
+                                  th:classappend="${(medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) ? 'critical' :
+                                                   (medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) * 2 ? 'low' : 'sufficient'}"
+                                  th:text="${(medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) ? '재고부족' :
+                                           (medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) * 2 ? '주의' : '충분'}">
+                                충분
+                            </span>
+                    </td>
+                    <td>
+                            <span class="status-badge"
+                                  th:classappend="${medicine.isActive ? 'active' : 'inactive'}"
+                                  th:text="${medicine.isActive ? '활성' : '비활성'}">
+                                활성
+                            </span>
+                    </td>
+                    <td th:text="${#temporals.format(medicine.createdAt, 'yyyy-MM-dd')}">2024-01-15</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{/medicines/{id}(id=${medicine.id})}"
+                               class="btn btn-outline-primary btn-sm"
+                               title="상세 보기">
+                                <i class="fas fa-eye"></i>
                             </a>
-                            <a th:href="@{/medicines/{id}/edit(id=${medicine.id})}" class="btn btn-sm btn-outline-primary border-0" title="Edit">
-                                <i data-feather="edit-2"></i>
+                            <a th:href="@{/medicines/{id}/edit(id=${medicine.id})}"
+                               class="btn btn-outline-warning btn-sm"
+                               sec:authorize="hasAnyRole('ADMIN','MANAGER')"
+                               title="수정">
+                                <i class="fas fa-edit"></i>
                             </a>
-                            <form th:action="@{/medicines/{id}/delete(id=${medicine.id})}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to deactivate this medicine?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Deactivate">
-                                    <i data-feather="trash-2"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                        </div>
+                    </td>
+                </tr>
                 </tbody>
             </table>
+
+            <!-- 빈 상태 -->
+            <div class="empty-state" th:if="${medicines == null or #lists.size(medicines.content) == 0}">
+                <div class="empty-state-icon">
+                    <i class="fas fa-prescription-bottle"></i>
+                </div>
+                <h3 class="empty-state-title">등록된 의약품이 없습니다</h3>
+                <p class="empty-state-description">새로운 의약품을 등록하거나 검색 조건을 변경해 보세요.</p>
+                <a href="/medicines/new" class="btn btn-success">
+                    <i class="fas fa-plus"></i>
+                    의약품 등록하기
+                </a>
+            </div>
         </div>
-        <div class="card-footer d-flex justify-content-end">
-            <!-- Pagination -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination mb-0">
-                    <li class="page-item" th:classappend="${medicines.first} ? 'disabled'">
-                        <a class="page-link" th:href="@{/medicines(page=${medicines.number - 1}, size=${medicines.size}, keyword=${searchRequest?.keyword}, category=${searchRequest?.category})}">Previous</a>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination-container" th:if="${medicines != null and medicines.totalPages > 1}">
+            <div class="pagination-info">
+                <span th:text="|총 ${medicines.totalElements}개 중 ${medicines.number * medicines.size + 1}-${medicines.number * medicines.size + #lists.size(medicines.content)}개 표시|">
+                    총 247개 중 1-20개 표시
+                </span>
+            </div>
+
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${medicines.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/medicines(page=0, size=${medicines.size})}" th:unless="${medicines.first}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <span class="page-link" th:if="${medicines.first}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </span>
                     </li>
-                    <li class="page-item" th:each="i : ${#numbers.sequence(0, medicines.totalPages - 1)}" th:classappend="${i == medicines.number} ? 'active'">
-                        <a class="page-link" th:href="@{/medicines(page=${i}, size=${medicines.size}, keyword=${searchRequest?.keyword}, category=${searchRequest?.category})}" th:text="${i + 1}">1</a>
+
+                    <li class="page-item" th:classappend="${medicines.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/medicines(page=${medicines.number - 1}, size=${medicines.size})}" th:unless="${medicines.first}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                        <span class="page-link" th:if="${medicines.first}">
+                            <i class="fas fa-angle-left"></i>
+                        </span>
                     </li>
-                    <li class="page-item" th:classappend="${medicines.last} ? 'disabled'">
-                        <a class="page-link" th:href="@{/medicines(page=${medicines.number + 1}, size=${medicines.size}, keyword=${searchRequest?.keyword}, category=${searchRequest?.category})}">Next</a>
+
+                    <li class="page-item"
+                        th:each="pageNum : ${#numbers.sequence(T(java.lang.Math).max(0, medicines.number - 2), T(java.lang.Math).min(medicines.totalPages - 1, medicines.number + 2))}"
+                        th:classappend="${pageNum == medicines.number ? 'active' : ''}">
+                        <a class="page-link"
+                           th:href="@{/medicines(page=${pageNum}, size=${medicines.size})}"
+                           th:text="${pageNum + 1}">1</a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${medicines.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/medicines(page=${medicines.number + 1}, size=${medicines.size})}" th:unless="${medicines.last}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <span class="page-link" th:if="${medicines.last}">
+                            <i class="fas fa-angle-right"></i>
+                        </span>
+                    </li>
+
+                    <li class="page-item" th:classappend="${medicines.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/medicines(page=${medicines.totalPages - 1}, size=${medicines.size})}" th:unless="${medicines.last}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                        <span class="page-link" th:if="${medicines.last}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </span>
                     </li>
                 </ul>
             </nav>
         </div>
+
+        <!-- 로딩 오버레이 -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="spinner"></div>
+        </div>
     </div>
 </div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 검색 폼 제출 처리
+            const searchForm = document.getElementById('searchForm');
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+
+            // 엔터 키로 검색
+            document.getElementById('keyword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performSearch();
+                }
+            });
+
+            // 검색 조건 변경 시 자동 검색 (디바운싱)
+            let searchTimeout;
+            const searchInputs = ['category', 'isActive', 'isBelowMinStock'];
+            searchInputs.forEach(inputId => {
+                document.getElementById(inputId).addEventListener('change', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(performSearch, 300);
+                });
+            });
+        });
+
+        // 검색 실행
+        async function performSearch() {
+            const formData = new FormData(document.getElementById('searchForm'));
+            const searchParams = new URLSearchParams();
+
+            // 폼 데이터를 URL 파라미터로 변환
+            for (let [key, value] of formData.entries()) {
+                if (value && value.trim() !== '') {
+                    searchParams.append(key, value);
+                }
+            }
+
+            // 페이지 번호 초기화
+            searchParams.append('page', '0');
+            searchParams.append('size', '20');
+
+            // 로딩 상태 표시
+            showLoading(true);
+
+            try {
+                // 페이지 이동
+                window.location.href = '/medicines?' + searchParams.toString();
+            } catch (error) {
+                console.error('검색 오류:', error);
+                showAlert('검색 중 오류가 발생했습니다.', 'danger');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 검색 초기화
+        function resetSearch() {
+            document.getElementById('searchForm').reset();
+            window.location.href = '/medicines';
+        }
+
+        // 로딩 상태 표시/숨김
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            const container = document.getElementById('medicinesContainer');
+
+            if (show) {
+                overlay.style.display = 'flex';
+                container.classList.add('loading');
+            } else {
+                overlay.style.display = 'none';
+                container.classList.remove('loading');
+            }
+        }
+
+        // 의약품 삭제 (비활성화)
+        async function deleteMedicine(id, name) {
+            if (!confirm(`"${name}" 의약품을 비활성화하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const response = await ApiClient.delete(`/api/medicines/${id}`);
+                if (response.success) {
+                    showAlert('의약품이 비활성화되었습니다.', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                }
+            } catch (error) {
+                showAlert(error.message || '의약품 비활성화 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 재고 상태에 따른 행 스타일링
+        function updateRowStyles() {
+            const rows = document.querySelectorAll('.medicines-table tbody tr');
+            rows.forEach(row => {
+                const stockStatus = row.querySelector('.stock-status');
+                if (stockStatus) {
+                    if (stockStatus.classList.contains('critical')) {
+                        row.style.borderLeft = '4px solid var(--danger-color)';
+                    } else if (stockStatus.classList.contains('low')) {
+                        row.style.borderLeft = '4px solid var(--warning-color)';
+                    }
+                }
+            });
+        }
+
+        // 페이지 로드 완료 후 실행
+        window.addEventListener('load', function() {
+            updateRowStyles();
+
+            // URL 파라미터에서 메시지 확인
+            const urlParams = new URLSearchParams(window.location.search);
+            const message = urlParams.get('message');
+            const error = urlParams.get('error');
+
+            if (message) {
+                showAlert(message, 'success');
+            }
+            if (error) {
+                showAlert(error, 'danger');
+            }
+        });
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + F: 검색 필드 포커스
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('keyword').focus();
+            }
+
+            // Ctrl + N: 새 의약품 등록 (권한 있는 경우)
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                const newButton = document.querySelector('a[href="/medicines/new"]');
+                if (newButton) {
+                    window.location.href = '/medicines/new';
+                }
+            }
+        });
+
+        // 테이블 정렬 (향후 확장)
+        function sortTable(column) {
+            // 실제 구현에서는 서버사이드 정렬을 위해 URL 파라미터 추가
+            console.log('Sort by:', column);
+        }
+
+        // 일괄 작업 (향후 확장)
+        function bulkAction(action) {
+            const checkboxes = document.querySelectorAll('input[name="selectedMedicines"]:checked');
+            if (checkboxes.length === 0) {
+                showAlert('작업할 의약품을 선택해주세요.', 'warning');
+                return;
+            }
+
+            const ids = Array.from(checkboxes).map(cb => cb.value);
+            console.log('Bulk action:', action, 'IDs:', ids);
+
+            // 실제 구현에서는 API 호출
+        }
+    </script>
+</th:block>
+
 </html>

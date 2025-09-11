@@ -1,61 +1,1204 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="${medicine.id != null ? '의약품 수정' : '의약품 등록'} + ' - 의약품 재고관리 시스템'">의약품 등록 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 의약품 폼 특화 스타일 */
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .form-title-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .form-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+        .form-section:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(44, 90, 160, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-grid.two-columns {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-grid.three-columns {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger-color);
+            margin-left: 0.25rem;
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25);
+        }
+
+        .form-control.is-valid {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+        }
+
+        .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .valid-feedback {
+            color: var(--success-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 파일 업로드 스타일 */
+        .file-upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--primary-color);
+            background: rgba(44, 90, 160, 0.1);
+        }
+
+        .file-upload-icon {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-text {
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-upload-hint {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .file-preview {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .file-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        /* 체크박스 스타일 */
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-check:hover {
+            border-color: var(--primary-color);
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-label {
+            font-weight: 500;
+            color: var(--dark-color);
+            cursor: pointer;
+            margin: 0;
+        }
+
+        /* 액션 버튼 영역 */
+        .form-actions {
+            background: #f8fafc;
+            padding: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline-danger {
+            background: white;
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* 로딩 스피너 */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .form-grid.two-columns,
+            .form-grid.three-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .form-header,
+            .form-section {
+                padding: 1.5rem;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+
+            .form-actions .btn {
+                justify-content: center;
+            }
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 툴팁 스타일 */
+        .tooltip-icon {
+            color: #94a3b8;
+            cursor: help;
+            font-size: 0.85rem;
+        }
+
+        .tooltip-icon:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</th:block>
+
 <div layout:fragment="content">
-
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 th:text="${medicine.id == null ? 'Add New Medicine' : 'Edit Medicine'}">Add/Edit Medicine</h1>
-    </div>
-
-    <form th:action="${medicine.id == null ? '/api/medicines' : '/api/medicines/' + medicine.id}" th:object="${medicine}" method="post">
-        <input type="hidden" th:if="${medicine.id != null}" name="_method" value="put"/>
-
-        <div class="card">
-            <div class="card-header d-flex align-items-center">
-                <i data-feather="edit-3" class="me-2"></i>
-                <span>Medicine Information</span>
+    <div class="form-container">
+        <!-- 폼 헤더 -->
+        <div class="form-header fade-in">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="form-title-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div>
+                        <h1 class="form-title" th:text="${medicine.id != null ? '의약품 정보 수정' : '새 의약품 등록'}">새 의약품 등록</h1>
+                        <p class="form-subtitle" th:text="${medicine.id != null ? '의약품 정보를 수정합니다.' : '새로운 의약품을 시스템에 등록합니다.'}">새로운 의약품을 시스템에 등록합니다.</p>
+                    </div>
+                </div>
+                <div>
+                    <a href="/medicines" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        목록으로
+                    </a>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="code" class="form-label">Code</label>
-                        <input type="text" id="code" th:field="*{code}" class="form-control" required>
+        </div>
+
+        <!-- 알림 메시지 -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show slide-up" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}">에러 메시지</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- 의약품 폼 -->
+        <form class="slide-up"
+              th:action="${medicine.id != null ? '/api/medicines/' + medicine.id : '/api/medicines'}"
+              th:method="${medicine.id != null ? 'PUT' : 'POST'}"
+              th:object="${medicine}"
+              id="medicineForm"
+              enctype="multipart/form-data"
+              novalidate>
+
+            <!-- 기본 정보 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        기본 정보
+                    </h3>
+
+                    <div class="form-grid two-columns">
+                        <div class="form-group">
+                            <label for="code" class="form-label required">
+                                <i class="fas fa-barcode"></i>
+                                의약품 코드
+                                <i class="fas fa-question-circle tooltip-icon"
+                                   data-bs-toggle="tooltip"
+                                   title="고유한 의약품 식별 코드입니다. (예: MED001)"></i>
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="code"
+                                   name="code"
+                                   th:field="*{code}"
+                                   placeholder="예: MED001"
+                                   required
+                                   maxlength="20"
+                                   pattern="^[A-Z]{3}[0-9]{3,6}$">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                영문 3자리 + 숫자 3-6자리 (예: MED001)
+                            </div>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="codeError">올바른 의약품 코드를 입력해주세요.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category" class="form-label required">
+                                <i class="fas fa-tags"></i>
+                                카테고리
+                            </label>
+                            <select class="form-select" id="category" name="category" th:field="*{category}" required>
+                                <option value="">카테고리 선택</option>
+                                <option value="PAINKILLER">해열진통제</option>
+                                <option value="ANTIBIOTIC">항생제</option>
+                                <option value="DIGESTIVE">소화기계약물</option>
+                                <option value="IV_SOLUTION">수액제</option>
+                                <option value="HORMONE">호르몬제</option>
+                                <option value="VITAMIN">비타민제</option>
+                                <option value="TOPICAL">외용제</option>
+                                <option value="ANTIHISTAMINE">항히스타민제</option>
+                                <option value="OTHER">기타</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                카테고리를 선택해주세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name" class="form-label required">
+                                <i class="fas fa-prescription-bottle-alt"></i>
+                                의약품명 (한글)
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="name"
+                                   name="name"
+                                   th:field="*{name}"
+                                   placeholder="예: 아스피린정 100mg"
+                                   required
+                                   maxlength="100">
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                의약품명을 입력해주세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nameEn" class="form-label">
+                                <i class="fas fa-globe"></i>
+                                의약품명 (영문)
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="nameEn"
+                                   name="nameEn"
+                                   th:field="*{nameEn}"
+                                   placeholder="예: Aspirin Tablet 100mg"
+                                   maxlength="100">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                영문명이 있는 경우 입력해주세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="manufacturer" class="form-label required">
+                                <i class="fas fa-industry"></i>
+                                제조사
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="manufacturer"
+                                   name="manufacturer"
+                                   th:field="*{manufacturer}"
+                                   placeholder="예: 한국제약"
+                                   required
+                                   maxlength="50">
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                제조사를 입력해주세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="unit" class="form-label required">
+                                <i class="fas fa-balance-scale"></i>
+                                단위
+                            </label>
+                            <select class="form-select" id="unit" name="unit" th:field="*{unit}" required>
+                                <option value="">단위 선택</option>
+                                <option value="정">정 (Tablet)</option>
+                                <option value="캡슐">캡슐 (Capsule)</option>
+                                <option value="ml">ml (Milliliter)</option>
+                                <option value="g">g (Gram)</option>
+                                <option value="병">병 (Bottle)</option>
+                                <option value="앰플">앰플 (Ampoule)</option>
+                                <option value="바이알">바이알 (Vial)</option>
+                                <option value="튜브">튜브 (Tube)</option>
+                                <option value="박스">박스 (Box)</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                단위를 선택해주세요.
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" id="name" th:field="*{name}" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="category" class="form-label">Category</label>
-                        <input type="text" id="category" th:field="*{category}" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="manufacturer" class="form-label">Manufacturer</label>
-                        <input type="text" id="manufacturer" th:field="*{manufacturer}" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="price" class="form-label">Unit Price</label>
-                        <input type="number" id="price" th:field="*{price}" class="form-control" step="0.01" required>
-                    </div>
-                    <div class="col-12">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea id="description" th:field="*{description}" class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="active" th:field="*{active}">
-                            <label class="form-check-label" for="active">Medicine is Active</label>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-file-alt"></i>
+                                설명
+                            </label>
+                            <textarea class="form-control"
+                                      id="description"
+                                      name="description"
+                                      th:field="*{description}"
+                                      rows="3"
+                                      placeholder="의약품에 대한 상세 설명을 입력해주세요."
+                                      maxlength="500"></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                의약품의 효능, 주의사항 등을 간략히 기술해주세요. (최대 500자)
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card-footer text-end">
-                <a th:href="@{/medicines}" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary d-flex align-items-center d-inline-flex">
-                    <i data-feather="save" class="me-2"></i> Save Changes
-                </button>
+
+            <!-- 용량 및 재고 정보 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        용량 및 재고 정보
+                    </h3>
+
+                    <div class="form-grid three-columns">
+                        <div class="form-group">
+                            <label for="dosage" class="form-label">
+                                <i class="fas fa-pills"></i>
+                                용량/규격
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="dosage"
+                                   name="dosage"
+                                   th:field="*{dosage}"
+                                   placeholder="예: 100mg, 500ml"
+                                   maxlength="50">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                의약품의 용량이나 규격을 입력해주세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="minStockQuantity" class="form-label required">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                최소 재고량
+                                <i class="fas fa-question-circle tooltip-icon"
+                                   data-bs-toggle="tooltip"
+                                   title="이 수량 이하로 재고가 떨어지면 알림이 발생합니다."></i>
+                            </label>
+                            <input type="number"
+                                   class="form-control"
+                                   id="minStockQuantity"
+                                   name="minStockQuantity"
+                                   th:field="*{minStockQuantity}"
+                                   placeholder="예: 10"
+                                   required
+                                   min="0"
+                                   max="999999">
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                최소 재고량을 입력해주세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="storageCondition" class="form-label">
+                                <i class="fas fa-thermometer-half"></i>
+                                보관 조건
+                            </label>
+                            <select class="form-select" id="storageCondition" name="storageCondition" th:field="*{storageCondition}">
+                                <option value="">보관 조건 선택</option>
+                                <option value="ROOM_TEMPERATURE">실온 보관</option>
+                                <option value="REFRIGERATED">냉장 보관 (2-8°C)</option>
+                                <option value="FROZEN">냉동 보관 (-20°C 이하)</option>
+                                <option value="CONTROLLED_ROOM_TEMPERATURE">조절된 실온 (15-25°C)</option>
+                                <option value="DARK_PLACE">차광 보관</option>
+                            </select>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                의약품의 적절한 보관 조건을 선택해주세요.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </form>
+
+            <!-- 이미지 업로드 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        의약품 이미지
+                    </h3>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-camera"></i>
+                            제품 이미지
+                        </label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <div class="file-upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="file-upload-text">이미지를 드래그하여 올리거나 클릭하여 선택하세요</div>
+                            <div class="file-upload-hint">PNG, JPG, JPEG 파일만 업로드 가능 (최대 5MB)</div>
+                            <input type="file"
+                                   id="imageFile"
+                                   name="imageFile"
+                                   accept="image/*"
+                                   style="display: none;">
+                        </div>
+                        <div class="file-preview" id="filePreview">
+                            <img id="previewImage" src="" alt="미리보기">
+                            <div class="file-info">
+                                <span id="fileName"></span> (<span id="fileSize"></span>)
+                                <button type="button" class="btn btn-outline-danger btn-sm ms-2" onclick="removeFile()">
+                                    <i class="fas fa-times"></i> 제거
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i>
+                            의약품의 외관을 확인할 수 있는 이미지를 업로드해주세요.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설정 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        추가 설정
+                    </h3>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <div class="form-check" onclick="toggleCheckbox('isActive')">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="isActive"
+                                       name="isActive"
+                                       th:field="*{isActive}"
+                                       th:checked="${medicine.isActive != null ? medicine.isActive : true}">
+                                <label class="form-check-label" for="isActive">
+                                    <strong>활성 상태</strong>
+                                    <div style="font-weight: 400; color: #64748b; font-size: 0.9rem;">
+                                        체크하면 이 의약품을 시스템에서 사용할 수 있습니다.
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="form-card">
+                <div class="form-actions">
+                    <a href="/medicines" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                        취소
+                    </a>
+
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetForm()" th:if="${medicine.id == null}">
+                        <i class="fas fa-undo"></i>
+                        초기화
+                    </button>
+
+                    <button type="button" class="btn btn-outline-danger" onclick="deleteMedicine()" th:if="${medicine.id != null}" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                        <i class="fas fa-trash"></i>
+                        삭제
+                    </button>
+
+                    <button type="submit" class="btn btn-success" id="submitButton">
+                        <i class="fas fa-save"></i>
+                        <span th:text="${medicine.id != null ? '수정하기' : '등록하기'}">등록하기</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            initializeFileUpload();
+            initializeValidation();
+            initializeTooltips();
+        });
+
+        // 폼 초기화
+        function initializeForm() {
+            const form = document.getElementById('medicineForm');
+            const submitButton = document.getElementById('submitButton');
+
+            // 폼 제출 처리
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                setLoading(true);
+
+                try {
+                    const formData = new FormData(form);
+
+                    // 이미지 파일이 있는 경우 추가
+                    const imageFile = document.getElementById('imageFile').files[0];
+                    if (imageFile) {
+                        formData.append('imageFile', imageFile);
+                    }
+
+                    const isEdit = form.action.includes('/api/medicines/') && !form.action.endsWith('/api/medicines');
+                    const method = isEdit ? 'PUT' : 'POST';
+
+                    const response = await fetch(form.action, {
+                        method: method,
+                        body: formData,
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        showAlert(isEdit ? '의약품이 수정되었습니다.' : '의약품이 등록되었습니다.', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/medicines/' + result.data.id;
+                        }, 1500);
+                    } else {
+                        throw new Error(result.message || '처리 중 오류가 발생했습니다.');
+                    }
+                } catch (error) {
+                    console.error('폼 제출 오류:', error);
+                    showAlert(error.message || '처리 중 오류가 발생했습니다.', 'danger');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // 실시간 유효성 검증
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+
+                input.addEventListener('input', function() {
+                    clearFieldError(this);
+                });
+            });
+        }
+
+        // 파일 업로드 초기화
+        function initializeFileUpload() {
+            const uploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('imageFile');
+            const preview = document.getElementById('filePreview');
+
+            // 클릭으로 파일 선택
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // 파일 선택 시 처리
+            fileInput.addEventListener('change', function() {
+                handleFileSelect(this.files[0]);
+            });
+
+            // 드래그 앤 드롭
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                }
+            });
+        }
+
+        // 파일 선택 처리
+        function handleFileSelect(file) {
+            if (!file) return;
+
+            // 파일 유형 검증
+            if (!file.type.startsWith('image/')) {
+                showAlert('이미지 파일만 업로드할 수 있습니다.', 'warning');
+                return;
+            }
+
+            // 파일 크기 검증 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('파일 크기는 5MB를 초과할 수 없습니다.', 'warning');
+                return;
+            }
+
+            // 미리보기 표시
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('filePreview').style.display = 'block';
+                document.getElementById('fileUploadArea').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 파일 제거
+        function removeFile() {
+            document.getElementById('imageFile').value = '';
+            document.getElementById('filePreview').style.display = 'none';
+            document.getElementById('fileUploadArea').style.display = 'block';
+        }
+
+        // 파일 크기 포맷팅
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 유효성 검증 초기화
+        function initializeValidation() {
+            // 의약품 코드 실시간 검증
+            const codeInput = document.getElementById('code');
+            codeInput.addEventListener('input', function() {
+                validateMedicineCode(this.value);
+            });
+
+            // 의약품 코드 중복 검사 (디바운싱)
+            let codeCheckTimeout;
+            codeInput.addEventListener('input', function() {
+                clearTimeout(codeCheckTimeout);
+                codeCheckTimeout = setTimeout(() => {
+                    checkCodeDuplication(this.value);
+                }, 500);
+            });
+        }
+
+        // 툴팁 초기화
+        function initializeTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+
+        // 의약품 코드 유효성 검증
+        function validateMedicineCode(code) {
+            const pattern = /^[A-Z]{3}[0-9]{3,6}$/;
+            const codeInput = document.getElementById('code');
+            const errorElement = document.getElementById('codeError');
+
+            if (!code) {
+                setFieldError(codeInput, '의약품 코드를 입력해주세요.');
+                return false;
+            }
+
+            if (!pattern.test(code)) {
+                setFieldError(codeInput, '영문 3자리 + 숫자 3-6자리 형식으로 입력해주세요. (예: MED001)');
+                return false;
+            }
+
+            setFieldValid(codeInput);
+            return true;
+        }
+
+        // 의약품 코드 중복 검사
+        async function checkCodeDuplication(code) {
+            if (!validateMedicineCode(code)) return;
+
+            try {
+                const currentMedicineId = window.location.pathname.includes('/edit') ?
+                    window.location.pathname.split('/')[2] : null;
+
+                const response = await ApiClient.get(`/api/medicines/check-code?code=${code}&excludeId=${currentMedicineId || ''}`);
+
+                if (response.data.exists) {
+                    setFieldError(document.getElementById('code'), '이미 사용 중인 의약품 코드입니다.');
+                    return false;
+                }
+
+                setFieldValid(document.getElementById('code'));
+                return true;
+            } catch (error) {
+                console.error('코드 중복 검사 오류:', error);
+            }
+        }
+
+        // 폼 전체 유효성 검증
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = ['code', 'name', 'manufacturer', 'category', 'unit', 'minStockQuantity'];
+
+            requiredFields.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            // 의약품 코드 특별 검증
+            if (!validateMedicineCode(document.getElementById('code').value)) {
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // 개별 필드 유효성 검증
+        function validateField(field) {
+            const value = field.value.trim();
+
+            if (field.required && !value) {
+                setFieldError(field, '필수 입력 항목입니다.');
+                return false;
+            }
+
+            // 숫자 필드 검증
+            if (field.type === 'number') {
+                const num = parseFloat(value);
+                if (value && (isNaN(num) || num < 0)) {
+                    setFieldError(field, '0 이상의 숫자를 입력해주세요.');
+                    return false;
+                }
+            }
+
+            setFieldValid(field);
+            return true;
+        }
+
+        // 필드 오류 설정
+        function setFieldError(field, message) {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+
+            const feedback = field.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.querySelector('span').textContent = message;
+            }
+        }
+
+        // 필드 유효성 설정
+        function setFieldValid(field) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        }
+
+        // 필드 오류 제거
+        function clearFieldError(field) {
+            field.classList.remove('is-invalid', 'is-valid');
+        }
+
+        // 체크박스 토글
+        function toggleCheckbox(id) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+        }
+
+        // 폼 초기화
+        function resetForm() {
+            if (confirm('입력한 내용이 모두 삭제됩니다. 계속하시겠습니까?')) {
+                document.getElementById('medicineForm').reset();
+                removeFile();
+
+                // 유효성 검증 클래스 제거
+                const fields = document.querySelectorAll('.form-control, .form-select');
+                fields.forEach(field => {
+                    field.classList.remove('is-valid', 'is-invalid');
+                });
+            }
+        }
+
+        // 의약품 삭제
+        async function deleteMedicine() {
+            const medicineName = document.getElementById('name').value;
+
+            if (!confirm(`"${medicineName}" 의약품을 삭제하시겠습니까?\n\n삭제된 의약품은 복구할 수 없습니다.`)) {
+                return;
+            }
+
+            try {
+                const medicineId = window.location.pathname.split('/')[2];
+                const response = await ApiClient.delete(`/api/medicines/${medicineId}`);
+
+                if (response.success) {
+                    showAlert('의약품이 삭제되었습니다.', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/medicines';
+                    }, 1500);
+                }
+            } catch (error) {
+                showAlert(error.message || '의약품 삭제 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 로딩 상태 설정
+        function setLoading(isLoading) {
+            const submitButton = document.getElementById('submitButton');
+
+            if (isLoading) {
+                submitButton.disabled = true;
+                submitButton.classList.add('btn-loading');
+            } else {
+                submitButton.disabled = false;
+                submitButton.classList.remove('btn-loading');
+            }
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + S: 저장
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('medicineForm').dispatchEvent(new Event('submit'));
+            }
+
+            // Esc: 취소 (목록으로 이동)
+            if (e.key === 'Escape') {
+                if (confirm('작성 중인 내용이 저장되지 않습니다. 목록으로 이동하시겠습니까?')) {
+                    window.location.href = '/medicines';
+                }
+            }
+        });
+    </script>
+</th:block>
+
 </html>

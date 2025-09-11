@@ -32,7 +32,8 @@ dependencies {
     
     // Thymeleaf extras
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-    
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
     // Database
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation 'org.postgresql:postgresql:42.7.1'  // PostgreSQL 지원 추가

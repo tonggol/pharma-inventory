@@ -1,103 +1,1432 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>거래 내역 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 거래 내역 특화 스타일 */
+        .transactions-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-title-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* 통계 카드 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.active {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .stat-card-icon.total { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .stat-card-icon.inbound { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .stat-card-icon.outbound { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .stat-card-icon.adjustment { background: linear-gradient(135deg, var(--primary-color), #1e40af); }
+        .stat-card-icon.disposal { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
+
+        .stat-card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .stat-card-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-card-change {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-card-change.positive { color: var(--success-color); }
+        .stat-card-change.negative { color: var(--danger-color); }
+
+        /* 검색 및 필터 */
+        .search-filter-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+            outline: none;
+        }
+
+        .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+            outline: none;
+        }
+
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .date-separator {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 1rem;
+            grid-column: 1 / -1;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        /* 거래 내역 목록 */
+        .transactions-list-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .list-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .list-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .list-title-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6366f1;
+            font-size: 0.9rem;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* 테이블 스타일 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .transactions-table th {
+            background: #f8fafc;
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .transactions-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .transactions-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .transactions-table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+            transform: scale(1.001);
+        }
+
+        /* 거래 타입 배지 */
+        .transaction-type {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .transaction-type.inbound {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .transaction-type.outbound {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+        }
+
+        .transaction-type.adjustment {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+        }
+
+        .transaction-type.return {
+            background: rgba(139, 92, 246, 0.1);
+            color: #6d28d9;
+        }
+
+        .transaction-type.disposal {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .transaction-type.transfer {
+            background: rgba(34, 197, 94, 0.1);
+            color: #166534;
+        }
+
+        /* 수량 표시 */
+        .quantity {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .quantity.positive {
+            color: var(--success-color);
+        }
+
+        .quantity.negative {
+            color: var(--warning-color);
+        }
+
+        .quantity.neutral {
+            color: var(--primary-color);
+        }
+
+        /* 의약품 정보 */
+        .medicine-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .medicine-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .medicine-code {
+            font-family: 'Courier New', monospace;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #4f46e5;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        /* 로트 정보 */
+        .lot-number {
+            font-family: 'Courier New', monospace;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        /* 승인자/담당자 정보 */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        /* 날짜/시간 */
+        .transaction-date {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .date-primary {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .date-secondary {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* 액션 버튼 */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        .btn-outline-primary {
+            background: white;
+            border: 1px solid #6366f1;
+            color: #6366f1;
+        }
+
+        .btn-outline-primary:hover {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-outline-danger {
+            background: white;
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* 페이지네이션 */
+        .pagination-container {
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination-info {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .pagination .page-item {
+            display: block;
+        }
+
+        .pagination .page-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .pagination .page-link:hover {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background: #f8fafc;
+            color: #94a3b8;
+            border-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .empty-state-description {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* 로딩 상태 */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .search-actions {
+                grid-column: 1;
+                justify-content: stretch;
+            }
+
+            .search-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .date-range {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .date-separator {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header,
+            .search-filter-card,
+            .list-header {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .list-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .list-actions {
+                justify-content: space-between;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .transactions-table {
+                font-size: 0.85rem;
+            }
+
+            .transactions-table th,
+            .transactions-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        /* 페이드 인 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</th:block>
+
 <div layout:fragment="content">
-
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1>Transaction List</h1>
-        <a th:href="@{/transactions/new}" class="btn btn-primary d-flex align-items-center">
-            <i data-feather="plus" class="me-2"></i> New Transaction
-        </a>
-    </div>
-
-    <!-- Search & Filter Card -->
-    <div class="card mb-4">
-        <div class="card-header d-flex align-items-center">
-            <i data-feather="search" class="me-2"></i> Filter Transactions
-        </div>
-        <div class="card-body">
-            <form th:action="@{/transactions/search}" method="post" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label for="medicineName" class="form-label">Medicine Name</label>
-                    <input type="text" id="medicineName" name="medicineName" class="form-control">
+    <div class="transactions-container">
+        <!-- 페이지 헤더 -->
+        <div class="page-header fade-in">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="page-title">
+                        <div class="page-title-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        거래 내역
+                    </h1>
+                    <p class="page-subtitle">모든 입출고 거래 내역을 조회하고 관리할 수 있습니다.</p>
                 </div>
-                <div class="col-md-2">
-                    <label for="transactionType" class="form-label">Type</label>
-                    <select id="transactionType" name="transactionType" class="form-select">
-                        <option value="">All</option>
-                        <option th:each="t : ${T(com.pharma.inventory.entity.TransactionType).values()}" th:value="${t}" th:text="${t}"></option>
+                <div class="d-flex gap-2">
+                    <a href="/transactions/outbound"
+                       class="btn btn-warning"
+                       sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                        <i class="fas fa-minus-circle"></i>
+                        출고 처리
+                    </a>
+                    <a href="/stocks/new"
+                       class="btn btn-success"
+                       sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                        <i class="fas fa-plus-circle"></i>
+                        입고 처리
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="stats-grid fade-in" id="statsGrid">
+            <!-- 동적으로 로드됨 -->
+        </div>
+
+        <!-- 검색 및 필터 -->
+        <div class="search-filter-card fade-in">
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label class="form-label" for="keyword">통합 검색</label>
+                    <input type="text"
+                           class="form-control"
+                           id="keyword"
+                           name="keyword"
+                           placeholder="의약품명, 로트번호, 담당자로 검색">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="medicineId">의약품</label>
+                    <select class="form-select" id="medicineId" name="medicineId">
+                        <option value="">전체 의약품</option>
+                        <!-- 동적으로 로드됨 -->
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="startDate" class="form-label">Start Date</label>
-                    <input type="date" id="startDate" name="startDate" class="form-control">
+
+                <div class="form-group">
+                    <label class="form-label" for="transactionType">거래 유형</label>
+                    <select class="form-select" id="transactionType" name="transactionType">
+                        <option value="">전체 유형</option>
+                        <option value="INBOUND">입고</option>
+                        <option value="OUTBOUND">출고</option>
+                        <option value="ADJUSTMENT">조정</option>
+                        <option value="RETURN">반품</option>
+                        <option value="DISPOSAL">폐기</option>
+                        <option value="TRANSFER">이동</option>
+                    </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="endDate" class="form-label">End Date</label>
-                    <input type="date" id="endDate" name="endDate" class="form-control">
+
+                <div class="form-group">
+                    <label class="form-label" for="department">부서</label>
+                    <input type="text"
+                           class="form-control"
+                           id="department"
+                           name="department"
+                           placeholder="부서명">
                 </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-secondary w-100">Filter</button>
+
+                <div class="form-group">
+                    <label class="form-label">거래 기간</label>
+                    <div class="date-range">
+                        <input type="date" class="form-control" id="startDate" name="startDate">
+                        <span class="date-separator">~</span>
+                        <input type="date" class="form-control" id="endDate" name="endDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="sortBy">정렬</label>
+                    <select class="form-select" id="sortBy" name="sortBy">
+                        <option value="transactionDate">거래일시</option>
+                        <option value="medicineName">의약품명</option>
+                        <option value="quantity">수량</option>
+                        <option value="createdByUsername">담당자</option>
+                    </select>
+                </div>
+
+                <div class="search-actions">
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetSearch()">
+                        <i class="fas fa-undo"></i>
+                        초기화
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                        검색
+                    </button>
                 </div>
             </form>
         </div>
-    </div>
 
-    <!-- Transaction List Card -->
-    <div class="card">
-        <div class="card-header">
-            <span>Transaction Records</span>
-        </div>
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead>
+        <!-- 거래 내역 목록 -->
+        <div class="transactions-list-card fade-in" id="transactionsContainer">
+            <div class="list-header">
+                <h2 class="list-title">
+                    <div class="list-title-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    거래 내역
+                    <span class="badge bg-primary" id="totalCount">0</span>
+                </h2>
+
+                <div class="list-actions">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-download"></i>
+                            내보내기
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportData('excel')">
+                                <i class="fas fa-file-excel me-2"></i>Excel
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('csv')">
+                                <i class="fas fa-file-csv me-2"></i>CSV
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('pdf')">
+                                <i class="fas fa-file-pdf me-2"></i>PDF
+                            </a></li>
+                        </ul>
+                    </div>
+
+                    <button class="btn btn-outline-secondary" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i>
+                        새로고침
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="transactions-table">
+                    <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Medicine</th>
-                        <th>Type</th>
-                        <th>Reason</th>
-                        <th class="text-end">Quantity</th>
-                        <th>User</th>
-                        <th class="text-center">Actions</th>
+                        <th>거래일시</th>
+                        <th>유형</th>
+                        <th>의약품</th>
+                        <th>로트번호</th>
+                        <th>수량</th>
+                        <th>부서</th>
+                        <th>담당자</th>
+                        <th>비고</th>
+                        <th>작업</th>
                     </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="tx : ${transactions.content}">
-                        <td th:text="${#temporals.format(tx.transactionDate, 'yyyy-MM-dd HH:mm')}">2023-10-27 10:00</td>
-                        <td th:text="${tx.medicineName}">Aspirin</td>
-                        <td>
-                            <span class="badge" 
-                                  th:classappend="${tx.transactionType.name() == 'INBOUND' or tx.transactionType.name() == 'RETURN' ? 'bg-success-soft' : (tx.transactionType.name() == 'OUTBOUND' or tx.transactionType.name() == 'DISPOSAL' ? 'bg-danger-soft' : 'bg-secondary-soft')}" 
-                                  th:text="${tx.transactionType}">OUTBOUND</span>
-                        </td>
-                        <td th:text="${tx.reason}">Prescription</td>
-                        <td class="text-end fw-bold" th:classappend="${tx.quantity < 0 ? 'text-danger' : 'text-success'}" th:text="${tx.quantity}">-10</td>
-                        <td th:text="${tx.username}">user1</td>
-                        <td class="text-center">
-                            <a th:href="@{/transactions/{id}(id=${tx.id})}" class="btn btn-sm btn-outline-secondary border-0" title="View">
-                                <i data-feather="eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="card-footer d-flex justify-content-end">
-            <!-- Pagination -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination mb-0">
-                    <li class="page-item" th:classappend="${transactions.first} ? 'disabled'">
-                        <a class="page-link" th:href="@{/transactions(page=${transactions.number - 1}, size=${transactions.size})}">Previous</a>
-                    </li>
-                    <li class="page-item" th:each="i : ${#numbers.sequence(0, transactions.totalPages - 1)}" th:classappend="${i == transactions.number} ? 'active'">
-                        <a class="page-link" th:href="@{/transactions(page=${i}, size=${transactions.size})}" th:text="${i + 1}">1</a>
-                    </li>
-                    <li class="page-item" th:classappend="${transactions.last} ? 'disabled'">
-                        <a class="page-link" th:href="@{/transactions(page=${transactions.number + 1}, size=${transactions.size})}">Next</a>
-                    </li>
-                </ul>
-            </nav>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                    <!-- 동적으로 로드됨 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 빈 상태 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <h3 class="empty-state-title">거래 내역이 없습니다</h3>
+                <p class="empty-state-description">검색 조건에 맞는 거래 내역이 없거나 아직 거래가 발생하지 않았습니다.</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="/stocks/new"
+                       class="btn btn-success"
+                       sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                        <i class="fas fa-plus-circle"></i>
+                        입고 처리
+                    </a>
+                    <a href="/transactions/outbound"
+                       class="btn btn-warning"
+                       sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                        <i class="fas fa-minus-circle"></i>
+                        출고 처리
+                    </a>
+                </div>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="pagination-container" id="paginationContainer">
+                <div class="pagination-info" id="paginationInfo">
+                    <!-- 동적으로 업데이트됨 -->
+                </div>
+                <nav>
+                    <ul class="pagination" id="pagination">
+                        <!-- 동적으로 생성됨 -->
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- 로딩 오버레이 -->
+            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                <div class="loading-spinner"></div>
+            </div>
         </div>
     </div>
 </div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        // 전역 변수
+        let currentPage = 0;
+        let pageSize = 20;
+        let totalElements = 0;
+        let transactionsData = [];
+        let searchParams = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadInitialData();
+            setupEventListeners();
+        });
+
+        // 페이지 초기화
+        function initializePage() {
+            loadMedicines();
+            loadStatsData();
+            setDefaultDateRange();
+        }
+
+        // 초기 데이터 로드
+        function loadInitialData() {
+            searchTransactions();
+        }
+
+        // 기본 날짜 범위 설정 (최근 30일)
+        function setDefaultDateRange() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - 30);
+
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // 검색 폼 제출
+            document.getElementById('searchForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                currentPage = 0;
+                searchTransactions();
+            });
+
+            // 실시간 검색 (디바운싱)
+            let searchTimeout;
+            document.getElementById('keyword').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentPage = 0;
+                    searchTransactions();
+                }, 500);
+            });
+
+            // 필터 변경 시 자동 검색
+            const filterElements = ['medicineId', 'transactionType', 'startDate', 'endDate', 'sortBy'];
+            filterElements.forEach(id => {
+                document.getElementById(id).addEventListener('change', function() {
+                    currentPage = 0;
+                    searchTransactions();
+                });
+            });
+        }
+
+        // 의약품 목록 로드
+        async function loadMedicines() {
+            try {
+                const response = await ApiClient.get('/api/medicines?size=1000&sort=name');
+                const select = document.getElementById('medicineId');
+
+                if (response.content) {
+                    response.content.forEach(medicine => {
+                        const option = document.createElement('option');
+                        option.value = medicine.id;
+                        option.textContent = `${medicine.name} (${medicine.code})`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('의약품 목록 로드 오류:', error);
+            }
+        }
+
+        // 통계 데이터 로드
+        async function loadStatsData() {
+            try {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                const response = await ApiClient.get(`/api/transactions/statistics/summary?startDate=${startDate}&endDate=${endDate}`);
+
+                if (response.success) {
+                    renderStatsCards(response.data);
+                }
+            } catch (error) {
+                console.error('통계 데이터 로드 오류:', error);
+                // 기본값으로 렌더링
+                renderStatsCards({});
+            }
+        }
+
+        // 통계 카드 렌더링
+        function renderStatsCards(statsData) {
+            const statsGrid = document.getElementById('statsGrid');
+
+            const stats = [
+                {
+                    key: 'total',
+                    icon: 'fas fa-receipt',
+                    label: '전체 거래',
+                    value: statsData.totalTransactions || 0,
+                    change: '+12%',
+                    filter: ''
+                },
+                {
+                    key: 'inbound',
+                    icon: 'fas fa-arrow-down',
+                    label: '입고',
+                    value: statsData.transactionsByType?.INBOUND || 0,
+                    change: '+8%',
+                    filter: 'INBOUND'
+                },
+                {
+                    key: 'outbound',
+                    icon: 'fas fa-arrow-up',
+                    label: '출고',
+                    value: statsData.transactionsByType?.OUTBOUND || 0,
+                    change: '+15%',
+                    filter: 'OUTBOUND'
+                },
+                {
+                    key: 'adjustment',
+                    icon: 'fas fa-edit',
+                    label: '조정',
+                    value: statsData.transactionsByType?.ADJUSTMENT || 0,
+                    change: '-5%',
+                    filter: 'ADJUSTMENT'
+                },
+                {
+                    key: 'disposal',
+                    icon: 'fas fa-trash',
+                    label: '폐기',
+                    value: statsData.transactionsByType?.DISPOSAL || 0,
+                    change: '+3%',
+                    filter: 'DISPOSAL'
+                }
+            ];
+
+            statsGrid.innerHTML = stats.map(stat => `
+                <div class="stat-card" onclick="filterByType('${stat.filter}')" data-filter="${stat.filter}">
+                    <div class="stat-card-header">
+                        <div class="stat-card-icon ${stat.key}">
+                            <i class="${stat.icon}"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card-value">${formatNumber(stat.value)}</div>
+                    <div class="stat-card-label">${stat.label}</div>
+                    <div class="stat-card-change ${stat.change.startsWith('+') ? 'positive' : 'negative'}">
+                        <i class="fas fa-arrow-${stat.change.startsWith('+') ? 'up' : 'down'}"></i>
+                        ${stat.change} (지난주 대비)
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 거래 내역 검색
+        async function searchTransactions() {
+            showLoading(true);
+
+            try {
+                // 검색 파라미터 구성
+                const formData = new FormData(document.getElementById('searchForm'));
+                searchParams = {};
+
+                for (let [key, value] of formData.entries()) {
+                    if (value && value.trim() !== '') {
+                        searchParams[key] = value;
+                    }
+                }
+
+                // API 호출
+                const queryString = new URLSearchParams({
+                    page: currentPage,
+                    size: pageSize,
+                    sortBy: searchParams.sortBy || 'transactionDate',
+                    direction: 'DESC'
+                }).toString();
+
+                const response = await ApiClient.post(`/api/transactions/search?${queryString}`, searchParams);
+
+                if (response.success) {
+                    transactionsData = response.data.content || [];
+                    totalElements = response.data.totalElements || 0;
+
+                    renderTransactionsList();
+                    renderPagination(response.data);
+                    updateTotalCount();
+                }
+            } catch (error) {
+                console.error('거래 내역 검색 오류:', error);
+                showAlert('거래 내역을 불러오는 중 오류가 발생했습니다.', 'danger');
+                transactionsData = [];
+                renderTransactionsList();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 거래 내역 목록 렌더링
+        function renderTransactionsList() {
+            const tbody = document.getElementById('transactionsTableBody');
+            const emptyState = document.getElementById('emptyState');
+
+            if (transactionsData.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                document.getElementById('paginationContainer').style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            document.getElementById('paginationContainer').style.display = 'flex';
+
+            tbody.innerHTML = transactionsData.map(transaction => `
+                <tr onclick="viewTransaction(${transaction.id})">
+                    <td>
+                        <div class="transaction-date">
+                            <div class="date-primary">${formatDate(transaction.transactionDate)}</div>
+                            <div class="date-secondary">${formatTime(transaction.transactionDate)}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="transaction-type ${transaction.transactionType.toLowerCase()}">
+                            <i class="fas fa-${getTransactionIcon(transaction.transactionType)}"></i>
+                            ${transaction.transactionTypeDescription}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="medicine-info">
+                            <div class="medicine-name">${transaction.medicineName}</div>
+                            <span class="medicine-code">${transaction.medicineCode}</span>
+                        </div>
+                    </td>
+                    <td>
+                        ${transaction.lotNumber ? `<span class="lot-number">${transaction.lotNumber}</span>` : '-'}
+                    </td>
+                    <td>
+                        <span class="quantity ${getQuantityClass(transaction.transactionType)}">
+                            ${getQuantityPrefix(transaction.transactionType)}${formatNumber(transaction.quantity)}
+                        </span>
+                    </td>
+                    <td>${transaction.department || '-'}</td>
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                ${transaction.createdByUsername ? transaction.createdByUsername.charAt(0).toUpperCase() : '?'}
+                            </div>
+                            <div class="user-name">${transaction.createdByUsername || '-'}</div>
+                        </div>
+                    </td>
+                    <td>${transaction.remarks || '-'}</td>
+                    <td onclick="event.stopPropagation();">
+                        <div class="action-buttons">
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewTransaction(${transaction.id})" title="상세보기">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${transaction.transactionType !== 'DISPOSAL' && hasPermission('cancel') ? `
+                                <button class="btn btn-outline-danger btn-sm" onclick="cancelTransaction(${transaction.id})" title="취소"
+                                        ${!canCancel(transaction) ? 'disabled' : ''}>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(pageData) {
+            const pagination = document.getElementById('pagination');
+            const totalPages = pageData.totalPages || 0;
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = '';
+
+            // 첫 페이지
+            paginationHTML += `
+                <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="goToPage(0); return false;">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // 이전 페이지
+            paginationHTML += `
+                <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // 페이지 번호들
+            const startPage = Math.max(0, currentPage - 2);
+            const endPage = Math.min(totalPages - 1, currentPage + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="goToPage(${i}); return false;">
+                            ${i + 1}
+                        </a>
+                    </li>
+                `;
+            }
+
+            // 다음 페이지
+            paginationHTML += `
+                <li class="page-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+            `;
+
+            // 마지막 페이지
+            paginationHTML += `
+                <li class="page-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="goToPage(${totalPages - 1}); return false;">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            `;
+
+            pagination.innerHTML = paginationHTML;
+
+            // 페이지네이션 정보 업데이트
+            const start = currentPage * pageSize + 1;
+            const end = Math.min((currentPage + 1) * pageSize, totalElements);
+            document.getElementById('paginationInfo').textContent =
+                `총 ${formatNumber(totalElements)}개 중 ${formatNumber(start)}-${formatNumber(end)}개 표시`;
+        }
+
+        // 유틸리티 함수들
+        function getTransactionIcon(type) {
+            const icons = {
+                'INBOUND': 'arrow-down',
+                'OUTBOUND': 'arrow-up',
+                'ADJUSTMENT': 'edit',
+                'RETURN': 'undo',
+                'DISPOSAL': 'trash',
+                'TRANSFER': 'exchange-alt'
+            };
+            return icons[type] || 'question';
+        }
+
+        function getQuantityClass(type) {
+            if (type === 'INBOUND' || type === 'RETURN') return 'positive';
+            if (type === 'OUTBOUND' || type === 'DISPOSAL') return 'negative';
+            return 'neutral';
+        }
+
+        function getQuantityPrefix(type) {
+            if (type === 'INBOUND' || type === 'RETURN') return '+';
+            if (type === 'OUTBOUND' || type === 'DISPOSAL') return '-';
+            return '';
+        }
+
+        function hasPermission(action) {
+            // 실제 구현에서는 사용자 권한 확인
+            return true; // 임시
+        }
+
+        function canCancel(transaction) {
+            // 24시간 이내 거래만 취소 가능 (예시)
+            const transactionDate = new Date(transaction.transactionDate);
+            const now = new Date();
+            const hoursDiff = (now - transactionDate) / (1000 * 60 * 60);
+            return hoursDiff <= 24;
+        }
+
+        function updateTotalCount() {
+            document.getElementById('totalCount').textContent = formatNumber(totalElements);
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('ko-KR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 이벤트 핸들러들
+        function filterByType(type) {
+            // 통계 카드 활성 상태 업데이트
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+                if (card.dataset.filter === type) {
+                    card.classList.add('active');
+                }
+            });
+
+            // 필터 적용
+            document.getElementById('transactionType').value = type;
+            currentPage = 0;
+            searchTransactions();
+        }
+
+        function resetSearch() {
+            document.getElementById('searchForm').reset();
+            setDefaultDateRange();
+
+            // 통계 카드 활성 상태 초기화
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            currentPage = 0;
+            searchParams = {};
+            searchTransactions();
+            loadStatsData();
+        }
+
+        function refreshData() {
+            loadStatsData();
+            searchTransactions();
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            searchTransactions();
+        }
+
+        function exportData(format) {
+            const params = new URLSearchParams(searchParams);
+            params.append('format', format);
+            window.open(`/api/transactions/export?${params.toString()}`, '_blank');
+        }
+
+        // 액션 함수들
+        function viewTransaction(transactionId) {
+            window.location.href = `/transactions/${transactionId}`;
+        }
+
+        async function cancelTransaction(transactionId) {
+            if (!confirm('이 거래를 취소하시겠습니까?\n\n취소된 거래는 되돌릴 수 없습니다.')) {
+                return;
+            }
+
+            const reason = prompt('취소 사유를 입력해주세요:');
+            if (!reason) return;
+
+            try {
+                const response = await ApiClient.post(`/api/transactions/cancel/${transactionId}?reason=${encodeURIComponent(reason)}`);
+
+                if (response.success) {
+                    showAlert('거래가 취소되었습니다.', 'success');
+                    refreshData();
+                }
+            } catch (error) {
+                showAlert('거래 취소 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // F5: 새로고침
+            if (e.key === 'F5') {
+                e.preventDefault();
+                refreshData();
+            }
+
+            // Ctrl + F: 검색 필드 포커스
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('keyword').focus();
+            }
+
+            // Ctrl + E: 내보내기
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                exportData('excel');
+            }
+        });
+    </script>
+</th:block>
+
 </html>

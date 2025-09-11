@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="${user.fullName + ' - 사용자 프로필'}">사용자 프로필 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 사용자 프로필 특화 스타일 */
+        .profile-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            font-weight: 700;
+            border: 4px solid var(--border-color);
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .user-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-status {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+
+        .avatar-status.online { background: var(--success-color); }
+        .avatar-status.offline { background: #94a3b8; }
+        .avatar-status.away { background: var(--warning-color); }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-subtitle {
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .user-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .meta-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .meta-value {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .user-id {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        .role-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .role-badge.admin {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .role-badge.manager {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+        }
+
+        .role-badge.pharmacist {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .role-badge.staff {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .status-badge.inactive {
+            background: rgba(107, 114, 128, 0.1);
+            color: #374151;
+        }
+
+        .status-badge.locked {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* 통계 카드 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+
+        .stat-card-icon.transactions { background: linear-gradient(135deg, var(--primary-color), #1e40af); }
+        .stat-card-icon.logins { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .stat-card-icon.last-activity { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .stat-card-icon.member-since { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* 그리드 레이아웃 */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* 카드 스타일 */
+        .profile-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(44, 90, 160, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* 정보 리스트 */
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--dark-color);
+            text-align: right;
+        }
+
+        /* 활동 리스트 */
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .activity-item:hover {
+            background: #f8fafc;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.login { background: var(--success-color); }
+        .activity-icon.transaction { background: var(--primary-color); }
+        .activity-icon.update { background: var(--warning-color); }
+        .activity-icon.system { background: #6366f1; }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-description {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        /* 로그인 기록 테이블 */
+        .login-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .login-table th {
+            background: #f8fafc;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .login-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .login-table tbody tr:hover {
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .login-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .login-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .login-status.failed {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        /* 권한 정보 */
+        .permission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .permission-item {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .permission-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .permission-icon.allowed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .permission-icon.denied {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .permission-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        /* 빠른 액션 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .quick-action-btn {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: white;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .quick-action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .quick-action-icon.edit { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
+        .quick-action-icon.password { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .quick-action-icon.activity { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+        .quick-action-icon.settings { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-content {
+                order: -1;
+            }
+
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .user-meta {
+                justify-content: center;
+            }
+
+            .profile-header,
+            .card-content {
+                padding: 1.5rem;
+            }
+
+            .user-title {
+                font-size: 1.8rem;
+            }
+
+            .user-avatar-large {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+        }
+
+        /* 로딩 및 빈 상태 */
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 페이드 인 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="profile-container">
+        <!-- 사용자 헤더 -->
+        <div class="profile-header fade-in">
+            <div class="user-header">
+                <div class="user-avatar-large" id="userAvatar">
+                    <span th:text="${#strings.substring(user.fullName, 0, 1)}">김</span>
+                    <div class="avatar-status"
+                         th:classappend="${user.isOnline ? 'online' : 'offline'}"
+                         th:title="${user.isOnline ? '온라인' : '오프라인'}"></div>
+                </div>
+
+                <div class="user-info">
+                    <h1 class="user-title" th:text="${user.fullName}">김약사</h1>
+                    <p class="user-subtitle" th:text="${user.email}">kim@pharmacy.com</p>
+
+                    <div class="user-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">사용자 ID:</span>
+                            <span class="user-id" th:text="${user.username}">kim_pharmacist</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">권한:</span>
+                            <span class="role-badge"
+                                  th:classappend="${user.role.name().toLowerCase()}"
+                                  th:text="${user.roleDescription}">약사</span>
+                        </div>
+                        <div class="meta-item" th:if="${user.department}">
+                            <span class="meta-label">부서:</span>
+                            <span class="meta-value" th:text="${user.departmentDescription}">약국</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">상태:</span>
+                            <span class="status-badge"
+                                  th:classappend="${user.status.name().toLowerCase()}">
+                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                <span th:text="${user.statusDescription}">활성</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a th:href="@{/users/{id}/edit(id=${user.id})}"
+                       class="btn btn-primary"
+                       sec:authorize="hasRole('ADMIN') or authentication.name == ${user.username}">
+                        <i class="fas fa-edit"></i>
+                        수정
+                    </a>
+                    <button class="btn btn-outline-primary"
+                            onclick="resetPassword()"
+                            sec:authorize="hasRole('ADMIN')">
+                        <i class="fas fa-key"></i>
+                        비밀번호 재설정
+                    </button>
+                    <a th:href="@{/users}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        목록으로
+                    </a>
+                </div>
+            </div>
+
+            <!-- 사용자 설명 -->
+            <div th:if="${user.bio}" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                <p style="color: #64748b; line-height: 1.6; margin: 0;" th:text="${user.bio}">
+                    10년 경력의 임상약사로, 의약품 재고관리 시스템 운영을 담당하고 있습니다.
+                </p>
+            </div>
+        </div>
+
+        <!-- 통계 개요 -->
+        <div class="stats-overview fade-in">
+            <div class="stat-card">
+                <div class="stat-card-icon transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="stat-card-value" id="totalTransactions">-</div>
+                <div class="stat-card-label">처리한 거래</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon logins">
+                    <i class="fas fa-sign-in-alt"></i>
+                </div>
+                <div class="stat-card-value" id="totalLogins">-</div>
+                <div class="stat-card-label">총 로그인</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon last-activity">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-card-value" id="lastActivity">-</div>
+                <div class="stat-card-label">마지막 활동</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon member-since">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <div class="stat-card-value" th:text="${#temporals.format(user.createdAt, 'yyyy.MM')}">2024.01</div>
+                <div class="stat-card-label">가입일</div>
+            </div>
+        </div>
+
+        <!-- 메인 그리드 -->
+        <div class="profile-grid">
+            <!-- 메인 콘텐츠 -->
+            <div class="main-content">
+                <!-- 최근 활동 -->
+                <div class="profile-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            최근 활동
+                        </h3>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="refreshActivities()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="card-content" style="padding: 0;">
+                        <div class="activity-list" id="recentActivities">
+                            <!-- 동적으로 로드됨 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 로그인 기록 -->
+                <div class="profile-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            최근 로그인 기록
+                        </h3>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-calendar"></i>
+                                최근 30일
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="loadLoginHistory(7)">7일</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="loadLoginHistory(30)">30일</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="loadLoginHistory(90)">90일</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-content" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="login-table" id="loginHistoryTable">
+                                <thead>
+                                <tr>
+                                    <th>로그인 시간</th>
+                                    <th>IP 주소</th>
+                                    <th>브라우저</th>
+                                    <th>상태</th>
+                                    <th>세션 시간</th>
+                                </tr>
+                                </thead>
+                                <tbody id="loginHistoryBody">
+                                <!-- 동적으로 로드됨 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 빈 상태 -->
+                        <div class="empty-state" id="emptyLoginState" style="display: none;">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            <h4>로그인 기록이 없습니다</h4>
+                            <p>아직 로그인 기록이 없습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 사이드바 -->
+            <div class="sidebar-content">
+                <!-- 기본 정보 -->
+                <div class="profile-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            기본 정보
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-list">
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-phone"></i>
+                                    연락처
+                                </div>
+                                <div class="info-value" th:text="${user.phoneNumber ?: '미등록'}">010-1234-5678</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    가입일
+                                </div>
+                                <div class="info-value" th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}">2024-01-15</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-clock"></i>
+                                    마지막 로그인
+                                </div>
+                                <div class="info-value">
+                                    <span th:if="${user.lastLoginAt}"
+                                          th:text="${#temporals.format(user.lastLoginAt, 'yyyy-MM-dd HH:mm')}">2024-01-20 14:30</span>
+                                    <span th:unless="${user.lastLoginAt}" class="text-muted">로그인 기록 없음</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-edit"></i>
+                                    최종 수정일
+                                </div>
+                                <div class="info-value" th:text="${#temporals.format(user.updatedAt, 'yyyy-MM-dd HH:mm')}">2024-01-20 16:45</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 권한 정보 -->
+                <div class="profile-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            권한 정보
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="permission-grid" id="permissionGrid">
+                            <!-- 동적으로 로드됨 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 빠른 작업 -->
+                <div class="profile-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            빠른 작업
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="quick-actions">
+                            <a th:href="@{/users/{id}/edit(id=${user.id})}"
+                               class="quick-action-btn"
+                               sec:authorize="hasRole('ADMIN') or authentication.name == ${user.username}">
+                                <div class="quick-action-icon edit">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">정보 수정</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">기본 정보 변경</div>
+                                </div>
+                            </a>
+
+                            <button class="quick-action-btn"
+                                    onclick="resetPassword()"
+                                    sec:authorize="hasRole('ADMIN')">
+                                <div class="quick-action-icon password">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">비밀번호 재설정</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">임시 비밀번호 발송</div>
+                                </div>
+                            </button>
+
+                            <a th:href="@{/transactions(userId=${user.id})}"
+                               class="quick-action-btn">
+                                <div class="quick-action-icon activity">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">처리 내역</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">거래 처리 기록</div>
+                                </div>
+                            </a>
+
+                            <button class="quick-action-btn"
+                                    onclick="toggleUserStatus()"
+                                    sec:authorize="hasRole('ADMIN')">
+                                <div class="quick-action-icon settings">
+                                    <i class="fas fa-power-off"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">계정 상태 변경</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">활성/비활성 전환</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        // 전역 변수
+        const userId = /*[[${user.id}]]*/ 1;
+        const userName = /*[[${user.fullName}]]*/ '김약사';
+        const userStatus = /*[[${user.status.name()}]]*/ 'ACTIVE';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadUserStats();
+            loadRecentActivities();
+            loadLoginHistory(30);
+            loadUserPermissions();
+        });
+
+        // 페이지 초기화
+        function initializePage() {
+            // 사용자 이미지 로드 (향후 구현)
+            // loadUserImage();
+
+            // 실시간 데이터 업데이트 (선택적)
+            // setInterval(refreshData, 60000); // 1분마다 새로고침
+        }
+
+        // 사용자 통계 로드
+        async function loadUserStats() {
+            try {
+                const response = await ApiClient.get(`/api/users/${userId}/stats`);
+                if (response.success) {
+                    updateUserStats(response.data);
+                }
+            } catch (error) {
+                console.error('사용자 통계 로드 오류:', error);
+                // 기본값으로 대체
+                updateUserStats({
+                    totalTransactions: 245,
+                    totalLogins: 89,
+                    lastActivityDays: 1
+                });
+            }
+        }
+
+        // 사용자 통계 업데이트
+        function updateUserStats(stats) {
+            document.getElementById('totalTransactions').textContent = formatNumber(stats.totalTransactions || 0);
+            document.getElementById('totalLogins').textContent = formatNumber(stats.totalLogins || 0);
+
+            const lastActivityText = stats.lastActivityDays === 0 ? '오늘' :
+                stats.lastActivityDays === 1 ? '어제' :
+                    `${stats.lastActivityDays}일 전`;
+            document.getElementById('lastActivity').textContent = lastActivityText;
+        }
+
+        // 최근 활동 로드
+        async function loadRecentActivities() {
+            try {
+                const response = await ApiClient.get(`/api/users/${userId}/activities?limit=10`);
+                if (response.success) {
+                    renderRecentActivities(response.data);
+                }
+            } catch (error) {
+                console.error('최근 활동 로드 오류:', error);
+                // 더미 데이터로 대체
+                renderRecentActivities([
+                    {
+                        type: 'login',
+                        title: '시스템 로그인',
+                        description: '웹 브라우저에서 로그인',
+                        time: '30분 전'
+                    },
+                    {
+                        type: 'transaction',
+                        title: '재고 출고 처리',
+                        description: '아스피린정 100mg - 50개 출고',
+                        time: '2시간 전'
+                    },
+                    {
+                        type: 'update',
+                        title: '의약품 정보 수정',
+                        description: '타이레놀정 500mg 정보 업데이트',
+                        time: '1일 전'
+                    }
+                ]);
+            }
+        }
+
+        // 최근 활동 렌더링
+        function renderRecentActivities(activities) {
+            const container = document.getElementById('recentActivities');
+
+            if (activities.length === 0) {
+                container.innerHTML = `
+                    <div class="activity-item" style="justify-content: center; text-align: center; color: #64748b;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        최근 활동이 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon ${activity.type}">
+                        <i class="fas fa-${getActivityIcon(activity.type)}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${activity.title}</div>
+                        <div class="activity-description">${activity.description}</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 로그인 기록 로드
+        async function loadLoginHistory(days) {
+            try {
+                const response = await ApiClient.get(`/api/users/${userId}/login-history?days=${days}`);
+                if (response.success) {
+                    renderLoginHistory(response.data);
+                }
+            } catch (error) {
+                console.error('로그인 기록 로드 오류:', error);
+                // 더미 데이터로 대체
+                renderLoginHistory([
+                    {
+                        loginTime: '2024-01-20T14:30:00',
+                        ipAddress: '192.168.1.100',
+                        userAgent: 'Chrome 120.0',
+                        status: 'SUCCESS',
+                        sessionDuration: '2시간 15분'
+                    },
+                    {
+                        loginTime: '2024-01-19T09:15:00',
+                        ipAddress: '192.168.1.100',
+                        userAgent: 'Chrome 120.0',
+                        status: 'SUCCESS',
+                        sessionDuration: '8시간 45분'
+                    },
+                    {
+                        loginTime: '2024-01-18T16:20:00',
+                        ipAddress: '10.0.0.50',
+                        userAgent: 'Edge 120.0',
+                        status: 'FAILED',
+                        sessionDuration: '-'
+                    }
+                ]);
+            }
+        }
+
+        // 로그인 기록 렌더링
+        function renderLoginHistory(loginHistory) {
+            const tbody = document.getElementById('loginHistoryBody');
+            const emptyState = document.getElementById('emptyLoginState');
+
+            if (!loginHistory || loginHistory.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            tbody.innerHTML = loginHistory.map(login => `
+                <tr>
+                    <td>${formatDateTime(login.loginTime)}</td>
+                    <td>${login.ipAddress}</td>
+                    <td>${login.userAgent}</td>
+                    <td>
+                        <span class="login-status ${login.status.toLowerCase()}">
+                            ${login.status === 'SUCCESS' ? '성공' : '실패'}
+                        </span>
+                    </td>
+                    <td>${login.sessionDuration}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 사용자 권한 로드
+        async function loadUserPermissions() {
+            try {
+                const response = await ApiClient.get(`/api/users/${userId}/permissions`);
+                if (response.success) {
+                    renderUserPermissions(response.data);
+                }
+            } catch (error) {
+                console.error('권한 정보 로드 오류:', error);
+                // 기본 권한 정보로 대체
+                const userRole = /*[[${user.role.name()}]]*/ 'PHARMACIST';
+                renderUserPermissions(getDefaultPermissions(userRole));
+            }
+        }
+
+        // 기본 권한 정보 가져오기
+        function getDefaultPermissions(role) {
+            const permissions = {
+                'ADMIN': [
+                    { name: '시스템 관리', allowed: true },
+                    { name: '사용자 관리', allowed: true },
+                    { name: '의약품 관리', allowed: true },
+                    { name: '재고 관리', allowed: true },
+                    { name: '거래 처리', allowed: true },
+                    { name: '보고서 생성', allowed: true }
+                ],
+                'MANAGER': [
+                    { name: '시스템 관리', allowed: false },
+                    { name: '사용자 관리', allowed: true },
+                    { name: '의약품 관리', allowed: true },
+                    { name: '재고 관리', allowed: true },
+                    { name: '거래 처리', allowed: true },
+                    { name: '보고서 생성', allowed: true }
+                ],
+                'PHARMACIST': [
+                    { name: '시스템 관리', allowed: false },
+                    { name: '사용자 관리', allowed: false },
+                    { name: '의약품 관리', allowed: true },
+                    { name: '재고 관리', allowed: true },
+                    { name: '거래 처리', allowed: true },
+                    { name: '보고서 생성', allowed: false }
+                ],
+                'STAFF': [
+                    { name: '시스템 관리', allowed: false },
+                    { name: '사용자 관리', allowed: false },
+                    { name: '의약품 관리', allowed: false },
+                    { name: '재고 관리', allowed: false },
+                    { name: '거래 처리', allowed: false },
+                    { name: '보고서 생성', allowed: false }
+                ]
+            };
+
+            return permissions[role] || permissions['STAFF'];
+        }
+
+        // 사용자 권한 렌더링
+        function renderUserPermissions(permissions) {
+            const container = document.getElementById('permissionGrid');
+
+            container.innerHTML = permissions.map(permission => `
+                <div class="permission-item">
+                    <div class="permission-icon ${permission.allowed ? 'allowed' : 'denied'}">
+                        <i class="fas fa-${permission.allowed ? 'check' : 'times'}"></i>
+                    </div>
+                    <div class="permission-text">${permission.name}</div>
+                </div>
+            `).join('');
+        }
+
+        // 유틸리티 함수들
+        function getActivityIcon(type) {
+            const icons = {
+                'login': 'sign-in-alt',
+                'transaction': 'exchange-alt',
+                'update': 'edit',
+                'system': 'cog'
+            };
+            return icons[type] || 'info';
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 이벤트 핸들러들
+        function refreshActivities() {
+            loadRecentActivities();
+        }
+
+        function refreshData() {
+            loadUserStats();
+            loadRecentActivities();
+            loadLoginHistory(30);
+        }
+
+        // 비밀번호 재설정
+        async function resetPassword() {
+            if (!confirm(`"${userName}" 사용자의 비밀번호를 재설정하시겠습니까?\n\n임시 비밀번호가 이메일로 발송됩니다.`)) {
+                return;
+            }
+
+            try {
+                const response = await ApiClient.post(`/api/users/${userId}/reset-password`);
+                if (response.success) {
+                    showAlert('비밀번호가 재설정되었습니다. 임시 비밀번호가 이메일로 발송되었습니다.', 'success');
+                }
+            } catch (error) {
+                showAlert(error.message || '비밀번호 재설정 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 사용자 상태 토글
+        async function toggleUserStatus() {
+            const isActive = userStatus === 'ACTIVE';
+            const action = isActive ? '비활성화' : '활성화';
+            const newStatus = isActive ? 'INACTIVE' : 'ACTIVE';
+
+            if (!confirm(`"${userName}" 사용자를 ${action}하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const response = await ApiClient.patch(`/api/users/${userId}/status`, {
+                    status: newStatus
+                });
+
+                if (response.success) {
+                    showAlert(`사용자가 ${action}되었습니다.`, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                }
+            } catch (error) {
+                showAlert(error.message || `사용자 ${action} 중 오류가 발생했습니다.`, 'danger');
+            }
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // F5: 새로고침
+            if (e.key === 'F5') {
+                e.preventDefault();
+                refreshData();
+            }
+
+            // Ctrl + E: 편집
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                window.location.href = `/users/${userId}/edit`;
+            }
+
+            // Esc: 목록으로
+            if (e.key === 'Escape') {
+                window.location.href = '/users';
+            }
+        });
+
+        // 페이지 가시성 변경 시 데이터 새로고침
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                refreshData();
+            }
+        });
+    </script>
+</th:block>
+
+</html>

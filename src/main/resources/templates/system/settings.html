@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>시스템 설정 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 설정 페이지 특화 스타일 */
+        .settings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .settings-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .settings-title-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .settings-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* 설정 네비게이션 */
+        .settings-nav {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-tabs {
+            border: none;
+            display: flex;
+            gap: 0.5rem;
+            background: #f8fafc;
+            padding: 0.5rem;
+            border-radius: 12px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tab:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+
+        .nav-tab.active {
+            background: #6366f1;
+            color: white;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+
+        /* 설정 콘텐츠 */
+        .settings-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .settings-section {
+            padding: 2rem;
+        }
+
+        .settings-section:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6366f1;
+            font-size: 0.9rem;
+        }
+
+        .section-description {
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        /* 설정 항목 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .setting-item:hover {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.02);
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .setting-description {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .setting-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* 토글 스위치 */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: #cbd5e1;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #6366f1;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(28px);
+        }
+
+        /* 입력 필드 그룹 */
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .input-group .form-control {
+            min-width: 200px;
+        }
+
+        .input-group .btn {
+            white-space: nowrap;
+        }
+
+        /* 선택 그룹 */
+        .selection-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .selection-item {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .selection-item:hover {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .selection-item.selected {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .selection-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #6366f1;
+        }
+
+        .selection-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .selection-description {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* 테이블 설정 */
+        .table-settings {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-settings table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-settings th {
+            background: #f8fafc;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-settings td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .table-settings tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* 알림 설정 */
+        .notification-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .notification-icon.warning { background: var(--warning-color); }
+        .notification-icon.danger { background: var(--danger-color); }
+        .notification-icon.info { background: var(--info-color); }
+        .notification-icon.success { background: var(--success-color); }
+
+        .notification-info {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-desc {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* 백업 설정 */
+        .backup-status {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .backup-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .backup-detail {
+            text-align: center;
+        }
+
+        .backup-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .backup-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        /* 로그 뷰어 */
+        .log-viewer {
+            background: #1f2937;
+            color: #f9fafb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+        }
+
+        .log-time {
+            color: #9ca3af;
+        }
+
+        .log-level {
+            font-weight: 600;
+            margin: 0 0.5rem;
+        }
+
+        .log-level.info { color: #60a5fa; }
+        .log-level.warning { color: #fbbf24; }
+        .log-level.error { color: #ef4444; }
+        .log-level.success { color: #34d399; }
+
+        /* 액션 버튼 */
+        .action-buttons {
+            background: #f8fafc;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* 상태 인디케이터 */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-indicator.online {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .status-indicator.offline {
+            background: rgba(107, 114, 128, 0.1);
+            color: #374151;
+        }
+
+        .status-indicator.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.online { background: #10b981; }
+        .status-dot.offline { background: #6b7280; }
+        .status-dot.error { background: #ef4444; }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tab {
+                justify-content: flex-start;
+            }
+
+            .setting-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .setting-control {
+                justify-content: space-between;
+            }
+
+            .selection-group {
+                grid-template-columns: 1fr;
+            }
+
+            .backup-info {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons .btn {
+                justify-content: center;
+            }
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="settings-container">
+        <!-- 설정 헤더 -->
+        <div class="settings-header fade-in">
+            <div class="settings-title-icon">
+                <i class="fas fa-cog"></i>
+            </div>
+            <div style="flex: 1;">
+                <h1 class="settings-title">시스템 설정</h1>
+                <p class="settings-subtitle">의약품 재고관리 시스템의 전반적인 설정을 관리할 수 있습니다.</p>
+            </div>
+        </div>
+
+        <!-- 설정 네비게이션 -->
+        <div class="settings-nav slide-up">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('general')">
+                    <i class="fas fa-sliders-h"></i>
+                    일반 설정
+                </button>
+                <button class="nav-tab" onclick="showTab('notifications')">
+                    <i class="fas fa-bell"></i>
+                    알림 설정
+                </button>
+                <button class="nav-tab" onclick="showTab('security')">
+                    <i class="fas fa-shield-alt"></i>
+                    보안 설정
+                </button>
+                <button class="nav-tab" onclick="showTab('backup')">
+                    <i class="fas fa-database"></i>
+                    백업/복원
+                </button>
+                <button class="nav-tab" onclick="showTab('system')">
+                    <i class="fas fa-server"></i>
+                    시스템 상태
+                </button>
+            </div>
+        </div>
+
+        <!-- 설정 콘텐츠 -->
+        <div class="settings-content slide-up">
+            <!-- 일반 설정 -->
+            <div id="general" class="tab-pane active">
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        기본 설정
+                    </h3>
+                    <p class="section-description">시스템의 기본 동작 방식을 설정합니다.</p>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">시스템 언어</div>
+                            <div class="setting-description">사용자 인터페이스 언어를 선택하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <select class="form-select" id="systemLanguage">
+                                <option value="ko" selected>한국어</option>
+                                <option value="en">English</option>
+                                <option value="ja">日本語</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">시간대</div>
+                            <div class="setting-description">시스템에서 사용할 시간대를 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <select class="form-select" id="timezone">
+                                <option value="Asia/Seoul" selected>서울 (GMT+9)</option>
+                                <option value="UTC">UTC (GMT+0)</option>
+                                <option value="America/New_York">뉴욕 (GMT-5)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">기본 페이지 크기</div>
+                            <div class="setting-description">목록에서 한 페이지에 표시할 항목 수를 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="pageSize" value="20" min="10" max="100">
+                                <span class="input-group-text">개</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">자동 로그아웃</div>
+                            <div class="setting-description">지정된 시간 동안 비활성 상태일 때 자동으로 로그아웃합니다.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch" id="autoLogout" onclick="toggleSwitch(this)"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        재고 관리 설정
+                    </h3>
+                    <p class="section-description">의약품 재고 관리와 관련된 설정을 조정합니다.</p>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">최소 재고 알림 기준</div>
+                            <div class="setting-description">재고가 이 비율 이하로 떨어지면 알림을 표시합니다.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="lowStockThreshold" value="20" min="5" max="50">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">유효기간 임박 알림</div>
+                            <div class="setting-description">유효기간이 임박한 의약품에 대한 알림 기간을 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="expiryWarningDays" value="30" min="7" max="90">
+                                <span class="input-group-text">일 전</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">자동 재고 조정</div>
+                            <div class="setting-description">시스템이 자동으로 재고를 조정하도록 허용합니다.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch" id="autoStockAdjustment" onclick="toggleSwitch(this)"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        인터페이스 설정
+                    </h3>
+                    <p class="section-description">사용자 인터페이스의 모양과 느낌을 사용자 정의합니다.</p>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">테마 선택</div>
+                            <div class="setting-description">선호하는 테마를 선택하세요.</div>
+                        </div>
+                    </div>
+                    <div class="selection-group">
+                        <div class="selection-item selected" data-theme="light">
+                            <div class="selection-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="selection-label">라이트 모드</div>
+                            <div class="selection-description">밝은 배경의 기본 테마</div>
+                        </div>
+                        <div class="selection-item" data-theme="dark">
+                            <div class="selection-icon">
+                                <i class="fas fa-moon"></i>
+                            </div>
+                            <div class="selection-label">다크 모드</div>
+                            <div class="selection-description">어두운 배경의 테마</div>
+                        </div>
+                        <div class="selection-item" data-theme="auto">
+                            <div class="selection-icon">
+                                <i class="fas fa-adjust"></i>
+                            </div>
+                            <div class="selection-label">자동 전환</div>
+                            <div class="selection-description">시스템 설정에 따라 자동 전환</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 알림 설정 -->
+            <div id="notifications" class="tab-pane">
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        알림 유형
+                    </h3>
+                    <p class="section-description">받고 싶은 알림 유형을 선택하세요.</p>
+
+                    <div class="notification-item">
+                        <div class="notification-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="notification-info">
+                            <div class="notification-title">재고 부족 알림</div>
+                            <div class="notification-desc">의약품 재고가 최소 기준 이하로 떨어질 때</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon danger">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <div class="notification-info">
+                            <div class="notification-title">유효기간 만료 알림</div>
+                            <div class="notification-desc">의약품 유효기간이 임박했을 때</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon info">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="notification-info">
+                            <div class="notification-title">입고/출고 알림</div>
+                            <div class="notification-desc">새로운 입고나 출고 거래가 발생했을 때</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon success">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="notification-info">
+                            <div class="notification-title">사용자 활동 알림</div>
+                            <div class="notification-desc">새로운 사용자 가입이나 중요한 활동이 있을 때</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        이메일 알림 설정
+                    </h3>
+                    <p class="section-description">이메일로 받을 알림을 설정합니다.</p>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">이메일 알림 활성화</div>
+                            <div class="setting-description">중요한 알림을 이메일로 받습니다.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active" id="emailNotifications" onclick="toggleSwitch(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">알림 수신 이메일</div>
+                            <div class="setting-description">알림을 받을 이메일 주소를 입력하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="email" class="form-control" id="notificationEmail" value="admin@hospital.com">
+                                <button class="btn btn-outline-secondary" onclick="testEmail()">테스트</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">알림 빈도</div>
+                            <div class="setting-description">이메일 알림을 받을 빈도를 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <select class="form-select" id="notificationFrequency">
+                                <option value="immediate">즉시</option>
+                                <option value="hourly">시간별</option>
+                                <option value="daily" selected>일별</option>
+                                <option value="weekly">주별</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 보안 설정 -->
+            <div id="security" class="tab-pane">
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        패스워드 정책
+                    </h3>
+                    <p class="section-description">사용자 패스워드에 대한 보안 정책을 설정합니다.</p>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">최소 패스워드 길이</div>
+                            <div class="setting-description">패스워드의 최소 문자 수를 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="minPasswordLength" value="8" min="6" max="20">
+                                <span class="input-group-text">자</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">복잡한 패스워드 요구</div>
+                            <div class="setting-description">대문자, 소문자, 숫자, 특수문자를 포함하도록 요구합니다.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active" id="complexPassword" onclick="toggleSwitch(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">패스워드 만료 기간</div>
+                            <div class="setting-description">패스워드를 변경해야 하는 주기를 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="passwordExpiry" value="90" min="30" max="365">
+                                <span class="input-group-text">일</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        접근 제어
+                    </h3>
+                    <p class="section-description">시스템 접근과 권한을 관리합니다.</p>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">이중 인증 (2FA)</div>
+                            <div class="setting-description">추가 보안을 위해 이중 인증을 활성화합니다.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch" id="twoFactorAuth" onclick="toggleSwitch(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">로그인 시도 제한</div>
+                            <div class="setting-description">연속 로그인 실패 시 계정을 일시적으로 잠금 처리합니다.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="maxLoginAttempts" value="5" min="3" max="10">
+                                <span class="input-group-text">회</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">세션 타임아웃</div>
+                            <div class="setting-description">비활성 상태에서 자동 로그아웃되는 시간을 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="sessionTimeout" value="30" min="15" max="120">
+                                <span class="input-group-text">분</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 백업/복원 -->
+            <div id="backup" class="tab-pane">
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        백업 상태
+                    </h3>
+                    <p class="section-description">현재 백업 상태와 최근 백업 정보를 확인합니다.</p>
+
+                    <div class="backup-status">
+                        <div class="backup-info">
+                            <div class="backup-detail">
+                                <div class="backup-label">마지막 백업</div>
+                                <div class="backup-value" id="lastBackupTime">2024-03-15 02:00</div>
+                            </div>
+                            <div class="backup-detail">
+                                <div class="backup-label">백업 크기</div>
+                                <div class="backup-value" id="backupSize">1.2 GB</div>
+                            </div>
+                            <div class="backup-detail">
+                                <div class="backup-label">백업 상태</div>
+                                <div class="backup-value">
+                                    <span class="status-indicator online">
+                                        <span class="status-dot online"></span>
+                                        정상
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="backup-detail">
+                                <div class="backup-label">다음 백업</div>
+                                <div class="backup-value" id="nextBackupTime">2024-03-16 02:00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">자동 백업</div>
+                            <div class="setting-description">정기적으로 자동 백업을 수행합니다.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch active" id="autoBackup" onclick="toggleSwitch(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">백업 빈도</div>
+                            <div class="setting-description">자동 백업을 수행할 주기를 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <select class="form-select" id="backupFrequency">
+                                <option value="daily" selected>매일</option>
+                                <option value="weekly">매주</option>
+                                <option value="monthly">매월</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">백업 보관 기간</div>
+                            <div class="setting-description">백업 파일을 보관할 기간을 설정하세요.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="backupRetention" value="30" min="7" max="365">
+                                <span class="input-group-text">일</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        백업/복원 작업
+                    </h3>
+                    <p class="section-description">수동으로 백업을 생성하거나 기존 백업을 복원합니다.</p>
+
+                    <div class="d-flex gap-3 mb-3">
+                        <button class="btn btn-primary" onclick="createBackup()">
+                            <i class="fas fa-download me-2"></i>
+                            백업 생성
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="downloadBackup()">
+                            <i class="fas fa-file-download me-2"></i>
+                            백업 다운로드
+                        </button>
+                        <button class="btn btn-warning" onclick="restoreBackup()">
+                            <i class="fas fa-upload me-2"></i>
+                            백업 복원
+                        </button>
+                    </div>
+
+                    <div class="table-settings">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>백업 일시</th>
+                                <th>파일 크기</th>
+                                <th>타입</th>
+                                <th>상태</th>
+                                <th>작업</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>2024-03-15 02:00:00</td>
+                                <td>1.2 GB</td>
+                                <td>자동</td>
+                                <td><span class="status-indicator online"><span class="status-dot online"></span>성공</span></td>
+                                <td>
+                                    <button class="btn btn-outline-secondary btn-sm me-2">다운로드</button>
+                                    <button class="btn btn-outline-danger btn-sm">삭제</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-03-14 02:00:00</td>
+                                <td>1.1 GB</td>
+                                <td>자동</td>
+                                <td><span class="status-indicator online"><span class="status-dot online"></span>성공</span></td>
+                                <td>
+                                    <button class="btn btn-outline-secondary btn-sm me-2">다운로드</button>
+                                    <button class="btn btn-outline-danger btn-sm">삭제</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 시스템 상태 -->
+            <div id="system" class="tab-pane">
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        시스템 성능
+                    </h3>
+                    <p class="section-description">현재 시스템의 성능과 리소스 사용량을 모니터링합니다.</p>
+
+                    <div class="backup-status">
+                        <div class="backup-info">
+                            <div class="backup-detail">
+                                <div class="backup-label">CPU 사용률</div>
+                                <div class="backup-value text-success">15%</div>
+                            </div>
+                            <div class="backup-detail">
+                                <div class="backup-label">메모리 사용률</div>
+                                <div class="backup-value text-warning">68%</div>
+                            </div>
+                            <div class="backup-detail">
+                                <div class="backup-label">디스크 사용률</div>
+                                <div class="backup-value text-success">42%</div>
+                            </div>
+                            <div class="backup-detail">
+                                <div class="backup-label">네트워크 상태</div>
+                                <div class="backup-value">
+                                    <span class="status-indicator online">
+                                        <span class="status-dot online"></span>
+                                        정상
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-list-alt"></i>
+                        </div>
+                        시스템 로그
+                    </h3>
+                    <p class="section-description">최근 시스템 활동과 오류 로그를 확인합니다.</p>
+
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="refreshLogs()">
+                            <i class="fas fa-sync-alt me-1"></i>새로고침
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="clearLogs()">
+                            <i class="fas fa-trash me-1"></i>로그 삭제
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="downloadLogs()">
+                            <i class="fas fa-download me-1"></i>로그 다운로드
+                        </button>
+                    </div>
+
+                    <div class="log-viewer" id="systemLogs">
+                        <div class="log-entry">
+                            <span class="log-time">2024-03-15 14:30:25</span>
+                            <span class="log-level info">[INFO]</span>
+                            사용자 '관리자'가 로그인했습니다.
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">2024-03-15 14:25:10</span>
+                            <span class="log-level success">[SUCCESS]</span>
+                            자동 백업이 성공적으로 완료되었습니다.
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">2024-03-15 14:20:05</span>
+                            <span class="log-level warning">[WARNING]</span>
+                            의약품 'MED001'의 재고가 부족합니다. (현재: 5개, 최소: 10개)
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">2024-03-15 14:15:30</span>
+                            <span class="log-level info">[INFO]</span>
+                            새로운 입고 거래가 등록되었습니다. (거래ID: TXN-20240315-001)
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">2024-03-15 14:10:15</span>
+                            <span class="log-level error">[ERROR]</span>
+                            이메일 발송 실패: SMTP 서버 연결 오류
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        시스템 정보
+                    </h3>
+                    <p class="section-description">현재 시스템의 버전과 구성 정보입니다.</p>
+
+                    <div class="table-settings">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td><strong>시스템 버전</strong></td>
+                                <td>의약품 재고관리 시스템 v2.1.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>빌드 번호</strong></td>
+                                <td>20240315.1425</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Java 버전</strong></td>
+                                <td>OpenJDK 17.0.8</td>
+                            </tr>
+                            <tr>
+                                <td><strong>데이터베이스</strong></td>
+                                <td>PostgreSQL 15.4</td>
+                            </tr>
+                            <tr>
+                                <td><strong>운영체제</strong></td>
+                                <td>Ubuntu 22.04.3 LTS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>총 메모리</strong></td>
+                                <td>16 GB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>사용 가능 디스크</strong></td>
+                                <td>1.2 TB / 2.0 TB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>시스템 가동 시간</strong></td>
+                                <td>15일 8시간 32분</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="action-buttons">
+                <button class="btn btn-outline-secondary" onclick="resetToDefaults()">
+                    <i class="fas fa-undo"></i>
+                    기본값으로 복원
+                </button>
+                <button class="btn btn-success" onclick="saveSettings()">
+                    <i class="fas fa-save"></i>
+                    설정 저장
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        // 전역 변수
+        let currentTab = 'general';
+        let hasUnsavedChanges = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSettings();
+            setupEventListeners();
+            loadSettings();
+        });
+
+        // 설정 초기화
+        function initializeSettings() {
+            // 테마 선택 이벤트
+            document.querySelectorAll('.selection-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const group = this.parentElement;
+                    group.querySelectorAll('.selection-item').forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                    hasUnsavedChanges = true;
+                });
+            });
+
+            // 입력 필드 변경 감지
+            document.querySelectorAll('input, select').forEach(element => {
+                element.addEventListener('change', function() {
+                    hasUnsavedChanges = true;
+                });
+            });
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // 페이지 떠나기 전 경고
+            window.addEventListener('beforeunload', function(e) {
+                if (hasUnsavedChanges) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+        }
+
+        // 탭 전환
+        function showTab(tabName) {
+            // 모든 탭 비활성화
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+
+            // 선택된 탭 활성화
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            currentTab = tabName;
+        }
+
+        // 토글 스위치
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+            hasUnsavedChanges = true;
+        }
+
+        // 설정 로드
+        async function loadSettings() {
+            try {
+                // 실제 구현에서는 API 호출
+                const settings = {
+                    systemLanguage: 'ko',
+                    timezone: 'Asia/Seoul',
+                    pageSize: 20,
+                    autoLogout: false,
+                    lowStockThreshold: 20,
+                    expiryWarningDays: 30,
+                    autoStockAdjustment: false,
+                    theme: 'light',
+                    emailNotifications: true,
+                    notificationEmail: 'admin@hospital.com',
+                    notificationFrequency: 'daily',
+                    minPasswordLength: 8,
+                    complexPassword: true,
+                    passwordExpiry: 90,
+                    twoFactorAuth: false,
+                    maxLoginAttempts: 5,
+                    sessionTimeout: 30,
+                    autoBackup: true,
+                    backupFrequency: 'daily',
+                    backupRetention: 30
+                };
+
+                // 설정값 적용
+                applySettings(settings);
+            } catch (error) {
+                console.error('설정 로드 오류:', error);
+                showAlert('설정을 불러오는 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 설정값 적용
+        function applySettings(settings) {
+            Object.keys(settings).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = settings[key];
+                    } else {
+                        element.value = settings[key];
+                    }
+                }
+            });
+
+            // 토글 스위치 상태 적용
+            document.querySelectorAll('.toggle-switch').forEach(toggle => {
+                const id = toggle.id;
+                if (settings[id] !== undefined) {
+                    if (settings[id]) {
+                        toggle.classList.add('active');
+                    } else {
+                        toggle.classList.remove('active');
+                    }
+                }
+            });
+
+            // 테마 선택 적용
+            if (settings.theme) {
+                document.querySelectorAll('.selection-item').forEach(item => {
+                    item.classList.remove('selected');
+                    if (item.dataset.theme === settings.theme) {
+                        item.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        // 설정 저장
+        async function saveSettings() {
+            try {
+                const settings = collectSettings();
+
+                // 실제 구현에서는 API 호출
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                hasUnsavedChanges = false;
+                showAlert('설정이 성공적으로 저장되었습니다.', 'success');
+            } catch (error) {
+                console.error('설정 저장 오류:', error);
+                showAlert('설정 저장 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 설정값 수집
+        function collectSettings() {
+            const settings = {};
+
+            // 입력 필드 값 수집
+            document.querySelectorAll('input[id], select[id]').forEach(element => {
+                const id = element.id;
+                if (id) {
+                    if (element.type === 'checkbox') {
+                        settings[id] = element.checked;
+                    } else {
+                        settings[id] = element.value;
+                    }
+                }
+            });
+
+            // 토글 스위치 상태 수집
+            document.querySelectorAll('.toggle-switch[id]').forEach(toggle => {
+                settings[toggle.id] = toggle.classList.contains('active');
+            });
+
+            // 테마 선택 수집
+            const selectedTheme = document.querySelector('.selection-item.selected');
+            if (selectedTheme) {
+                settings.theme = selectedTheme.dataset.theme;
+            }
+
+            return settings;
+        }
+
+        // 기본값으로 복원
+        function resetToDefaults() {
+            if (confirm('모든 설정을 기본값으로 복원하시겠습니까?')) {
+                const defaultSettings = {
+                    systemLanguage: 'ko',
+                    timezone: 'Asia/Seoul',
+                    pageSize: 20,
+                    autoLogout: false,
+                    lowStockThreshold: 20,
+                    expiryWarningDays: 30,
+                    autoStockAdjustment: false,
+                    theme: 'light',
+                    emailNotifications: true,
+                    notificationEmail: '',
+                    notificationFrequency: 'daily',
+                    minPasswordLength: 8,
+                    complexPassword: true,
+                    passwordExpiry: 90,
+                    twoFactorAuth: false,
+                    maxLoginAttempts: 5,
+                    sessionTimeout: 30,
+                    autoBackup: true,
+                    backupFrequency: 'daily',
+                    backupRetention: 30
+                };
+
+                applySettings(defaultSettings);
+                hasUnsavedChanges = true;
+                showAlert('기본 설정이 적용되었습니다. 저장 버튼을 눌러 저장하세요.', 'info');
+            }
+        }
+
+        // 이메일 테스트
+        async function testEmail() {
+            const email = document.getElementById('notificationEmail').value;
+            if (!email) {
+                showAlert('이메일 주소를 입력하세요.', 'warning');
+                return;
+            }
+
+            try {
+                // 실제 구현에서는 API 호출
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                showAlert('테스트 이메일이 발송되었습니다.', 'success');
+            } catch (error) {
+                console.error('이메일 테스트 오류:', error);
+                showAlert('이메일 발송 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 백업 관련 함수들
+        async function createBackup() {
+            if (confirm('새로운 백업을 생성하시겠습니까?')) {
+                try {
+                    showAlert('백업을 생성하고 있습니다...', 'info');
+                    // 실제 구현에서는 API 호출
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    showAlert('백업이 성공적으로 생성되었습니다.', 'success');
+                    refreshBackupStatus();
+                } catch (error) {
+                    console.error('백업 생성 오류:', error);
+                    showAlert('백업 생성 중 오류가 발생했습니다.', 'danger');
+                }
+            }
+        }
+
+        function downloadBackup() {
+            const link = document.createElement('a');
+            link.href = '/api/admin/backup/download/latest';
+            link.download = `backup_${new Date().toISOString().split('T')[0]}.sql`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function restoreBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.sql,.zip';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file && confirm('백업을 복원하시겠습니까? 현재 데이터가 덮어씌워질 수 있습니다.')) {
+                    // 실제 구현에서는 파일 업로드 및 복원 API 호출
+                    showAlert('백업 복원이 시작되었습니다.', 'info');
+                }
+            };
+            input.click();
+        }
+
+        function refreshBackupStatus() {
+            // 백업 상태 새로고침
+            showAlert('백업 상태를 새로고침했습니다.', 'info');
+        }
+
+        // 로그 관련 함수들
+        function refreshLogs() {
+            showAlert('로그를 새로고침했습니다.', 'info');
+        }
+
+        function clearLogs() {
+            if (confirm('모든 로그를 삭제하시겠습니까?')) {
+                document.getElementById('systemLogs').innerHTML = '<div class="log-entry"><span class="log-time">' +
+                    new Date().toLocaleString('ko-KR') + '</span><span class="log-level info">[INFO]</span>로그가 삭제되었습니다.</div>';
+                showAlert('로그가 삭제되었습니다.', 'success');
+            }
+        }
+
+        function downloadLogs() {
+            const logs = document.getElementById('systemLogs').textContent;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `system_logs_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + S: 설정 저장
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveSettings();
+            }
+        });
+    </script>
+</th:block>
+
+</html>

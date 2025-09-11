@@ -4,6 +4,7 @@ import com.pharma.inventory.dto.request.MedicineCreateRequest;
 import com.pharma.inventory.dto.request.MedicineSearchRequest;
 import com.pharma.inventory.dto.request.StockCreateRequest;
 import com.pharma.inventory.dto.request.UserRegisterRequest;
+import com.pharma.inventory.dto.response.DashboardSummary;
 import com.pharma.inventory.dto.response.MedicineResponse;
 import com.pharma.inventory.dto.response.StockResponse;
 import com.pharma.inventory.dto.response.UserResponse;
@@ -16,6 +17,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.Collections;
 
 /**
  * Thymeleaf 뷰를 렌더링하기 위한 컨트롤러
@@ -33,7 +36,7 @@ public class ViewController {
 
     @GetMapping
     public String index() {
-        return "redirect:/dashboard";
+        return "redirect:/dashboard/index";
     }
 
     // Auth
@@ -49,15 +52,30 @@ public class ViewController {
     }
 
     // Dashboard
-    @GetMapping("dashboard")
+    @GetMapping("dashboard/index")
     public String dashboard(Model model, Authentication authentication) {
         if (authentication == null) {
-            return "redirect:/auth/login";
+            // 비로그인 사용자에게 빈 데이터 또는 기본값 제공
+            model.addAttribute("summary", DashboardSummary.builder()
+                                .totalMedicines(0L)
+                                .activeMedicines(0L)
+                                .totalStockItems(0L)
+                                .totalStockValue(0.0)
+                                .todayInboundCount(0L)
+                                .todayOutboundCount(0L)
+                                .expiredCount(0L)
+                                .expiringSoonCount(0L)
+                                .build());
+            model.addAttribute("recentActivities", Collections.emptyList());
+            model.addAttribute("expiringStocks", Collections.emptyList());
+            model.addAttribute("lowStockMedicines", Collections.emptyList());
+        } else {
+            // 로그인 사용자에게 실제 데이터 제공
+            model.addAttribute("summary", dashboardService.getSummary());
+            model.addAttribute("recentActivities", dashboardService.getRecentActivities(10));
+            model.addAttribute("expiringStocks", dashboardService.getExpiringStocks(30));
+            model.addAttribute("lowStockMedicines", dashboardService.getLowStockMedicines());
         }
-        model.addAttribute("summary", dashboardService.getSummary());
-        model.addAttribute("recentActivities", dashboardService.getRecentActivities(10));
-        model.addAttribute("expiringStocks", dashboardService.getExpiringStocks(30));
-        model.addAttribute("lowStockMedicines", dashboardService.getLowStockMedicines());
         return "dashboard/index";
     }
 
@@ -154,7 +172,7 @@ public class ViewController {
     @GetMapping("users/{id}")
     public String userDetail(@PathVariable Long id, Model model) {
         model.addAttribute("user", userService.getUser(id));
-        return "users/detail";
+        return "profile";
     }
 
     @GetMapping("users/{id}/edit")

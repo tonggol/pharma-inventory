@@ -1,63 +1,1514 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="${user.id != null ? '사용자 수정' : '사용자 등록'} + ' - 의약품 재고관리 시스템'">사용자 등록 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 사용자 폼 특화 스타일 */
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .form-title-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .form-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+        .form-section:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(44, 90, 160, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-grid.two-columns {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-grid.three-columns {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger-color);
+            margin-left: 0.25rem;
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25);
+        }
+
+        .form-control.is-valid {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+        }
+
+        .form-control:disabled {
+            background-color: #f1f5f9;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .valid-feedback {
+            color: var(--success-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 프로필 이미지 업로드 */
+        .profile-upload-section {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .current-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            border: 4px solid var(--border-color);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .current-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload-area {
+            flex: 1;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+
+        .avatar-upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .avatar-upload-area.dragover {
+            border-color: var(--primary-color);
+            background: rgba(44, 90, 160, 0.1);
+        }
+
+        .avatar-upload-icon {
+            font-size: 2rem;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+        }
+
+        .avatar-upload-text {
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .avatar-upload-hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        /* 비밀번호 강도 표시 */
+        .password-strength {
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .password-strength.show {
+            display: block;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-fill.weak { width: 25%; background: var(--danger-color); }
+        .strength-fill.fair { width: 50%; background: var(--warning-color); }
+        .strength-fill.good { width: 75%; background: #3b82f6; }
+        .strength-fill.strong { width: 100%; background: var(--success-color); }
+
+        .strength-text {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .strength-text.weak { color: var(--danger-color); }
+        .strength-text.fair { color: var(--warning-color); }
+        .strength-text.good { color: #3b82f6; }
+        .strength-text.strong { color: var(--success-color); }
+
+        /* 비밀번호 토글 버튼 */
+        .password-input-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        /* 체크박스 스타일 */
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-check:hover {
+            border-color: var(--primary-color);
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-label {
+            font-weight: 500;
+            color: var(--dark-color);
+            cursor: pointer;
+            margin: 0;
+        }
+
+        /* 액션 버튼 영역 */
+        .form-actions {
+            background: #f8fafc;
+            padding: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline-danger {
+            background: white;
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* 로딩 스피너 */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .form-grid.two-columns,
+            .form-grid.three-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .form-header,
+            .form-section {
+                padding: 1.5rem;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+
+            .form-actions .btn {
+                justify-content: center;
+            }
+
+            .profile-upload-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .current-avatar {
+                margin: 0 auto;
+            }
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 툴팁 스타일 */
+        .tooltip-icon {
+            color: #94a3b8;
+            cursor: help;
+            font-size: 0.85rem;
+        }
+
+        .tooltip-icon:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</th:block>
+
 <div layout:fragment="content">
-
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 th:text="${user.id == null ? 'Add New User' : 'Edit User'}">Add/Edit User</h1>
-    </div>
-
-    <form th:action="${user.id == null ? '/api/users' : '/api/users/' + user.id}" th:object="${user}" method="post">
-        <input type="hidden" th:if="${user.id != null}" name="_method" value="put"/>
-
-        <div class="card">
-            <div class="card-header d-flex align-items-center">
-                <i data-feather="edit-3" class="me-2"></i>
-                <span>User Information</span>
+    <div class="form-container">
+        <!-- 폼 헤더 -->
+        <div class="form-header fade-in">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="form-title-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h1 class="form-title" th:text="${user.id != null ? '사용자 정보 수정' : '새 사용자 등록'}">새 사용자 등록</h1>
+                        <p class="form-subtitle" th:text="${user.id != null ? '사용자 정보를 수정합니다.' : '새로운 사용자를 시스템에 등록합니다.'}">새로운 사용자를 시스템에 등록합니다.</p>
+                    </div>
+                </div>
+                <div>
+                    <a href="/users" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        목록으로
+                    </a>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" id="username" th:field="*{username}" class="form-control" th:readonly="${user.id != null}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="fullName" class="form-label">Full Name</label>
-                        <input type="text" id="fullName" th:field="*{fullName}" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" id="email" th:field="*{email}" class="form-control" required>
-                    </div>
-                    
-                    <!-- Password only for new user -->
-                    <div class="col-md-6" th:if="${user.id == null}">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+
+        <!-- 알림 메시지 -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show slide-up" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}">에러 메시지</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- 사용자 폼 -->
+        <form class="slide-up"
+              th:action="${user.id != null ? '/api/users/' + user.id : '/api/users'}"
+              th:method="${user.id != null ? 'PUT' : 'POST'}"
+              th:object="${user}"
+              id="userForm"
+              enctype="multipart/form-data"
+              novalidate>
+
+            <!-- 프로필 이미지 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        프로필 이미지
+                    </h3>
+
+                    <div class="profile-upload-section">
+                        <div class="current-avatar" id="currentAvatar">
+                            <span th:text="${#strings.substring(user.fullName ?: '사용자', 0, 1)}">사</span>
+                        </div>
+
+                        <div class="avatar-upload-area" id="avatarUploadArea">
+                            <div class="avatar-upload-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div class="avatar-upload-text">프로필 이미지를 선택하세요</div>
+                            <div class="avatar-upload-hint">PNG, JPG 파일만 업로드 가능 (최대 2MB)</div>
+                            <input type="file"
+                                   id="profileImageFile"
+                                   name="profileImageFile"
+                                   accept="image/*"
+                                   style="display: none;">
+                        </div>
                     </div>
 
-                    <!-- Role and Status only for editing user -->
-                    <div class="col-md-6" th:if="${user.id != null}">
-                        <label for="role" class="form-label">Role</label>
-                        <select id="role" th:field="*{role}" class="form-select">
-                            <option th:each="r : ${T(com.pharma.inventory.entity.UserRole).values()}" th:value="${r}" th:text="${r.description}"></option>
-                        </select>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle"></i>
+                        프로필 이미지는 선택사항입니다. 업로드하지 않으면 이름의 첫 글자로 자동 생성됩니다.
                     </div>
-                    <div class="col-12" th:if="${user.id != null}">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="isActive" th:field="*{isActive}">
-                            <label class="form-check-label" for="isActive">User is Active</label>
+                </div>
+            </div>
+
+            <!-- 기본 정보 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        기본 정보
+                    </h3>
+
+                    <div class="form-grid two-columns">
+                        <div class="form-group">
+                            <label for="username" class="form-label required">
+                                <i class="fas fa-user"></i>
+                                사용자 ID
+                                <i class="fas fa-question-circle tooltip-icon"
+                                   data-bs-toggle="tooltip"
+                                   title="로그인 시 사용할 고유한 ID입니다. 영문, 숫자, 언더스코어만 사용 가능합니다."></i>
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="username"
+                                   name="username"
+                                   th:field="*{username}"
+                                   placeholder="예: kim_pharmacist"
+                                   required
+                                   maxlength="50"
+                                   pattern="^[a-zA-Z0-9_]{3,50}$"
+                                   th:disabled="${user.id != null}">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                영문, 숫자, 언더스코어(_)만 사용 가능 (3-50자)
+                            </div>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="usernameError">올바른 사용자 ID를 입력해주세요.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label required">
+                                <i class="fas fa-envelope"></i>
+                                이메일
+                            </label>
+                            <input type="email"
+                                   class="form-control"
+                                   id="email"
+                                   name="email"
+                                   th:field="*{email}"
+                                   placeholder="예: kim@pharmacy.com"
+                                   required
+                                   maxlength="100">
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="emailError">올바른 이메일 주소를 입력해주세요.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fullName" class="form-label required">
+                                <i class="fas fa-id-card"></i>
+                                성명
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="fullName"
+                                   name="fullName"
+                                   th:field="*{fullName}"
+                                   placeholder="예: 김약사"
+                                   required
+                                   maxlength="50">
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                성명을 입력해주세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phoneNumber" class="form-label">
+                                <i class="fas fa-phone"></i>
+                                연락처
+                            </label>
+                            <input type="tel"
+                                   class="form-control"
+                                   id="phoneNumber"
+                                   name="phoneNumber"
+                                   th:field="*{phoneNumber}"
+                                   placeholder="예: 010-1234-5678"
+                                   maxlength="20"
+                                   pattern="^[0-9-+\s()]{10,20}$">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                숫자, 하이픈(-), 괄호(), 공백만 사용 가능
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card-footer text-end">
-                <a th:href="@{/users}" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary d-flex align-items-center d-inline-flex">
-                    <i data-feather="save" class="me-2"></i> Save Changes
-                </button>
+
+            <!-- 비밀번호 섹션 -->
+            <div class="form-card" th:if="${user.id == null}">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        비밀번호 설정
+                    </h3>
+
+                    <div class="form-grid two-columns">
+                        <div class="form-group">
+                            <label for="password" class="form-label required">
+                                <i class="fas fa-key"></i>
+                                비밀번호
+                            </label>
+                            <div class="password-input-group">
+                                <input type="password"
+                                       class="form-control"
+                                       id="password"
+                                       name="password"
+                                       placeholder="비밀번호를 입력하세요"
+                                       required
+                                       minlength="8"
+                                       maxlength="50">
+                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength" id="passwordStrength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strengthFill"></div>
+                                </div>
+                                <div class="strength-text" id="strengthText">약함</div>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                8자 이상, 영문 대소문자, 숫자, 특수문자 포함 권장
+                            </div>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                비밀번호는 8자 이상이어야 합니다.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label required">
+                                <i class="fas fa-key"></i>
+                                비밀번호 확인
+                            </label>
+                            <div class="password-input-group">
+                                <input type="password"
+                                       class="form-control"
+                                       id="confirmPassword"
+                                       name="confirmPassword"
+                                       placeholder="비밀번호를 다시 입력하세요"
+                                       required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                    <i class="fas fa-eye" id="confirmPasswordToggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="confirmPasswordError">비밀번호가 일치하지 않습니다.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </form>
+
+            <!-- 권한 및 부서 정보 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        권한 및 부서 정보
+                    </h3>
+
+                    <div class="form-grid two-columns">
+                        <div class="form-group">
+                            <label for="role" class="form-label required">
+                                <i class="fas fa-user-tag"></i>
+                                권한
+                                <i class="fas fa-question-circle tooltip-icon"
+                                   data-bs-toggle="tooltip"
+                                   title="사용자의 시스템 접근 권한을 설정합니다."></i>
+                            </label>
+                            <select class="form-select" id="role" name="role" th:field="*{role}" required>
+                                <option value="">권한 선택</option>
+                                <option value="ADMIN">시스템 관리자 (모든 권한)</option>
+                                <option value="MANAGER">매니저 (재고 관리, 사용자 조회)</option>
+                                <option value="PHARMACIST">약사 (재고 조회, 출고 처리)</option>
+                                <option value="STAFF">일반 직원 (재고 조회만)</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                권한을 선택해주세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="department" class="form-label">
+                                <i class="fas fa-building"></i>
+                                소속 부서
+                            </label>
+                            <select class="form-select" id="department" name="department" th:field="*{department}">
+                                <option value="">부서 선택</option>
+                                <option value="PHARMACY">약국</option>
+                                <option value="WAREHOUSE">창고</option>
+                                <option value="ADMIN">관리부서</option>
+                                <option value="IT">IT부서</option>
+                            </select>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                소속 부서는 선택사항입니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 권한 안내 -->
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>권한별 기능:</strong><br>
+                        <small>
+                            • <strong>시스템 관리자:</strong> 모든 기능 이용 가능<br>
+                            • <strong>매니저:</strong> 재고 관리, 사용자 조회, 보고서 생성<br>
+                            • <strong>약사:</strong> 재고 조회, 출고 처리, 의약품 관리<br>
+                            • <strong>일반 직원:</strong> 재고 조회만 가능
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 추가 설정 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        추가 설정
+                    </h3>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <div class="form-check" onclick="toggleCheckbox('isActive')">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="isActive"
+                                       name="isActive"
+                                       th:field="*{isActive}"
+                                       th:checked="${user.isActive != null ? user.isActive : true}">
+                                <label class="form-check-label" for="isActive">
+                                    <strong>계정 활성화</strong>
+                                    <div style="font-weight: 400; color: #64748b; font-size: 0.9rem;">
+                                        체크하면 이 사용자가 시스템에 로그인할 수 있습니다.
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" th:if="${user.id == null}">
+                            <div class="form-check" onclick="toggleCheckbox('sendWelcomeEmail')">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="sendWelcomeEmail"
+                                       name="sendWelcomeEmail"
+                                       checked>
+                                <label class="form-check-label" for="sendWelcomeEmail">
+                                    <strong>환영 이메일 발송</strong>
+                                    <div style="font-weight: 400; color: #64748b; font-size: 0.9rem;">
+                                        계정 정보와 임시 비밀번호를 이메일로 발송합니다.
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" th:if="${user.id == null}">
+                            <div class="form-check" onclick="toggleCheckbox('forcePasswordChange')">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="forcePasswordChange"
+                                       name="forcePasswordChange"
+                                       checked>
+                                <label class="form-check-label" for="forcePasswordChange">
+                                    <strong>첫 로그인 시 비밀번호 변경 강제</strong>
+                                    <div style="font-weight: 400; color: #64748b; font-size: 0.9rem;">
+                                        사용자가 처음 로그인할 때 비밀번호를 반드시 변경하도록 합니다.
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="form-card">
+                <div class="form-actions">
+                    <a href="/users" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                        취소
+                    </a>
+
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetForm()" th:if="${user.id == null}">
+                        <i class="fas fa-undo"></i>
+                        초기화
+                    </button>
+
+                    <button type="button" class="btn btn-outline-danger" onclick="deleteUser()" th:if="${user.id != null}" sec:authorize="hasRole('ADMIN')">
+                        <i class="fas fa-trash"></i>
+                        삭제
+                    </button>
+
+                    <button type="button" class="btn btn-primary" onclick="resetPassword()" th:if="${user.id != null}" sec:authorize="hasRole('ADMIN')">
+                        <i class="fas fa-key"></i>
+                        비밀번호 재설정
+                    </button>
+
+                    <button type="submit" class="btn btn-success" id="submitButton">
+                        <i class="fas fa-save"></i>
+                        <span th:text="${user.id != null ? '수정하기' : '등록하기'}">등록하기</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            initializeProfileUpload();
+            initializeValidation();
+            initializePasswordStrength();
+            initializeTooltips();
+        });
+
+        // 폼 초기화
+        function initializeForm() {
+            const form = document.getElementById('userForm');
+            const submitButton = document.getElementById('submitButton');
+
+            // 폼 제출 처리
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                setLoading(true);
+
+                try {
+                    const formData = new FormData(form);
+
+                    // 프로필 이미지 파일이 있는 경우 추가
+                    const profileImageFile = document.getElementById('profileImageFile').files[0];
+                    if (profileImageFile) {
+                        formData.append('profileImageFile', profileImageFile);
+                    }
+
+                    const isEdit = form.action.includes('/api/users/') && !form.action.endsWith('/api/users');
+                    const method = isEdit ? 'PUT' : 'POST';
+
+                    const response = await fetch(form.action, {
+                        method: method,
+                        body: formData,
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        showAlert(isEdit ? '사용자 정보가 수정되었습니다.' : '사용자가 등록되었습니다.', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/users/' + result.data.id;
+                        }, 1500);
+                    } else {
+                        throw new Error(result.message || '처리 중 오류가 발생했습니다.');
+                    }
+                } catch (error) {
+                    console.error('폼 제출 오류:', error);
+                    showAlert(error.message || '처리 중 오류가 발생했습니다.', 'danger');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // 실시간 유효성 검증
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+
+                input.addEventListener('input', function() {
+                    clearFieldError(this);
+                });
+            });
+        }
+
+        // 프로필 이미지 업로드 초기화
+        function initializeProfileUpload() {
+            const uploadArea = document.getElementById('avatarUploadArea');
+            const fileInput = document.getElementById('profileImageFile');
+            const currentAvatar = document.getElementById('currentAvatar');
+
+            // 클릭으로 파일 선택
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // 파일 선택 시 처리
+            fileInput.addEventListener('change', function() {
+                handleProfileImageSelect(this.files[0]);
+            });
+
+            // 드래그 앤 드롭
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleProfileImageSelect(files[0]);
+                }
+            });
+        }
+
+        // 프로필 이미지 선택 처리
+        function handleProfileImageSelect(file) {
+            if (!file) return;
+
+            // 파일 유형 검증
+            if (!file.type.startsWith('image/')) {
+                showAlert('이미지 파일만 업로드할 수 있습니다.', 'warning');
+                return;
+            }
+
+            // 파일 크기 검증 (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showAlert('파일 크기는 2MB를 초과할 수 없습니다.', 'warning');
+                return;
+            }
+
+            // 미리보기 표시
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const currentAvatar = document.getElementById('currentAvatar');
+                currentAvatar.innerHTML = `<img src="${e.target.result}" alt="프로필 이미지">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 유효성 검증 초기화
+        function initializeValidation() {
+            // 사용자 ID 실시간 검증
+            const usernameInput = document.getElementById('username');
+            if (usernameInput && !usernameInput.disabled) {
+                usernameInput.addEventListener('input', function() {
+                    validateUsername(this.value);
+                });
+
+                // 사용자 ID 중복 검사 (디바운싱)
+                let usernameCheckTimeout;
+                usernameInput.addEventListener('input', function() {
+                    clearTimeout(usernameCheckTimeout);
+                    usernameCheckTimeout = setTimeout(() => {
+                        checkUsernameDuplication(this.value);
+                    }, 500);
+                });
+            }
+
+            // 이메일 유효성 검증
+            const emailInput = document.getElementById('email');
+            emailInput.addEventListener('input', function() {
+                validateEmail(this.value);
+            });
+
+            // 이메일 중복 검사
+            let emailCheckTimeout;
+            emailInput.addEventListener('input', function() {
+                clearTimeout(emailCheckTimeout);
+                emailCheckTimeout = setTimeout(() => {
+                    checkEmailDuplication(this.value);
+                }, 500);
+            });
+
+            // 비밀번호 확인 검증
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', function() {
+                    validatePasswordConfirm();
+                });
+            }
+        }
+
+        // 비밀번호 강도 표시 초기화
+        function initializePasswordStrength() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    updatePasswordStrength(this.value);
+                });
+            }
+        }
+
+        // 툴팁 초기화
+        function initializeTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+
+        // 사용자 ID 유효성 검증
+        function validateUsername(username) {
+            const pattern = /^[a-zA-Z0-9_]{3,50}$/;
+            const usernameInput = document.getElementById('username');
+            const errorElement = document.getElementById('usernameError');
+
+            if (!username) {
+                setFieldError(usernameInput, '사용자 ID를 입력해주세요.');
+                return false;
+            }
+
+            if (!pattern.test(username)) {
+                setFieldError(usernameInput, '영문, 숫자, 언더스코어(_)만 사용 가능합니다. (3-50자)');
+                return false;
+            }
+
+            setFieldValid(usernameInput);
+            return true;
+        }
+
+        // 이메일 유효성 검증
+        function validateEmail(email) {
+            const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailInput = document.getElementById('email');
+
+            if (!email) {
+                setFieldError(emailInput, '이메일을 입력해주세요.');
+                return false;
+            }
+
+            if (!pattern.test(email)) {
+                setFieldError(emailInput, '올바른 이메일 형식을 입력해주세요.');
+                return false;
+            }
+
+            setFieldValid(emailInput);
+            return true;
+        }
+
+        // 사용자 ID 중복 검사
+        async function checkUsernameDuplication(username) {
+            if (!validateUsername(username)) return;
+
+            try {
+                const currentUserId = window.location.pathname.includes('/edit') ?
+                    window.location.pathname.split('/')[2] : null;
+
+                const response = await ApiClient.get(`/api/users/check-username?username=${username}&excludeId=${currentUserId || ''}`);
+
+                if (response.data.exists) {
+                    setFieldError(document.getElementById('username'), '이미 사용 중인 사용자 ID입니다.');
+                    return false;
+                }
+
+                setFieldValid(document.getElementById('username'));
+                return true;
+            } catch (error) {
+                console.error('사용자 ID 중복 검사 오류:', error);
+            }
+        }
+
+        // 이메일 중복 검사
+        async function checkEmailDuplication(email) {
+            if (!validateEmail(email)) return;
+
+            try {
+                const currentUserId = window.location.pathname.includes('/edit') ?
+                    window.location.pathname.split('/')[2] : null;
+
+                const response = await ApiClient.get(`/api/users/check-email?email=${email}&excludeId=${currentUserId || ''}`);
+
+                if (response.data.exists) {
+                    setFieldError(document.getElementById('email'), '이미 사용 중인 이메일 주소입니다.');
+                    return false;
+                }
+
+                setFieldValid(document.getElementById('email'));
+                return true;
+            } catch (error) {
+                console.error('이메일 중복 검사 오류:', error);
+            }
+        }
+
+        // 비밀번호 강도 업데이트
+        function updatePasswordStrength(password) {
+            const strengthContainer = document.getElementById('passwordStrength');
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+
+            if (!password) {
+                strengthContainer.classList.remove('show');
+                return;
+            }
+
+            strengthContainer.classList.add('show');
+
+            let strength = 0;
+            let strengthLabel = '매우 약함';
+
+            // 길이 검사
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+
+            // 문자 종류 검사
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            // 강도 계산
+            if (strength <= 2) {
+                strengthLabel = '약함';
+                strengthFill.className = 'strength-fill weak';
+                strengthText.className = 'strength-text weak';
+            } else if (strength <= 4) {
+                strengthLabel = '보통';
+                strengthFill.className = 'strength-fill fair';
+                strengthText.className = 'strength-text fair';
+            } else if (strength <= 5) {
+                strengthLabel = '강함';
+                strengthFill.className = 'strength-fill good';
+                strengthText.className = 'strength-text good';
+            } else {
+                strengthLabel = '매우 강함';
+                strengthFill.className = 'strength-fill strong';
+                strengthText.className = 'strength-text strong';
+            }
+
+            strengthText.textContent = strengthLabel;
+        }
+
+        // 비밀번호 확인 검증
+        function validatePasswordConfirm() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+
+            if (!confirmPassword) {
+                setFieldError(confirmPasswordInput, '비밀번호를 다시 입력해주세요.');
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                setFieldError(confirmPasswordInput, '비밀번호가 일치하지 않습니다.');
+                return false;
+            }
+
+            setFieldValid(confirmPasswordInput);
+            return true;
+        }
+
+        // 비밀번호 표시/숨김 토글
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + 'ToggleIcon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // 폼 전체 유효성 검증
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = ['username', 'email', 'fullName', 'role'];
+
+            // 새 사용자 등록 시 비밀번호 필수
+            if (!document.getElementById('username').disabled) {
+                requiredFields.push('password', 'confirmPassword');
+            }
+
+            requiredFields.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (field && !validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            // 사용자 ID 특별 검증
+            if (!document.getElementById('username').disabled) {
+                if (!validateUsername(document.getElementById('username').value)) {
+                    isValid = false;
+                }
+            }
+
+            // 이메일 특별 검증
+            if (!validateEmail(document.getElementById('email').value)) {
+                isValid = false;
+            }
+
+            // 비밀번호 확인 검증
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            if (confirmPasswordInput && !validatePasswordConfirm()) {
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // 개별 필드 유효성 검증
+        function validateField(field) {
+            const value = field.value.trim();
+
+            if (field.required && !value) {
+                setFieldError(field, '필수 입력 항목입니다.');
+                return false;
+            }
+
+            // 특정 필드별 검증
+            if (field.id === 'phoneNumber' && value) {
+                const phonePattern = /^[0-9-+\s()]{10,20}$/;
+                if (!phonePattern.test(value)) {
+                    setFieldError(field, '올바른 전화번호 형식을 입력해주세요.');
+                    return false;
+                }
+            }
+
+            // 비밀번호 길이 검증
+            if (field.id === 'password' && value && value.length < 8) {
+                setFieldError(field, '비밀번호는 8자 이상이어야 합니다.');
+                return false;
+            }
+
+            setFieldValid(field);
+            return true;
+        }
+
+        // 필드 오류 설정
+        function setFieldError(field, message) {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+
+            const feedback = field.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                const span = feedback.querySelector('span');
+                if (span) {
+                    span.textContent = message;
+                }
+            }
+        }
+
+        // 필드 유효성 설정
+        function setFieldValid(field) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        }
+
+        // 필드 오류 제거
+        function clearFieldError(field) {
+            field.classList.remove('is-invalid', 'is-valid');
+        }
+
+        // 체크박스 토글
+        function toggleCheckbox(id) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+        }
+
+        // 폼 초기화
+        function resetForm() {
+            if (confirm('입력한 내용이 모두 삭제됩니다. 계속하시겠습니까?')) {
+                document.getElementById('userForm').reset();
+
+                // 프로필 이미지 초기화
+                const currentAvatar = document.getElementById('currentAvatar');
+                currentAvatar.innerHTML = '<span>사</span>';
+
+                // 유효성 검증 클래스 제거
+                const fields = document.querySelectorAll('.form-control, .form-select');
+                fields.forEach(field => {
+                    field.classList.remove('is-valid', 'is-invalid');
+                });
+
+                // 비밀번호 강도 숨김
+                document.getElementById('passwordStrength').classList.remove('show');
+            }
+        }
+
+        // 사용자 삭제
+        async function deleteUser() {
+            const userName = document.getElementById('fullName').value;
+
+            if (!confirm(`"${userName}" 사용자를 삭제하시겠습니까?\n\n삭제된 사용자는 복구할 수 없습니다.`)) {
+                return;
+            }
+
+            if (!confirm(`정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+                return;
+            }
+
+            try {
+                const userId = window.location.pathname.split('/')[2];
+                const response = await ApiClient.delete(`/api/users/${userId}`);
+
+                if (response.success) {
+                    showAlert('사용자가 삭제되었습니다.', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/users';
+                    }, 1500);
+                }
+            } catch (error) {
+                showAlert(error.message || '사용자 삭제 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 비밀번호 재설정
+        async function resetPassword() {
+            const userName = document.getElementById('fullName').value;
+
+            if (!confirm(`"${userName}" 사용자의 비밀번호를 재설정하시겠습니까?\n\n임시 비밀번호가 이메일로 발송됩니다.`)) {
+                return;
+            }
+
+            try {
+                const userId = window.location.pathname.split('/')[2];
+                const response = await ApiClient.post(`/api/users/${userId}/reset-password`);
+
+                if (response.success) {
+                    showAlert('비밀번호가 재설정되었습니다. 임시 비밀번호가 이메일로 발송되었습니다.', 'success');
+                }
+            } catch (error) {
+                showAlert(error.message || '비밀번호 재설정 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 로딩 상태 설정
+        function setLoading(isLoading) {
+            const submitButton = document.getElementById('submitButton');
+
+            if (isLoading) {
+                submitButton.disabled = true;
+                submitButton.classList.add('btn-loading');
+            } else {
+                submitButton.disabled = false;
+                submitButton.classList.remove('btn-loading');
+            }
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + S: 저장
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('userForm').dispatchEvent(new Event('submit'));
+            }
+
+            // Esc: 취소 (목록으로 이동)
+            if (e.key === 'Escape') {
+                if (confirm('작성 중인 내용이 저장되지 않습니다. 목록으로 이동하시겠습니까?')) {
+                    window.location.href = '/users';
+                }
+            }
+        });
+    </script>
+</th:block>
+
 </html>

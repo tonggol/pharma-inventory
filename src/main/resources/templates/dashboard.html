@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>대시보드 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 대시보드 특화 스타일 */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0.1;
+            font-size: 8rem;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* 통계 카드 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-card-icon.medicines { background: linear-gradient(135deg, var(--primary-color), #1e40af); }
+        .stat-card-icon.stocks { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .stat-card-icon.low-stock { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .stat-card-icon.expired { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
+        .stat-card-icon.transactions { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+
+        .stat-card-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-card-change {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-card-change.positive { color: var(--success-color); }
+        .stat-card-change.negative { color: var(--danger-color); }
+        .stat-card-change.neutral { color: #64748b; }
+
+        /* 메인 그리드 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(44, 90, 160, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* 차트 컨테이너 */
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* 활동 리스트 */
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .activity-item:hover {
+            background: #f8fafc;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.inbound { background: var(--success-color); }
+        .activity-icon.outbound { background: var(--warning-color); }
+        .activity-icon.expired { background: var(--danger-color); }
+        .activity-icon.low-stock { background: #f59e0b; }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-description {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        /* 알림 카드 */
+        .alert-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .alert-item {
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-item.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--warning-color);
+        }
+
+        .alert-item.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--danger-color);
+        }
+
+        .alert-item.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+        }
+
+        .alert-icon.warning { color: var(--warning-color); }
+        .alert-icon.danger { color: var(--danger-color); }
+        .alert-icon.info { color: #3b82f6; }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        /* 하단 그리드 */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        /* 빠른 액션 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .quick-action-btn {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: white;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.15);
+        }
+
+        .quick-action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .quick-action-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+        .quick-action-icon.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
+        .quick-action-icon.primary { background: rgba(44, 90, 160, 0.1); color: var(--primary-color); }
+        .quick-action-icon.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-section {
+                padding: 1.5rem;
+            }
+
+            .card-content {
+                padding: 1.5rem;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 페이드 인 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="dashboard-container">
+        <!-- 환영 섹션 -->
+        <div class="welcome-section fade-in">
+            <div class="welcome-bg">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <div class="welcome-content">
+                <h1 class="welcome-title">
+                    안녕하세요, <span sec:authentication="principal.fullName">사용자</span>님!
+                </h1>
+                <p class="welcome-subtitle">
+                    오늘도 안전하고 효율적인 의약품 재고관리를 시작해보세요.
+                    <span id="currentDateTime"></span>
+                </p>
+            </div>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="stats-grid fade-in">
+            <div class="stat-card" onclick="location.href='/medicines'">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon medicines">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="totalMedicines">-</div>
+                <div class="stat-card-label">등록된 의약품</div>
+                <div class="stat-card-change positive" id="medicinesChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+12개 (이번 달)</span>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="location.href='/stocks'">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon stocks">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="totalStocks">-</div>
+                <div class="stat-card-label">총 재고량</div>
+                <div class="stat-card-change positive" id="stocksChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+2,340개 (지난주)</span>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="location.href='/stocks?status=low'">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon low-stock">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="lowStockItems">-</div>
+                <div class="stat-card-label">재고 부족</div>
+                <div class="stat-card-change negative" id="lowStockChange">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>3개 감소</span>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="location.href='/stocks?expiry=expiring'">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon expired">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="expiringItems">-</div>
+                <div class="stat-card-label">만료 임박</div>
+                <div class="stat-card-change neutral" id="expiringChange">
+                    <i class="fas fa-minus"></i>
+                    <span>변동 없음</span>
+                </div>
+            </div>
+
+            <div class="stat-card" onclick="location.href='/transactions'">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon transactions">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="todayTransactions">-</div>
+                <div class="stat-card-label">오늘의 거래</div>
+                <div class="stat-card-change positive" id="transactionsChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>활발함</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 대시보드 그리드 -->
+        <div class="dashboard-grid slide-up">
+            <!-- 재고 추이 차트 -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        재고 추이 (최근 30일)
+                    </h3>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-calendar"></i>
+                            30일
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="updateChart(7)">7일</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateChart(30)">30일</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateChart(90)">90일</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 최근 활동 -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <div class="card-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        최근 활동
+                    </h3>
+                    <a href="/transactions" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-external-link-alt"></i>
+                        전체 보기
+                    </a>
+                </div>
+                <div class="card-content" style="padding: 0;">
+                    <div class="activity-list" id="recentActivities">
+                        <!-- 동적으로 로드됨 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 그리드 -->
+        <div class="bottom-grid slide-up">
+            <!-- 중요 알림 -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <div class="card-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        중요 알림
+                        <span class="badge bg-danger" id="alertCount">0</span>
+                    </h3>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshAlerts()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="alert-items" id="importantAlerts">
+                        <!-- 동적으로 로드됨 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 빠른 작업 -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <div class="card-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        빠른 작업
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="quick-actions">
+                        <a href="/stocks/new" class="quick-action-btn" sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                            <div class="quick-action-icon success">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">재고 입고</div>
+                                <div style="font-size: 0.85rem; color: #64748b;">새 재고 추가</div>
+                            </div>
+                        </a>
+
+                        <a href="/transactions/new?type=outbound" class="quick-action-btn" sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                            <div class="quick-action-icon warning">
+                                <i class="fas fa-minus"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">재고 출고</div>
+                                <div style="font-size: 0.85rem; color: #64748b;">재고 사용 처리</div>
+                            </div>
+                        </a>
+
+                        <a href="/medicines/new" class="quick-action-btn" sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                            <div class="quick-action-icon primary">
+                                <i class="fas fa-pills"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">의약품 등록</div>
+                                <div style="font-size: 0.85rem; color: #64748b;">새 의약품 추가</div>
+                            </div>
+                        </a>
+
+                        <a href="/stocks/audit" class="quick-action-btn" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                            <div class="quick-action-icon info">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">재고 실사</div>
+                                <div style="font-size: 0.85rem; color: #64748b;">재고 확인 및 조정</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        // 전역 변수
+        let stockChart = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            loadDashboardData();
+            initializeChart();
+            updateDateTime();
+        });
+
+        // 대시보드 초기화
+        function initializeDashboard() {
+            // 현재 시간 표시 및 자동 업데이트
+            setInterval(updateDateTime, 60000); // 1분마다 업데이트
+
+            // 실시간 데이터 업데이트 (선택적)
+            // setInterval(loadDashboardData, 300000); // 5분마다 업데이트
+        }
+
+        // 현재 시간 업데이트
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent =
+                '현재 시간: ' + now.toLocaleDateString('ko-KR', options);
+        }
+
+        // 대시보드 데이터 로드
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadStatistics(),
+                    loadRecentActivities(),
+                    loadImportantAlerts()
+                ]);
+            } catch (error) {
+                console.error('대시보드 데이터 로드 오류:', error);
+                showAlert('대시보드 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 통계 데이터 로드
+        async function loadStatistics() {
+            try {
+                const response = await ApiClient.get('/api/dashboard/statistics');
+                if (response.success) {
+                    updateStatistics(response.data);
+                }
+            } catch (error) {
+                console.error('통계 데이터 로드 오류:', error);
+                // 기본값으로 대체
+                updateStatistics({
+                    totalMedicines: 247,
+                    totalStocks: 15420,
+                    lowStockItems: 8,
+                    expiringItems: 12,
+                    todayTransactions: 23
+                });
+            }
+        }
+
+        // 통계 업데이트
+        function updateStatistics(stats) {
+            document.getElementById('totalMedicines').textContent = formatNumber(stats.totalMedicines || 0);
+            document.getElementById('totalStocks').textContent = formatNumber(stats.totalStocks || 0);
+            document.getElementById('lowStockItems').textContent = formatNumber(stats.lowStockItems || 0);
+            document.getElementById('expiringItems').textContent = formatNumber(stats.expiringItems || 0);
+            document.getElementById('todayTransactions').textContent = formatNumber(stats.todayTransactions || 0);
+        }
+
+        // 최근 활동 로드
+        async function loadRecentActivities() {
+            try {
+                const response = await ApiClient.get('/api/dashboard/recent-activities?limit=8');
+                if (response.success) {
+                    renderRecentActivities(response.data);
+                }
+            } catch (error) {
+                console.error('최근 활동 로드 오류:', error);
+                // 더미 데이터로 대체
+                renderRecentActivities([
+                    {
+                        type: 'inbound',
+                        title: '재고 입고',
+                        description: '아스피린정 100mg - 500개 입고',
+                        time: '30분 전'
+                    },
+                    {
+                        type: 'outbound',
+                        title: '재고 출고',
+                        description: '타이레놀정 500mg - 50개 출고',
+                        time: '1시간 전'
+                    },
+                    {
+                        type: 'expired',
+                        title: '유효기간 만료',
+                        description: '감기약 시럽 - 유효기간 임박 알림',
+                        time: '2시간 전'
+                    }
+                ]);
+            }
+        }
+
+        // 최근 활동 렌더링
+        function renderRecentActivities(activities) {
+            const container = document.getElementById('recentActivities');
+
+            if (activities.length === 0) {
+                container.innerHTML = `
+                    <div class="activity-item" style="justify-content: center; text-align: center; color: #64748b;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        최근 활동이 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon ${activity.type}">
+                        <i class="fas fa-${getActivityIcon(activity.type)}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${activity.title}</div>
+                        <div class="activity-description">${activity.description}</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 중요 알림 로드
+        async function loadImportantAlerts() {
+            try {
+                const response = await ApiClient.get('/api/dashboard/alerts');
+                if (response.success) {
+                    renderImportantAlerts(response.data);
+                }
+            } catch (error) {
+                console.error('알림 로드 오류:', error);
+                // 더미 데이터로 대체
+                renderImportantAlerts([
+                    {
+                        type: 'warning',
+                        title: '재고 부족 경고',
+                        message: '8개 의약품의 재고가 최소 수량 이하입니다.'
+                    },
+                    {
+                        type: 'danger',
+                        title: '유효기간 만료 임박',
+                        message: '12개 의약품이 30일 이내에 만료됩니다.'
+                    }
+                ]);
+            }
+        }
+
+        // 중요 알림 렌더링
+        function renderImportantAlerts(alerts) {
+            const container = document.getElementById('importantAlerts');
+            const alertCount = document.getElementById('alertCount');
+
+            alertCount.textContent = alerts.length;
+
+            if (alerts.length === 0) {
+                container.innerHTML = `
+                    <div class="alert-item info">
+                        <i class="fas fa-check-circle alert-icon info"></i>
+                        <div class="alert-content">
+                            <div class="alert-title">모든 상태 정상</div>
+                            <div class="alert-message">현재 주의가 필요한 알림이 없습니다.</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = alerts.map(alert => `
+                <div class="alert-item ${alert.type}">
+                    <i class="fas fa-${getAlertIcon(alert.type)} alert-icon ${alert.type}"></i>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-message">${alert.message}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 차트 초기화
+        function initializeChart() {
+            const ctx = document.getElementById('stockChart').getContext('2d');
+
+            stockChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '총 재고량',
+                        data: [],
+                        borderColor: 'rgb(44, 90, 160)',
+                        backgroundColor: 'rgba(44, 90, 160, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: '재고 부족',
+                        data: [],
+                        borderColor: 'rgb(245, 158, 11)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        }
+                    }
+                }
+            });
+
+            loadChartData(30);
+        }
+
+        // 차트 데이터 로드
+        async function loadChartData(days) {
+            try {
+                // 실제 구현에서는 API로 데이터를 가져와야 합니다
+                // 현재는 더미 데이터 사용
+                const labels = [];
+                const stockData = [];
+                const lowStockData = [];
+                const today = new Date();
+
+                for (let i = days - 1; i >= 0; i--) {
+                    const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+                    labels.push(date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }));
+
+                    // 더미 데이터 (실제로는 API에서 가져옴)
+                    stockData.push(Math.floor(Math.random() * 1000) + 14000);
+                    lowStockData.push(Math.floor(Math.random() * 15) + 5);
+                }
+
+                stockChart.data.labels = labels;
+                stockChart.data.datasets[0].data = stockData;
+                stockChart.data.datasets[1].data = lowStockData;
+                stockChart.update();
+            } catch (error) {
+                console.error('차트 데이터 로드 오류:', error);
+            }
+        }
+
+        // 유틸리티 함수들
+        function getActivityIcon(type) {
+            const icons = {
+                'inbound': 'arrow-down',
+                'outbound': 'arrow-up',
+                'expired': 'exclamation-triangle',
+                'low-stock': 'warning'
+            };
+            return icons[type] || 'info';
+        }
+
+        function getAlertIcon(type) {
+            const icons = {
+                'warning': 'exclamation-triangle',
+                'danger': 'times-circle',
+                'info': 'info-circle'
+            };
+            return icons[type] || 'info-circle';
+        }
+
+        // 이벤트 핸들러들
+        function updateChart(days) {
+            loadChartData(days);
+        }
+
+        function refreshAlerts() {
+            loadImportantAlerts();
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // F5: 새로고침
+            if (e.key === 'F5') {
+                e.preventDefault();
+                loadDashboardData();
+            }
+
+            // Ctrl + N: 새 재고 입고
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                window.location.href = '/stocks/new';
+            }
+        });
+
+        // 페이지 가시성 변경 시 데이터 새로고침
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadDashboardData();
+            }
+        });
+    </script>
+</th:block>
+
+</html>

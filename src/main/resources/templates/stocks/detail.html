@@ -1,53 +1,971 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="${stock.medicine.name + ' (' + stock.lotNumber + ') - 재고 상세정보'}">재고 상세정보 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 재고 상세 페이지 특화 스타일 */
+        .detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .detail-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .stock-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stock-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #94a3b8;
+            border: 2px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .stock-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .stock-info {
+            flex: 1;
+        }
+
+        .stock-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stock-subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .stock-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .meta-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .meta-value {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .lot-number {
+            font-family: 'Courier New', monospace;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge.available {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .status-badge.reserved {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+        }
+
+        .status-badge.quarantine {
+            background: rgba(139, 92, 246, 0.1);
+            color: #6d28d9;
+        }
+
+        .status-badge.expired {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .status-badge.disposed {
+            background: rgba(107, 114, 128, 0.1);
+            color: #374151;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline-danger {
+            background: white;
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* 그리드 레이아웃 */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* 카드 스타일 */
+        .detail-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(44, 90, 160, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* 재고 정보 그리드 */
+        .stock-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .info-value.large {
+            font-size: 1.5rem;
+        }
+
+        .info-value.warning {
+            color: var(--warning-color);
+        }
+
+        .info-value.danger {
+            color: var(--danger-color);
+        }
+
+        /* 거래 내역 테이블 */
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .transactions-table th {
+            background: #f8fafc;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .transactions-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .transactions-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .transactions-table tbody tr:hover {
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        /* 거래 타입 배지 */
+        .transaction-type {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .transaction-type.inbound {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .transaction-type.outbound {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+        }
+
+        .transaction-type.adjustment {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+        }
+
+        .transaction-type.disposal {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        /* 알림 카드 */
+        .alert-card {
+            border-left: 4px solid;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-card.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--warning-color);
+            color: #92400e;
+        }
+
+        .alert-card.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--danger-color);
+            color: #dc2626;
+        }
+
+        .alert-card.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: var(--info-color);
+            color: #1e40af;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-content {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stock-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .stock-meta {
+                justify-content: center;
+            }
+
+            .detail-header,
+            .card-content {
+                padding: 1.5rem;
+            }
+
+            .stock-title {
+                font-size: 1.5rem;
+            }
+
+            .stock-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 페이드 인 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</th:block>
+
 <div layout:fragment="content">
+    <div class="detail-container">
+        <!-- 재고 헤더 -->
+        <div class="detail-header fade-in">
+            <div class="stock-header">
+                <div class="stock-image" id="stockImage">
+                    <i class="fas fa-box"></i>
+                </div>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div>
-            <h1 th:text="${stock.medicineName}">Medicine Name</h1>
-            <p class="text-muted fs-5" th:text="'Lot No: ' + ${stock.lotNumber}">Lot No: L12345</p>
+                <div class="stock-info">
+                    <h1 class="stock-title" th:text="${stock.medicine.name}">아스피린정 100mg</h1>
+                    <p class="stock-subtitle">
+                        로트번호: <span class="lot-number" th:text="${stock.lotNumber}">LOT2024001</span>
+                    </p>
+
+                    <div class="stock-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">의약품 코드:</span>
+                            <span class="meta-value" th:text="${stock.medicine.code}">MED001</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">제조사:</span>
+                            <span class="meta-value" th:text="${stock.medicine.manufacturer}">한국제약</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">카테고리:</span>
+                            <span class="meta-value" th:text="${stock.medicine.category}">해열진통제</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">현재 상태:</span>
+                            <span class="status-badge" th:classappend="${stock.status.toLowerCase()}" th:text="${stock.statusDescription}">
+                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                사용 가능
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a th:href="@{/stocks/{id}/edit(id=${stock.id})}"
+                       class="btn btn-primary"
+                       sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                        <i class="fas fa-edit"></i>
+                        수정
+                    </a>
+                    <a href="/transactions/new"
+                       th:href="@{/transactions/new(stockId=${stock.id}, type=outbound)}"
+                       class="btn btn-warning"
+                       sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                        <i class="fas fa-minus"></i>
+                        출고
+                    </a>
+                    <a th:href="@{/stocks}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        목록으로
+                    </a>
+                </div>
+            </div>
         </div>
-        <div>
-            <a th:href="@{/stocks/{id}/edit(id=${stock.id})}" class="btn btn-primary d-flex align-items-center">
-                <i data-feather="edit-2" class="me-2"></i> Edit Stock
-            </a>
-            <a th:href="@{/stocks}" class="btn btn-outline-secondary">Back to List</a>
-        </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header d-flex align-items-center">
-            <i data-feather="layers" class="me-2"></i> Stock Details
-        </div>
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">Stock ID</dt>
-                <dd class="col-sm-9" th:text="${stock.id}">101</dd>
+        <!-- 메인 그리드 -->
+        <div class="detail-grid">
+            <!-- 메인 컨텐츠 -->
+            <div class="main-content">
+                <!-- 재고 상세 정보 -->
+                <div class="detail-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            재고 상세 정보
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="stock-info-grid">
+                            <div class="info-item">
+                                <div class="info-label">현재 수량</div>
+                                <div class="info-value large" th:text="${stock.quantity + ' ' + stock.medicine.unit}">500 정</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">입고 수량</div>
+                                <div class="info-value" th:text="${stock.originalQuantity + ' ' + stock.medicine.unit}">500 정</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">사용량</div>
+                                <div class="info-value" th:text="${(stock.originalQuantity - stock.quantity) + ' ' + stock.medicine.unit}">0 정</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">유효기간</div>
+                                <div class="info-value"
+                                     th:classappend="${stock.daysUntilExpiry <= 0 ? 'danger' : stock.daysUntilExpiry <= 30 ? 'warning' : ''}"
+                                     th:text="${#temporals.format(stock.expiryDate, 'yyyy-MM-dd')}">2025-12-31</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">남은 기간</div>
+                                <div class="info-value"
+                                     th:classappend="${stock.daysUntilExpiry <= 0 ? 'danger' : stock.daysUntilExpiry <= 30 ? 'warning' : ''}"
+                                     th:text="${stock.daysUntilExpiry > 0 ? stock.daysUntilExpiry + '일' : '만료됨'}">365일</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">입고일</div>
+                                <div class="info-value" th:text="${#temporals.format(stock.receivedDate, 'yyyy-MM-dd')}">2024-01-15</div>
+                            </div>
+                            <div class="info-item" th:if="${stock.manufactureDate}">
+                                <div class="info-label">제조일</div>
+                                <div class="info-value" th:text="${#temporals.format(stock.manufactureDate, 'yyyy-MM-dd')}">2024-01-01</div>
+                            </div>
+                            <div class="info-item" th:if="${stock.supplierName}">
+                                <div class="info-label">공급업체</div>
+                                <div class="info-value" th:text="${stock.supplierName}">한국의약품유통</div>
+                            </div>
+                            <div class="info-item" th:if="${stock.purchasePrice}">
+                                <div class="info-label">구매 단가</div>
+                                <div class="info-value" th:text="${#numbers.formatCurrency(stock.purchasePrice)}">₩1,200</div>
+                            </div>
+                            <div class="info-item" th:if="${stock.location}">
+                                <div class="info-label">보관 위치</div>
+                                <div class="info-value" th:text="${stock.location}">A동-1층-냉장고1</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">등록일</div>
+                                <div class="info-value" th:text="${#temporals.format(stock.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-15 09:30</div>
+                            </div>
+                            <div class="info-item" th:if="${stock.updatedAt != stock.createdAt}">
+                                <div class="info-label">최종 수정일</div>
+                                <div class="info-value" th:text="${#temporals.format(stock.updatedAt, 'yyyy-MM-dd HH:mm')}">2024-01-20 14:30</div>
+                            </div>
+                        </div>
 
-                <dt class="col-sm-3">Medicine</dt>
-                <dd class="col-sm-9">
-                    <a th:href="@{/medicines/{id}(id=${stock.medicineId})}" th:text="${stock.medicineName}">Aspirin</a>
-                </dd>
+                        <!-- 비고 -->
+                        <div th:if="${stock.remarks}" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">비고</h5>
+                            <p style="color: #64748b; line-height: 1.6; margin: 0;" th:text="${stock.remarks}">
+                                냉장 보관 필수. 직사광선 피해 보관.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-                <dt class="col-sm-3">Quantity</dt>
-                <dd class="col-sm-9 fw-bold" th:text="${stock.quantity}">100</dd>
+                <!-- 거래 내역 -->
+                <div class="detail-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            이 재고의 거래 내역
+                        </h3>
+                        <a th:href="@{/transactions(stockId=${stock.id})}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-external-link-alt"></i>
+                            전체 보기
+                        </a>
+                    </div>
+                    <div class="card-content" style="padding: 0;">
+                        <div style="overflow-x: auto;">
+                            <table class="transactions-table" id="transactionsTable">
+                                <thead>
+                                <tr>
+                                    <th>날짜</th>
+                                    <th>유형</th>
+                                    <th>수량</th>
+                                    <th>담당자</th>
+                                    <th>비고</th>
+                                </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                <!-- 동적으로 로드됨 -->
+                                </tbody>
+                            </table>
+                        </div>
 
-                <dt class="col-sm-3">Status</dt>
-                <dd class="col-sm-9">
-                    <span class="badge fs-6" th:classappend="${stock.status.name() == 'AVAILABLE' ? 'bg-success-soft' : 'bg-secondary-soft'}" th:text="${stock.status.description}">Available</span>
-                </dd>
+                        <!-- 빈 상태 -->
+                        <div class="empty-state" id="emptyTransactionState" style="display: none;">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h4>거래 내역이 없습니다</h4>
+                            <p>아직 이 재고에 대한 거래가 발생하지 않았습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <dt class="col-sm-3">Expiry Date</dt>
-                <dd class="col-sm-9" th:text="${#temporals.format(stock.expiryDate, 'yyyy-MM-dd')}">2024-12-31</dd>
+            <!-- 사이드바 -->
+            <div class="sidebar-content">
+                <!-- 알림 및 경고 -->
+                <div class="detail-card fade-in" id="alertsCard">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            알림
+                        </h3>
+                    </div>
+                    <div class="card-content" id="alertsContent">
+                        <!-- 동적으로 로드됨 -->
+                    </div>
+                </div>
 
-                <dt class="col-sm-3">Inbound Date</dt>
-                <dd class="col-sm-9" th:text="${#temporals.format(stock.inboundDate, 'yyyy-MM-dd')}">2023-01-01</dd>
+                <!-- 연관 재고 -->
+                <div class="detail-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            같은 의약품의 다른 재고
+                        </h3>
+                    </div>
+                    <div class="card-content" id="relatedStocks">
+                        <!-- 동적으로 로드됨 -->
+                    </div>
+                </div>
 
-                <dt class="col-sm-3">Location</dt>
-                <dd class="col-sm-9" th:text="${stock.location}">Shelf A-1</dd>
-            </dl>
+                <!-- 빠른 작업 -->
+                <div class="detail-card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            빠른 작업
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <a href="/transactions/new"
+                               th:href="@{/transactions/new(stockId=${stock.id}, type=outbound)}"
+                               class="btn btn-warning"
+                               sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                                <i class="fas fa-minus"></i>
+                                재고 출고
+                            </a>
+
+                            <a th:href="@{/stocks/{id}/edit(id=${stock.id})}"
+                               class="btn btn-primary"
+                               sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                                <i class="fas fa-edit"></i>
+                                재고 정보 수정
+                            </a>
+
+                            <button class="btn btn-outline-secondary" onclick="printStockLabel()">
+                                <i class="fas fa-print"></i>
+                                라벨 인쇄
+                            </button>
+
+                            <a th:href="@{/medicines/{id}(id=${stock.medicine.id})}" class="btn btn-outline-secondary">
+                                <i class="fas fa-pills"></i>
+                                의약품 정보 보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        // 전역 변수
+        const stockId = /*[[${stock.id}]]*/ 1;
+        const medicineId = /*[[${stock.medicine.id}]]*/ 1;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadTransactionData();
+            loadRelatedStocks();
+            updateAlerts();
+        });
+
+        // 페이지 초기화
+        function initializePage() {
+            // 재고 이미지 로드 (향후 구현)
+            // loadStockImage();
+        }
+
+        // 거래 내역 데이터 로드
+        async function loadTransactionData() {
+            try {
+                const response = await ApiClient.get(`/api/stocks/${stockId}/transactions?limit=10`);
+
+                if (response.success && response.data.length > 0) {
+                    renderTransactionsTable(response.data);
+                } else {
+                    showEmptyTransactionState();
+                }
+            } catch (error) {
+                console.error('거래 내역 로드 오류:', error);
+                showEmptyTransactionState();
+            }
+        }
+
+        // 거래 내역 테이블 렌더링
+        function renderTransactionsTable(transactions) {
+            const tbody = document.getElementById('transactionsTableBody');
+            const emptyState = document.getElementById('emptyTransactionState');
+
+            emptyState.style.display = 'none';
+
+            tbody.innerHTML = transactions.map(transaction => `
+                <tr onclick="viewTransaction(${transaction.id})">
+                    <td>${formatDateTime(transaction.transactionDate)}</td>
+                    <td>
+                        <span class="transaction-type ${transaction.transactionType.toLowerCase()}">
+                            ${transaction.transactionTypeDescription}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="${transaction.transactionType === 'OUTBOUND' ? 'color: var(--warning-color)' : 'color: var(--success-color)'}">
+                            ${transaction.transactionType === 'OUTBOUND' ? '-' : '+'}${formatNumber(transaction.quantity)}
+                        </span>
+                    </td>
+                    <td>${transaction.createdByUsername || '-'}</td>
+                    <td>${transaction.remarks || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 연관 재고 로드
+        async function loadRelatedStocks() {
+            try {
+                const response = await ApiClient.get(`/api/medicines/${medicineId}/stocks?excludeId=${stockId}&limit=5`);
+
+                if (response.success) {
+                    renderRelatedStocks(response.data);
+                }
+            } catch (error) {
+                console.error('연관 재고 로드 오류:', error);
+                document.getElementById('relatedStocks').innerHTML = `
+                    <p style="color: #64748b; text-align: center;">연관 재고를 불러올 수 없습니다.</p>
+                `;
+            }
+        }
+
+        // 연관 재고 렌더링
+        function renderRelatedStocks(stocks) {
+            const container = document.getElementById('relatedStocks');
+
+            if (stocks.length === 0) {
+                container.innerHTML = `
+                    <p style="color: #64748b; text-align: center;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        같은 의약품의 다른 재고가 없습니다.
+                    </p>
+                `;
+                return;
+            }
+
+            container.innerHTML = stocks.map(stock => `
+                <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; cursor: pointer;"
+                     onclick="location.href='/stocks/${stock.id}'">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span class="lot-number">${stock.lotNumber}</span>
+                        <span class="status-badge ${stock.status.toLowerCase()}">${stock.statusDescription}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 600;">${formatNumber(stock.quantity)}개</span>
+                        <span style="font-size: 0.85rem; color: #64748b;">
+                            ${formatDate(stock.expiryDate)}
+                            ${stock.daysUntilExpiry <= 30 ? ` (${stock.daysUntilExpiry}일 남음)` : ''}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 알림 업데이트
+        function updateAlerts() {
+            const alertsContent = document.getElementById('alertsContent');
+            const alerts = [];
+
+            // 재고 수량 기반 알림 (실제 구현에서는 서버에서 전달)
+            const currentStock = /*[[${stock.quantity}]]*/ 500;
+            const minStock = /*[[${stock.medicine.minStockQuantity}]]*/ 10;
+            const daysUntilExpiry = /*[[${stock.daysUntilExpiry}]]*/ 365;
+
+            // 재고 부족 알림
+            if (currentStock <= minStock) {
+                alerts.push({
+                    type: currentStock === 0 ? 'danger' : 'warning',
+                    icon: 'fas fa-exclamation-triangle',
+                    title: currentStock === 0 ? '재고 없음' : '재고 부족',
+                    message: currentStock === 0
+                        ? '현재 재고가 없습니다. 즉시 보충이 필요합니다.'
+                        : `현재 재고(${currentStock})가 최소 재고량(${minStock}) 이하입니다.`
+                });
+            }
+
+            // 유효기간 임박 알림
+            if (daysUntilExpiry <= 0) {
+                alerts.push({
+                    type: 'danger',
+                    icon: 'fas fa-times-circle',
+                    title: '유효기간 만료',
+                    message: '이 재고는 유효기간이 만료되었습니다. 폐기 처리가 필요합니다.'
+                });
+            } else if (daysUntilExpiry <= 30) {
+                alerts.push({
+                    type: 'warning',
+                    icon: 'fas fa-calendar-times',
+                    title: '유효기간 임박',
+                    message: `${daysUntilExpiry}일 후 유효기간이 만료됩니다.`
+                });
+            }
+
+            // 정상 상태 메시지
+            if (alerts.length === 0) {
+                alerts.push({
+                    type: 'info',
+                    icon: 'fas fa-check-circle',
+                    title: '재고 상태 양호',
+                    message: '현재 재고 상태가 정상입니다.'
+                });
+            }
+
+            alertsContent.innerHTML = alerts.map(alert => `
+                <div class="alert-card ${alert.type}">
+                    <i class="${alert.icon} alert-icon"></i>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-message">${alert.message}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 빈 상태 표시
+        function showEmptyTransactionState() {
+            document.getElementById('transactionsTableBody').innerHTML = '';
+            document.getElementById('emptyTransactionState').style.display = 'block';
+        }
+
+        // 유틸리티 함수들
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ko-KR', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 이벤트 핸들러들
+        function viewTransaction(transactionId) {
+            window.location.href = `/transactions/${transactionId}`;
+        }
+
+        function printStockLabel() {
+            // 실제 구현에서는 라벨 인쇄 API 호출
+            showAlert('재고 라벨 인쇄 기능은 준비 중입니다.', 'info');
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // F5: 새로고침
+            if (e.key === 'F5') {
+                e.preventDefault();
+                location.reload();
+            }
+
+            // Ctrl + E: 편집
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                window.location.href = `/stocks/${stockId}/edit`;
+            }
+
+            // Ctrl + O: 출고
+            if (e.ctrlKey && e.key === 'o') {
+                e.preventDefault();
+                window.location.href = `/transactions/new?stockId=${stockId}&type=outbound`;
+            }
+        });
+    </script>
+</th:block>
+
 </html>

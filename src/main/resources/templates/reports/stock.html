@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>재고 보고서 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 보고서 특화 스타일 */
+        .report-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .report-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .report-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .report-title-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .report-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .report-info {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* 필터 섹션 */
+        .filter-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            grid-column: 1 / -1;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        /* 요약 통계 */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+
+        .stat-card-icon.total { background: linear-gradient(135deg, var(--primary-color), #1e40af); }
+        .stat-card-icon.available { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .stat-card-icon.low { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .stat-card-icon.expired { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
+        .stat-card-icon.value { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-card-change {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .stat-card-change.positive { color: var(--success-color); }
+        .stat-card-change.negative { color: var(--danger-color); }
+        .stat-card-change.neutral { color: #64748b; }
+
+        /* 차트 섹션 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .chart-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chart-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(44, 90, 160, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+        }
+
+        .chart-content {
+            padding: 2rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* 테이블 섹션 */
+        .table-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .stock-table th {
+            background: #f8fafc;
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .stock-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .stock-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .stock-table tbody tr:hover {
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        /* 인쇄 스타일 */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .main-header, .sidebar, .btn, .dropdown {
+                display: none !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                margin-top: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-container {
+                max-width: none !important;
+            }
+
+            .report-header, .filter-section, .chart-card, .table-section {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: avoid;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr !important;
+                page-break-inside: avoid;
+            }
+
+            .chart-container {
+                height: 250px !important;
+            }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-actions {
+                grid-column: 1;
+                justify-content: stretch;
+            }
+
+            .filter-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .table-actions {
+                justify-content: stretch;
+            }
+
+            .table-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .report-meta {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .report-actions {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 로딩 상태 */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="report-container">
+        <!-- 보고서 헤더 -->
+        <div class="report-header fade-in">
+            <div class="report-title-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div style="flex: 1;">
+                <h1 class="report-title">재고 보고서</h1>
+                <p class="report-subtitle">의약품 재고 현황과 분석 데이터를 확인할 수 있습니다.</p>
+            </div>
+
+            <div class="report-meta">
+                <div class="report-info">
+                    <div>생성일시: <span id="reportGeneratedTime">-</span></div>
+                    <div>보고서 범위: <span id="reportPeriod">전체 기간</span></div>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-outline-secondary" onclick="printReport()">
+                        <i class="fas fa-print"></i>
+                        인쇄
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-download"></i>
+                            내보내기
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportReport('excel')"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportReport('pdf')"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportReport('csv')"><i class="fas fa-file-csv me-2"></i>CSV</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 필터 섹션 -->
+        <div class="filter-section slide-up">
+            <div class="filter-header">
+                <h3 class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    필터 옵션
+                </h3>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                    <i class="fas fa-undo"></i>
+                    초기화
+                </button>
+            </div>
+
+            <form id="filterForm">
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="dateRange">기간</label>
+                        <select class="form-select" id="dateRange" name="dateRange">
+                            <option value="all">전체 기간</option>
+                            <option value="today">오늘</option>
+                            <option value="week" selected>최근 7일</option>
+                            <option value="month">최근 30일</option>
+                            <option value="quarter">최근 3개월</option>
+                            <option value="year">최근 1년</option>
+                            <option value="custom">사용자 지정</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="customDateGroup" style="display: none;">
+                        <label class="form-label" for="startDate">시작일</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate">
+                    </div>
+
+                    <div class="form-group" id="customDateEndGroup" style="display: none;">
+                        <label class="form-label" for="endDate">종료일</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="category">카테고리</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">전체 카테고리</option>
+                            <option value="PAINKILLER">해열진통제</option>
+                            <option value="ANTIBIOTIC">항생제</option>
+                            <option value="DIGESTIVE">소화기계약물</option>
+                            <option value="IV_SOLUTION">수액제</option>
+                            <option value="HORMONE">호르몬제</option>
+                            <option value="VITAMIN">비타민제</option>
+                            <option value="TOPICAL">외용제</option>
+                            <option value="ANTIHISTAMINE">항히스타민제</option>
+                            <option value="OTHER">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="stockStatus">재고 상태</label>
+                        <select class="form-select" id="stockStatus" name="stockStatus">
+                            <option value="">전체</option>
+                            <option value="sufficient">충분</option>
+                            <option value="low">부족</option>
+                            <option value="critical">심각</option>
+                            <option value="out">재고 없음</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="location">보관 위치</label>
+                        <select class="form-select" id="location" name="location">
+                            <option value="">전체 위치</option>
+                            <option value="A구역">A구역</option>
+                            <option value="B구역">B구역</option>
+                            <option value="C구역">C구역</option>
+                            <option value="냉장고">냉장고</option>
+                            <option value="특수보관">특수보관</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
+                            <i class="fas fa-undo"></i>
+                            초기화
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            보고서 생성
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 요약 통계 -->
+        <div class="summary-stats slide-up" id="summaryStats">
+            <div class="stat-card">
+                <div class="stat-card-icon total">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div class="stat-card-value" id="totalMedicines">-</div>
+                <div class="stat-card-label">총 의약품 종류</div>
+                <div class="stat-card-change" id="medicinesChange">
+                    <i class="fas fa-arrow-up"></i>
+                    +5종 (이번 달)
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon available">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="stat-card-value" id="totalQuantity">-</div>
+                <div class="stat-card-label">총 재고 수량</div>
+                <div class="stat-card-change" id="quantityChange">
+                    <i class="fas fa-arrow-up"></i>
+                    +1,250개 (이번 주)
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon low">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-card-value" id="lowStockItems">-</div>
+                <div class="stat-card-label">재고 부족</div>
+                <div class="stat-card-change" id="lowStockChange">
+                    <i class="fas fa-arrow-down"></i>
+                    -2개 (개선됨)
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon expired">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <div class="stat-card-value" id="expiringItems">-</div>
+                <div class="stat-card-label">만료 임박</div>
+                <div class="stat-card-change" id="expiringChange">
+                    <i class="fas fa-arrow-up"></i>
+                    +3개 (주의 필요)
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-icon value">
+                    <i class="fas fa-won-sign"></i>
+                </div>
+                <div class="stat-card-value" id="totalValue">-</div>
+                <div class="stat-card-label">총 재고 가치</div>
+                <div class="stat-card-change" id="valueChange">
+                    <i class="fas fa-arrow-up"></i>
+                    +15% (전월 대비)
+                </div>
+            </div>
+        </div>
+
+        <!-- 차트 섹션 -->
+        <div class="charts-section slide-up">
+            <!-- 재고 추이 차트 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        재고 추이
+                    </h3>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-calendar"></i>
+                            30일
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(7)">7일</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(30)">30일</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(90)">90일</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-content">
+                    <div class="chart-container">
+                        <canvas id="stockTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카테고리별 분포 차트 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        카테고리별 분포
+                    </h3>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshCategoryChart()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="chart-content">
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상세 데이터 테이블 -->
+        <div class="table-section slide-up">
+            <div class="table-header">
+                <h3 class="table-title">
+                    상세 재고 현황
+                    <span class="badge bg-primary" id="tableRowCount">0</span>
+                </h3>
+                <div class="table-actions">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="showOnlyProblems" onchange="toggleProblemsOnly()">
+                        <label class="form-check-label" for="showOnlyProblems">문제 재고만 표시</label>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshTable()">
+                        <i class="fas fa-sync-alt"></i>
+                        새로고침
+                    </button>
+                </div>
+            </div>
+
+            <div style="position: relative;">
+                <div class="table-responsive">
+                    <table class="stock-table" id="stockReportTable">
+                        <thead>
+                        <tr>
+                            <th onclick="sortTable('code')">
+                                코드 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('name')">
+                                의약품명 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('category')">
+                                카테고리 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('currentStock')">
+                                현재 재고 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('minStock')">
+                                최소 재고 <i class="fas fa-sort"></i>
+                            </th>
+                            <th>재고 상태</th>
+                            <th onclick="sortTable('location')">
+                                보관 위치 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('value')">
+                                재고 가치 <i class="fas fa-sort"></i>
+                            </th>
+                            <th onclick="sortTable('lastUpdated')">
+                                최종 업데이트 <i class="fas fa-sort"></i>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody id="stockTableBody">
+                        <!-- 동적으로 로드됨 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 로딩 오버레이 -->
+                <div class="loading-overlay" id="tableLoadingOverlay" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="pagination-container" id="paginationContainer" style="display: none;">
+                <div class="pagination-info">
+                    <span id="paginationInfo">총 0개 중 0-0개 표시</span>
+                </div>
+                <nav>
+                    <ul class="pagination" id="pagination">
+                        <!-- 동적으로 생성됨 -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="javascript">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // 전역 변수
+        let stockTrendChart = null;
+        let categoryChart = null;
+        let currentFilters = {};
+        let currentPage = 0;
+        let itemsPerPage = 20;
+        let sortColumn = 'name';
+        let sortOrder = 'asc';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            loadReportData();
+            initializeCharts();
+            setupEventListeners();
+        });
+
+        // 페이지 초기화
+        function initializePage() {
+            // 현재 시간 설정
+            const now = new Date();
+            document.getElementById('reportGeneratedTime').textContent =
+                now.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+            // 기본 필터 설정
+            updateReportPeriod();
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // 필터 폼 제출
+            document.getElementById('filterForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                applyFilters();
+            });
+
+            // 날짜 범위 변경
+            document.getElementById('dateRange').addEventListener('change', function() {
+                const customGroups = ['customDateGroup', 'customDateEndGroup'];
+                customGroups.forEach(id => {
+                    const element = document.getElementById(id);
+                    element.style.display = this.value === 'custom' ? 'block' : 'none';
+                });
+                updateReportPeriod();
+            });
+
+            // 기타 필터 변경
+            ['category', 'stockStatus', 'location'].forEach(id => {
+                document.getElementById(id).addEventListener('change', applyFilters);
+            });
+        }
+
+        // 보고서 기간 업데이트
+        function updateReportPeriod() {
+            const dateRange = document.getElementById('dateRange').value;
+            const periodMap = {
+                'all': '전체 기간',
+                'today': '오늘',
+                'week': '최근 7일',
+                'month': '최근 30일',
+                'quarter': '최근 3개월',
+                'year': '최근 1년',
+                'custom': '사용자 지정 기간'
+            };
+            document.getElementById('reportPeriod').textContent = periodMap[dateRange] || '전체 기간';
+        }
+
+        // 보고서 데이터 로드
+        async function loadReportData() {
+            try {
+                await Promise.all([
+                    loadSummaryStats(),
+                    loadStockData(),
+                    loadChartData()
+                ]);
+            } catch (error) {
+                console.error('보고서 데이터 로드 오류:', error);
+                showAlert('보고서 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 요약 통계 로드
+        async function loadSummaryStats() {
+            try {
+                // 실제 구현에서는 API 호출
+                const stats = {
+                    totalMedicines: 247,
+                    totalQuantity: 15420,
+                    lowStockItems: 8,
+                    expiringItems: 12,
+                    totalValue: 85600000
+                };
+
+                updateSummaryStats(stats);
+            } catch (error) {
+                console.error('요약 통계 로드 오류:', error);
+            }
+        }
+
+        // 요약 통계 업데이트
+        function updateSummaryStats(stats) {
+            document.getElementById('totalMedicines').textContent = formatNumber(stats.totalMedicines);
+            document.getElementById('totalQuantity').textContent = formatNumber(stats.totalQuantity);
+            document.getElementById('lowStockItems').textContent = formatNumber(stats.lowStockItems);
+            document.getElementById('expiringItems').textContent = formatNumber(stats.expiringItems);
+            document.getElementById('totalValue').textContent = formatCurrency(stats.totalValue);
+        }
+
+        // 재고 데이터 로드
+        async function loadStockData(page = 0, filters = {}) {
+            showTableLoading(true);
+
+            try {
+                // 실제 구현에서는 API 호출
+                const mockData = generateMockStockData();
+                renderStockTable(mockData.content);
+                updateTableInfo(mockData);
+            } catch (error) {
+                console.error('재고 데이터 로드 오류:', error);
+                showAlert('재고 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+            } finally {
+                showTableLoading(false);
+            }
+        }
+
+        // 모의 재고 데이터 생성
+        function generateMockStockData() {
+            const categories = ['해열진통제', '항생제', '소화기계약물', '수액제', '호르몬제'];
+            const locations = ['A구역', 'B구역', 'C구역', '냉장고', '특수보관'];
+            const medicines = [];
+
+            for (let i = 1; i <= 50; i++) {
+                const currentStock = Math.floor(Math.random() * 500) + 10;
+                const minStock = Math.floor(Math.random() * 50) + 10;
+                const unitPrice = Math.floor(Math.random() * 10000) + 1000;
+
+                medicines.push({
+                    id: i,
+                    code: `MED${String(i).padStart(3, '0')}`,
+                    name: `의약품명 ${i}`,
+                    category: categories[Math.floor(Math.random() * categories.length)],
+                    currentStock: currentStock,
+                    minStock: minStock,
+                    location: locations[Math.floor(Math.random() * locations.length)],
+                    value: currentStock * unitPrice,
+                    lastUpdated: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+                    status: currentStock < minStock ? (currentStock < minStock * 0.5 ? 'critical' : 'low') : 'sufficient'
+                });
+            }
+
+            return {
+                content: medicines.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage),
+                totalElements: medicines.length,
+                totalPages: Math.ceil(medicines.length / itemsPerPage),
+                number: currentPage,
+                size: itemsPerPage
+            };
+        }
+
+        // 재고 테이블 렌더링
+        function renderStockTable(stockData) {
+            const tbody = document.getElementById('stockTableBody');
+
+            tbody.innerHTML = stockData.map(stock => `
+                <tr>
+                    <td>
+                        <span class="medicine-code">${stock.code}</span>
+                    </td>
+                    <td>
+                        <div class="medicine-name">${stock.name}</div>
+                    </td>
+                    <td>
+                        <span class="category-badge">${stock.category}</span>
+                    </td>
+                    <td>
+                        <strong class="${stock.currentStock < stock.minStock ? 'text-danger' : ''}">${formatNumber(stock.currentStock)}</strong>
+                    </td>
+                    <td>${formatNumber(stock.minStock)}</td>
+                    <td>
+                        <span class="stock-status ${stock.status}">
+                            ${getStatusText(stock.status)}
+                        </span>
+                    </td>
+                    <td>${stock.location}</td>
+                    <td>${formatCurrency(stock.value)}</td>
+                    <td>${formatDate(stock.lastUpdated)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 테이블 정보 업데이트
+        function updateTableInfo(data) {
+            document.getElementById('tableRowCount').textContent = data.totalElements;
+
+            const start = data.number * data.size + 1;
+            const end = Math.min((data.number + 1) * data.size, data.totalElements);
+            document.getElementById('paginationInfo').textContent =
+                `총 ${data.totalElements}개 중 ${start}-${end}개 표시`;
+
+            // 페이지네이션 표시/숨김
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (data.totalPages > 1) {
+                paginationContainer.style.display = 'flex';
+                renderPagination(data);
+            } else {
+                paginationContainer.style.display = 'none';
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(data) {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+
+            // 이전 페이지 버튼
+            html += `
+                <li class="page-item ${data.number === 0 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${data.number - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // 페이지 번호들
+            const startPage = Math.max(0, data.number - 2);
+            const endPage = Math.min(data.totalPages - 1, data.number + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <li class="page-item ${i === data.number ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i + 1}</a>
+                    </li>
+                `;
+            }
+
+            // 다음 페이지 버튼
+            html += `
+                <li class="page-item ${data.number === data.totalPages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${data.number + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        // 차트 초기화
+        function initializeCharts() {
+            initializeStockTrendChart();
+            initializeCategoryChart();
+        }
+
+        // 재고 추이 차트 초기화
+        function initializeStockTrendChart() {
+            const ctx = document.getElementById('stockTrendChart').getContext('2d');
+
+            stockTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '총 재고량',
+                        data: [],
+                        borderColor: 'rgb(44, 90, 160)',
+                        backgroundColor: 'rgba(44, 90, 160, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: '재고 부족',
+                        data: [],
+                        borderColor: 'rgb(245, 158, 11)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        }
+                    }
+                }
+            });
+
+            loadStockTrendData(30);
+        }
+
+        // 카테고리 차트 초기화
+        function initializeCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#2c5aa0',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#6366f1',
+                            '#8b5cf6',
+                            '#06b6d4',
+                            '#84cc16'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            loadCategoryData();
+        }
+
+        // 차트 데이터 로드
+        async function loadChartData() {
+            await Promise.all([
+                loadStockTrendData(30),
+                loadCategoryData()
+            ]);
+        }
+
+        // 재고 추이 데이터 로드
+        async function loadStockTrendData(days) {
+            try {
+                // 모의 데이터 생성
+                const labels = [];
+                const stockData = [];
+                const lowStockData = [];
+                const today = new Date();
+
+                for (let i = days - 1; i >= 0; i--) {
+                    const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+                    labels.push(date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }));
+                    stockData.push(Math.floor(Math.random() * 1000) + 14000);
+                    lowStockData.push(Math.floor(Math.random() * 15) + 5);
+                }
+
+                stockTrendChart.data.labels = labels;
+                stockTrendChart.data.datasets[0].data = stockData;
+                stockTrendChart.data.datasets[1].data = lowStockData;
+                stockTrendChart.update();
+            } catch (error) {
+                console.error('재고 추이 데이터 로드 오류:', error);
+            }
+        }
+
+        // 카테고리 데이터 로드
+        async function loadCategoryData() {
+            try {
+                // 모의 데이터
+                const categories = ['해열진통제', '항생제', '소화기계약물', '수액제', '호르몬제', '비타민제', '외용제', '기타'];
+                const data = [35, 25, 15, 10, 8, 4, 2, 1];
+
+                categoryChart.data.labels = categories;
+                categoryChart.data.datasets[0].data = data;
+                categoryChart.update();
+            } catch (error) {
+                console.error('카테고리 데이터 로드 오류:', error);
+            }
+        }
+
+        // 유틸리티 함수들
+        function getStatusText(status) {
+            const statusMap = {
+                'sufficient': '충분',
+                'low': '부족',
+                'critical': '심각',
+                'out': '없음'
+            };
+            return statusMap[status] || '알 수 없음';
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ko-KR', {
+                style: 'currency',
+                currency: 'KRW'
+            }).format(amount);
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('ko-KR');
+        }
+
+        // 이벤트 핸들러들
+        function applyFilters() {
+            currentPage = 0;
+            currentFilters = {
+                dateRange: document.getElementById('dateRange').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                category: document.getElementById('category').value,
+                stockStatus: document.getElementById('stockStatus').value,
+                location: document.getElementById('location').value
+            };
+
+            loadStockData(currentPage, currentFilters);
+            updateReportPeriod();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterForm').reset();
+            document.getElementById('dateRange').value = 'week';
+            ['customDateGroup', 'customDateEndGroup'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            currentFilters = {};
+            applyFilters();
+        }
+
+        function toggleProblemsOnly() {
+            const showOnlyProblems = document.getElementById('showOnlyProblems').checked;
+            if (showOnlyProblems) {
+                currentFilters.stockStatus = 'low,critical,out';
+            } else {
+                delete currentFilters.stockStatus;
+                document.getElementById('stockStatus').value = '';
+            }
+            loadStockData(currentPage, currentFilters);
+        }
+
+        function changePage(page) {
+            if (page >= 0) {
+                currentPage = page;
+                loadStockData(currentPage, currentFilters);
+            }
+        }
+
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = 'asc';
+            }
+
+            // 정렬 아이콘 업데이트
+            updateSortIcons();
+
+            // 데이터 재로드
+            loadStockData(currentPage, currentFilters);
+        }
+
+        function updateSortIcons() {
+            // 모든 정렬 아이콘 초기화
+            document.querySelectorAll('th i.fas').forEach(icon => {
+                icon.className = 'fas fa-sort';
+            });
+
+            // 현재 정렬 열 아이콘 업데이트
+            const currentHeader = document.querySelector(`th[onclick="sortTable('${sortColumn}')"] i`);
+            if (currentHeader) {
+                currentHeader.className = `fas fa-sort-${sortOrder === 'asc' ? 'up' : 'down'}`;
+            }
+        }
+
+        function updateStockTrendChart(days) {
+            loadStockTrendData(days);
+        }
+
+        function refreshCategoryChart() {
+            loadCategoryData();
+        }
+
+        function refreshTable() {
+            loadStockData(currentPage, currentFilters);
+        }
+
+        function showTableLoading(show) {
+            const overlay = document.getElementById('tableLoadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function exportReport(format) {
+            const params = new URLSearchParams({
+                format: format,
+                ...currentFilters
+            });
+
+            const url = `/api/reports/stock/export?${params.toString()}`;
+
+            // 다운로드 링크 생성
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `재고보고서_${new Date().toISOString().split('T')[0]}.${format}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showAlert(`${format.toUpperCase()} 파일이 다운로드됩니다.`, 'success');
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + P: 인쇄
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                printReport();
+            }
+
+            // F5: 새로고침
+            if (e.key === 'F5') {
+                e.preventDefault();
+                loadReportData();
+            }
+        });
+    </script>
+</th:block>
+
+</html>

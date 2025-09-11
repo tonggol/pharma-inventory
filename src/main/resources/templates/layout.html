@@ -42,75 +42,8 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Global Navigation & Fetch Script -->
     <script>
-        const mainContent = document.getElementById('main-content');
-
-        // Function to fetch and load content
-        const loadContent = async (url, pushState = true) => {
-            const token = localStorage.getItem('accessToken');
-            if (!token && !url.startsWith('/auth/')) {
-                window.location.href = '/auth/login'; // Redirect if no token and not on public pages
-                return;
-            }
-
-            try {
-                const response = await fetch(url, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'X-Requested-With': 'XMLHttpRequest' // Helps server identify AJAX requests
-                    }
-                });
-
-                if (response.ok) {
-                    const html = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newContent = doc.querySelector('#main-content > div');
-                    
-                    if (newContent) {
-                        mainContent.innerHTML = '';
-                        mainContent.appendChild(newContent);
-                        if (pushState) {
-                            history.pushState({url: url}, '', url);
-                        }
-                        feather.replace(); // Re-initialize icons
-                    } else {
-                        // If the response is not a full HTML page (e.g. redirect), handle it
-                        window.location.href = url;
-                    }
-                } else if (response.status === 401 || response.status === 403) {
-                    // If unauthorized, redirect to login
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    window.location.href = '/auth/login';
-                }
-
-            } catch (error) {
-                console.error('Error loading content:', error);
-            }
-        };
-
-        // Intercept all internal link clicks
-        document.addEventListener('click', e => {
-            const link = e.target.closest('a');
-            if (link && link.href && link.target !== '_blank' && !link.hasAttribute('data-no-spa')) {
-                const url = new URL(link.href);
-                if (url.origin === window.location.origin) {
-                    e.preventDefault();
-                    loadContent(url.pathname);
-                }
-            }
-        });
-
-        // Handle browser back/forward buttons
-        window.addEventListener('popstate', e => {
-            if (e.state && e.state.url) {
-                loadContent(e.state.url, false);
-            }
-        });
-
-        // Initial icon load
+        // Initialize Feather Icons
         feather.replace();
     </script>
 </body>

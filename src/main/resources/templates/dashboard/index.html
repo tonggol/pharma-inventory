@@ -1,108 +1,576 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-<div layout:fragment="content">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 의약품 재고관리 시스템</title>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1>Dashboard</h1>
-        <button class="btn btn-primary d-flex align-items-center">
-            <i data-feather="download" class="me-2"></i> Generate Report
-        </button>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c5aa0;
+            --secondary-color: #34d399;
+            --accent-color: #f59e0b;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            min-height: 600px;
+            display: flex;
+        }
+
+        .login-form-section {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-brand {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-brand-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .login-brand-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-brand-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-floating > .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            height: 60px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-floating > .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+        }
+
+        .form-floating > label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            border: none;
+            border-radius: 12px;
+            height: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .login-info-section {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-info-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        }
+
+        .login-info-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .login-info-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .login-info-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-item i {
+            width: 24px;
+            margin-right: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .demo-accounts {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .demo-accounts h6 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .demo-account {
+            background: white;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .demo-account:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .demo-account-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .demo-account-creds {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 500px;
+                margin: 1rem;
+            }
+
+            .login-info-section {
+                order: -1;
+                padding: 2rem;
+                min-height: 300px;
+            }
+
+            .login-form-section {
+                padding: 2rem;
+            }
+
+            .login-info-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="login-container fade-in">
+    <!-- 로그인 폼 섹션 -->
+    <div class="login-form-section">
+        <div class="login-brand slide-up">
+            <div class="login-brand-icon">
+                <i class="fas fa-pills"></i>
+            </div>
+            <h1 class="login-brand-title">PharmaInventory</h1>
+            <p class="login-brand-subtitle">의약품 재고관리 시스템</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div id="errorAlert" class="alert alert-danger" style="display: none;" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <!-- 로그인 성공 메시지 -->
+        <div th:if="${message}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${message}"></span>
+        </div>
+
+        <!-- 로그인 폼 -->
+        <form class="login-form slide-up" id="loginForm" th:action="@{/api/auth/login}" method="post">
+            <div class="form-floating">
+                <input type="text"
+                       class="form-control"
+                       id="username"
+                       name="username"
+                       placeholder="사용자명"
+                       required
+                       autocomplete="username">
+                <label for="username"><i class="fas fa-user me-2"></i>사용자명</label>
+            </div>
+
+            <div class="form-floating">
+                <input type="password"
+                       class="form-control"
+                       id="password"
+                       name="password"
+                       placeholder="비밀번호"
+                       required
+                       autocomplete="current-password">
+                <label for="password"><i class="fas fa-lock me-2"></i>비밀번호</label>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
+                    <label class="form-check-label" for="rememberMe">
+                        로그인 상태 유지
+                    </label>
+                </div>
+                <a href="/auth/forgot-password" class="text-decoration-none">
+                    비밀번호를 잊으셨나요?
+                </a>
+            </div>
+
+            <button type="submit" class="btn btn-login" id="loginButton">
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                <span id="buttonText">로그인</span>
+            </button>
+        </form>
+
+        <!-- 데모 계정 -->
+        <div class="demo-accounts">
+            <h6><i class="fas fa-flask me-2"></i>데모 계정으로 체험하기</h6>
+
+            <div class="demo-account" onclick="fillDemoAccount('admin', 'admin123')">
+                <div class="demo-account-title">관리자 계정</div>
+                <div class="demo-account-creds">admin / admin123</div>
+            </div>
+
+            <div class="demo-account" onclick="fillDemoAccount('pharmacist', 'pharma123')">
+                <div class="demo-account-title">약사 계정</div>
+                <div class="demo-account-creds">pharmacist / pharma123</div>
+            </div>
+
+            <div class="demo-account" onclick="fillDemoAccount('staff', 'staff123')">
+                <div class="demo-account-title">직원 계정</div>
+                <div class="demo-account-creds">staff / staff123</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="row">
-        <div class="col-md-6 col-lg-3">
-            <div class="card summary-card">
-                <div class="card-body">
-                    <h5 class="card-title">Total Medicines</h5>
-                    <p class="card-text" th:text="${summary.totalMedicines}">123</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card summary-card">
-                <div class="card-body">
-                    <h5 class="card-title">Low Stock Alerts</h5>
-                    <p class="card-text text-danger" th:text="${summary.lowStockCount}">5</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card summary-card">
-                <div class="card-body">
-                    <h5 class="card-title">Expiring Soon</h5>
-                    <p class="card-text text-warning" th:text="${summary.expiringCount}">12</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card summary-card">
-                <div class="card-body">
-                    <h5 class="card-title">Total Stock Value</h5>
-                    <p class="card-text" th:text="'₩' + ${#numbers.formatDecimal(summary.totalStockValue, 1, 'COMMA', 0, 'POINT')}">₩1.2M</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- 정보 섹션 -->
+    <div class="login-info-section">
+        <div class="login-info-bg"></div>
+        <div class="login-info-content">
+            <h2 class="login-info-title">안전하고 효율적인</h2>
+            <p class="login-info-subtitle">의약품 재고관리 솔루션</p>
 
-    <!-- Main Content Row -->
-    <div class="row">
-        <!-- Recent Activities Column -->
-        <div class="col-lg-7">
-            <div class="card">
-                <div class="card-header">Recent Activities</div>
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Medicine</th>
-                                <th>Type</th>
-                                <th>Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="activity : ${recentActivities}">
-                                <td th:text="${#temporals.format(activity.transactionDate, 'yyyy-MM-dd HH:mm')}">2023-10-27 10:00</td>
-                                <td th:text="${activity.medicineName}">Aspirin</td>
-                                <td><span class="badge" th:classappend="${activity.transactionType == 'INBOUND' ? 'bg-success-soft' : 'bg-danger-soft'}" th:text="${activity.transactionType}">OUTBOUND</span></td>
-                                <td th:text="${activity.quantity}">10</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stock Alerts Column -->
-        <div class="col-lg-5">
-            <div class="card">
-                <div class="card-header">Stock Alerts</div>
-                <div class="card-body">
-                    <h6>Expiring Stocks (Next 30 days)</h6>
-                    <table class="table table-sm">
-                        <tbody>
-                            <tr th:each="stock : ${expiringStocks}">
-                                <td th:text="${stock.medicineName}">Ibuprofen</td>
-                                <td th:text="${stock.lotNumber}">L12345</td>
-                                <td class="text-end"><span class="badge bg-warning-soft" th:text="${stock.quantity} + ' units'">50 units</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h6 class="mt-4">Low Stock Medicines</h6>
-                    <table class="table table-sm">
-                        <tbody>
-                            <tr th:each="med : ${lowStockMedicines}">
-                                <td th:text="${med.medicineName}">Paracetamol</td>
-                                <td class="text-end"><span class="badge bg-danger-soft" th:text="${med.totalQuantity} + ' / ' + ${med.minStockQuantity}">20 / 50</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>JWT 기반 보안 인증</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>실시간 재고 모니터링</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>유효기간 자동 알림</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>모바일 친화적 인터페이스</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-users"></i>
+                    <span>사용자 권한 관리</span>
+                </li>
+                <li class="feature-item">
+                    <i class="fas fa-file-export"></i>
+                    <span>다양한 보고서 생성</span>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
+
+<!-- Bootstrap 5.3 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('loginForm');
+        const loginButton = document.getElementById('loginButton');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const buttonText = document.getElementById('buttonText');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // 로그인 폼 제출 처리
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(loginForm);
+            const loginData = {
+                username: formData.get('username'),
+                password: formData.get('password')
+            };
+
+            // 로딩 상태 시작
+            setLoading(true);
+            hideError();
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // JWT 토큰 저장
+                    localStorage.setItem('accessToken', result.data.accessToken);
+                    localStorage.setItem('refreshToken', result.data.refreshToken);
+
+                    // 사용자 정보 저장 (있을 경우)
+                    if (result.data.userInfo) {
+                        localStorage.setItem('userInfo', JSON.stringify(result.data.userInfo));
+                    }
+
+                    // 대시보드로 리다이렉트
+                    window.location.href = '/dashboard';
+                } else {
+                    throw new Error(result.message || '로그인에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(error.message || '로그인 중 오류가 발생했습니다.');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // 로딩 상태 관리
+        function setLoading(isLoading) {
+            loginButton.disabled = isLoading;
+            loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+            buttonText.textContent = isLoading ? '로그인 중...' : '로그인';
+        }
+
+        // 에러 메시지 표시
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // 에러 메시지 숨기기
+        function hideError() {
+            errorAlert.style.display = 'none';
+        }
+
+        // 입력 필드 변경 시 에러 메시지 숨기기
+        document.getElementById('username').addEventListener('input', hideError);
+        document.getElementById('password').addEventListener('input', hideError);
+
+        // 페이지 로드 시 기존 토큰 확인
+        const existingToken = localStorage.getItem('accessToken');
+        if (existingToken) {
+            // 토큰이 있으면 유효성 검사
+            fetch('/api/auth/validate', {
+                headers: {
+                    'Authorization': 'Bearer ' + existingToken
+                }
+            })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        // 유효한 토큰이면 대시보드로 리다이렉트
+                        window.location.href = '/dashboard';
+                    } else {
+                        // 무효한 토큰이면 제거
+                        localStorage.removeItem('accessToken');
+                        localStorage.removeItem('refreshToken');
+                        localStorage.removeItem('userInfo');
+                    }
+                })
+                .catch(() => {
+                    // 오류 발생 시 토큰 제거
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('userInfo');
+                });
+        }
+    });
+
+    // 데모 계정 자동 입력
+    function fillDemoAccount(username, password) {
+        document.getElementById('username').value = username;
+        document.getElementById('password').value = password;
+
+        // 시각적 피드백
+        document.getElementById('username').focus();
+        document.getElementById('password').focus();
+        document.getElementById('username').focus();
+    }
+
+    // Enter 키 처리
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        }
+    });
+
+    // 비밀번호 가시성 토글 (향후 확장)
+    function togglePasswordVisibility() {
+        const passwordField = document.getElementById('password');
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+    }
+</script>
+</body>
 </html>

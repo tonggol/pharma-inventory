@@ -1,62 +1,1506 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="${stock.id != null ? '재고 수정' : '재고 입고'} + ' - 의약품 재고관리 시스템'">재고 입고 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 재고 폼 특화 스타일 */
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .form-title-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .form-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+        .form-section:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success-color);
+            font-size: 0.9rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-grid.two-columns {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-grid.three-columns {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger-color);
+            margin-left: 0.25rem;
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+            outline: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25);
+        }
+
+        .form-control.is-valid {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+        }
+
+        .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+            outline: none;
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .valid-feedback {
+            color: var(--success-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 의약품 선택 */
+        .medicine-selector {
+            position: relative;
+        }
+
+        .medicine-search {
+            position: relative;
+        }
+
+        .medicine-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .medicine-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .medicine-option:hover {
+            background: #f8fafc;
+        }
+
+        .medicine-option.selected {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .medicine-name {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .medicine-code {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+        }
+
+        .selected-medicine {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--success-color);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .selected-medicine.show {
+            display: block;
+        }
+
+        .selected-medicine-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selected-medicine-details {
+            flex: 1;
+        }
+
+        .selected-medicine-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .selected-medicine-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .change-medicine-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: #64748b;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .change-medicine-btn:hover {
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        /* 바코드 스캔 */
+        .barcode-scanner {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+
+        .barcode-scanner:hover {
+            border-color: var(--success-color);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .barcode-scanner.active {
+            border-color: var(--success-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .barcode-icon {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        .barcode-scanner.active .barcode-icon {
+            color: var(--success-color);
+        }
+
+        .barcode-text {
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .barcode-hint {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        /* 수량 입력 */
+        .quantity-input {
+            position: relative;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #64748b;
+        }
+
+        .quantity-btn:hover {
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .quantity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .quantity-field {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        /* 날짜 입력 */
+        .date-input-group {
+            position: relative;
+        }
+
+        .date-helper {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        /* 가격 입력 */
+        .price-input {
+            position: relative;
+        }
+
+        .price-currency {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .price-input .form-control {
+            padding-left: 2.5rem;
+        }
+
+        /* 액션 버튼 */
+        .form-actions {
+            background: #f8fafc;
+            padding: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        .btn-success:disabled {
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .btn-outline-danger {
+            background: white;
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* 로딩 스피너 */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 알림 카드 */
+        .alert-card {
+            border-left: 4px solid;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-card.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: var(--info-color);
+            color: #1e40af;
+        }
+
+        .alert-card.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--warning-color);
+            color: #92400e;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .form-grid.two-columns,
+            .form-grid.three-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .form-header,
+            .form-section {
+                padding: 1.5rem;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+
+            .form-actions .btn {
+                justify-content: center;
+            }
+
+            .quantity-controls {
+                flex-direction: column;
+            }
+
+            .quantity-field {
+                text-align: center;
+            }
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 툴팁 스타일 */
+        .tooltip-icon {
+            color: #94a3b8;
+            cursor: help;
+            font-size: 0.85rem;
+        }
+
+        .tooltip-icon:hover {
+            color: var(--success-color);
+        }
+    </style>
+</th:block>
+
 <div layout:fragment="content">
-
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 th:text="${stock.id == null ? 'Add New Stock (Inbound)' : 'Edit Stock'}">Add/Edit Stock</h1>
-    </div>
-
-    <form th:action="${stock.id == null ? '/api/stocks' : '/api/stocks/' + stock.id}" th:object="${stock}" method="post">
-        <input type="hidden" th:if="${stock.id != null}" name="_method" value="put"/>
-
-        <div class="card">
-            <div class="card-header d-flex align-items-center">
-                <i data-feather="edit-3" class="me-2"></i>
-                <span>Stock Information</span>
+    <div class="form-container">
+        <!-- 폼 헤더 -->
+        <div class="form-header fade-in">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="form-title-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div>
+                        <h1 class="form-title" th:text="${stock.id != null ? '재고 정보 수정' : '재고 입고 등록'}">재고 입고 등록</h1>
+                        <p class="form-subtitle" th:text="${stock.id != null ? '재고 정보를 수정합니다.' : '새로운 재고를 시스템에 입고 등록합니다.'}">새로운 재고를 시스템에 입고 등록합니다.</p>
+                    </div>
+                </div>
+                <div>
+                    <a href="/stocks" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        목록으로
+                    </a>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="medicineId" class="form-label">Medicine ID</label>
-                        <input type="number" id="medicineId" th:field="*{medicineId}" class="form-control" th:readonly="${stock.id != null}" required>
-                        <!-- In a real application, this would be a searchable dropdown -->
+        </div>
+
+        <!-- 알림 메시지 -->
+        <div th:if="${error}" class="alert-card warning slide-up">
+            <i class="fas fa-exclamation-circle alert-icon"></i>
+            <div class="alert-content">
+                <div class="alert-title">입력 오류</div>
+                <div class="alert-message" th:text="${error}">에러 메시지</div>
+            </div>
+        </div>
+
+        <!-- 재고 입고 폼 -->
+        <form class="slide-up"
+              th:action="${stock.id != null ? '/api/stocks/' + stock.id : '/api/stocks'}"
+              th:method="${stock.id != null ? 'PUT' : 'POST'}"
+              th:object="${stock}"
+              id="stockForm"
+              novalidate>
+
+            <!-- 의약품 선택 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        의약품 선택
+                    </h3>
+
+                    <!-- 바코드 스캔 -->
+                    <div class="form-group full-width" th:if="${stock.id == null}">
+                        <label class="form-label">
+                            <i class="fas fa-barcode"></i>
+                            바코드 스캔 (선택사항)
+                        </label>
+                        <div class="barcode-scanner" id="barcodeScanner" onclick="toggleBarcodeScanner()">
+                            <div class="barcode-icon">
+                                <i class="fas fa-barcode"></i>
+                            </div>
+                            <div class="barcode-text">바코드를 스캔하여 자동 입력</div>
+                            <div class="barcode-hint">클릭하여 바코드 스캐너 시뮬레이션</div>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="lotNumber" class="form-label">Lot Number</label>
-                        <input type="text" id="lotNumber" th:field="*{lotNumber}" class="form-control" th:readonly="${stock.id != null}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="quantity" class="form-label">Quantity</label>
-                        <input type="number" id="quantity" th:field="*{quantity}" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="location" class="form-label">Location</label>
-                        <input type="text" id="location" th:field="*{location}" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="expiryDate" class="form-label">Expiry Date</label>
-                        <input type="date" id="expiryDate" th:field="*{expiryDate}" class="form-control" required>
-                    </div>
-                    <div class="col-md-6" th:if="${stock.id == null}">
-                        <label for="inboundDate" class="form-label">Inbound Date</label>
-                        <input type="date" id="inboundDate" th:field="*{inboundDate}" class="form-control">
-                    </div>
-                    <div class="col-md-6" th:if="${stock.id != null}">
-                        <label for="status" class="form-label">Status</label>
-                        <select id="status" th:field="*{status}" class="form-select">
-                            <option th:each="s : ${T(com.pharma.inventory.entity.StockStatus).values()}" th:value="${s}" th:text="${s.description}"></option>
-                        </select>
+
+                    <!-- 의약품 검색/선택 -->
+                    <div class="form-group full-width">
+                        <label class="form-label required" for="medicineSearch">
+                            <i class="fas fa-search"></i>
+                            의약품 검색
+                        </label>
+                        <div class="medicine-selector">
+                            <div class="medicine-search">
+                                <input type="text"
+                                       class="form-control"
+                                       id="medicineSearch"
+                                       placeholder="의약품명 또는 코드로 검색..."
+                                       autocomplete="off">
+                                <div class="medicine-dropdown" id="medicineDropdown">
+                                    <!-- 동적으로 로드됨 -->
+                                </div>
+                            </div>
+
+                            <!-- 선택된 의약품 표시 -->
+                            <div class="selected-medicine" id="selectedMedicine">
+                                <div class="selected-medicine-info">
+                                    <div class="selected-medicine-details">
+                                        <div class="selected-medicine-name" id="selectedMedicineName">선택된 의약품</div>
+                                        <div class="selected-medicine-meta" id="selectedMedicineMeta">코드: MED001 | 제조사: 한국제약</div>
+                                    </div>
+                                    <button type="button" class="change-medicine-btn" onclick="changeMedicine()">
+                                        <i class="fas fa-edit"></i>
+                                        변경
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i>
+                            의약품명 또는 코드를 입력하여 검색하세요.
+                        </div>
+
+                        <!-- 숨겨진 필드 -->
+                        <input type="hidden" id="medicineId" name="medicineId" th:field="*{medicineId}" required>
+                        <div class="invalid-feedback">
+                            <i class="fas fa-times-circle"></i>
+                            <span id="medicineError">의약품을 선택해주세요.</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="card-footer text-end">
-                <a th:href="@{/stocks}" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary d-flex align-items-center d-inline-flex">
-                    <i data-feather="save" class="me-2"></i> Save Changes
-                </button>
+
+            <!-- 재고 정보 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        재고 정보
+                    </h3>
+
+                    <div class="form-grid two-columns">
+                        <div class="form-group">
+                            <label for="lotNumber" class="form-label required">
+                                <i class="fas fa-tag"></i>
+                                로트번호
+                                <i class="fas fa-question-circle tooltip-icon"
+                                   data-bs-toggle="tooltip"
+                                   title="제조사에서 제공하는 고유한 로트번호입니다."></i>
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="lotNumber"
+                                   name="lotNumber"
+                                   th:field="*{lotNumber}"
+                                   placeholder="예: LOT2024001"
+                                   required
+                                   maxlength="50">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                제조사 제공 로트번호를 정확히 입력해주세요.
+                            </div>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="lotNumberError">로트번호를 입력해주세요.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quantity" class="form-label required">
+                                <i class="fas fa-calculator"></i>
+                                입고 수량
+                            </label>
+                            <div class="quantity-controls">
+                                <button type="button" class="quantity-btn" onclick="adjustQuantity(-1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number"
+                                       class="form-control quantity-field"
+                                       id="quantity"
+                                       name="quantity"
+                                       th:field="*{quantity}"
+                                       placeholder="0"
+                                       required
+                                       min="1"
+                                       max="999999">
+                                <button type="button" class="quantity-btn" onclick="adjustQuantity(1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="quantityError">1 이상의 수량을 입력해주세요.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid three-columns">
+                        <div class="form-group">
+                            <label for="manufactureDate" class="form-label">
+                                <i class="fas fa-industry"></i>
+                                제조일
+                            </label>
+                            <div class="date-input-group">
+                                <input type="date"
+                                       class="form-control"
+                                       id="manufactureDate"
+                                       name="manufactureDate"
+                                       th:field="*{manufactureDate}">
+                                <div class="date-helper">제조일</div>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                제품 포장에 표시된 제조일을 입력하세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expiryDate" class="form-label required">
+                                <i class="fas fa-calendar-times"></i>
+                                유효기간
+                            </label>
+                            <div class="date-input-group">
+                                <input type="date"
+                                       class="form-control"
+                                       id="expiryDate"
+                                       name="expiryDate"
+                                       th:field="*{expiryDate}"
+                                       required>
+                                <div class="date-helper">만료일</div>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                제품 포장에 표시된 유효기간을 정확히 입력하세요.
+                            </div>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="expiryDateError">유효기간을 입력해주세요.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="receivedDate" class="form-label required">
+                                <i class="fas fa-truck"></i>
+                                입고일
+                            </label>
+                            <div class="date-input-group">
+                                <input type="date"
+                                       class="form-control"
+                                       id="receivedDate"
+                                       name="receivedDate"
+                                       th:field="*{receivedDate}"
+                                       required>
+                                <div class="date-helper">입고일</div>
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                실제 재고가 입고된 날짜입니다.
+                            </div>
+                            <div class="invalid-feedback">
+                                <i class="fas fa-times-circle"></i>
+                                <span id="receivedDateError">입고일을 입력해주세요.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </form>
+
+            <!-- 공급업체 및 구매 정보 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        공급업체 및 구매 정보
+                    </h3>
+
+                    <div class="form-grid two-columns">
+                        <div class="form-group">
+                            <label for="supplierName" class="form-label">
+                                <i class="fas fa-building"></i>
+                                공급업체명
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="supplierName"
+                                   name="supplierName"
+                                   th:field="*{supplierName}"
+                                   placeholder="예: 한국의약품유통"
+                                   maxlength="100">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                재고를 공급한 업체명을 입력하세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="purchasePrice" class="form-label">
+                                <i class="fas fa-won-sign"></i>
+                                구매 단가
+                            </label>
+                            <div class="price-input">
+                                <div class="price-currency">₩</div>
+                                <input type="number"
+                                       class="form-control"
+                                       id="purchasePrice"
+                                       name="purchasePrice"
+                                       th:field="*{purchasePrice}"
+                                       placeholder="0"
+                                       min="0"
+                                       step="0.01">
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                개당 구매 가격을 입력하세요.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 보관 정보 섹션 -->
+            <div class="form-card">
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-warehouse"></i>
+                        </div>
+                        보관 정보
+                    </h3>
+
+                    <div class="form-grid two-columns">
+                        <div class="form-group">
+                            <label for="location" class="form-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                보관 위치
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="location"
+                                   name="location"
+                                   th:field="*{location}"
+                                   placeholder="예: A동-1층-냉장고1"
+                                   maxlength="100">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                재고가 보관될 구체적인 위치를 입력하세요.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status" class="form-label">
+                                <i class="fas fa-flag"></i>
+                                초기 상태
+                            </label>
+                            <select class="form-select" id="status" name="status" th:field="*{status}">
+                                <option value="AVAILABLE">사용 가능</option>
+                                <option value="QUARANTINE">격리 (검사 대기)</option>
+                                <option value="RESERVED">예약됨</option>
+                            </select>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                입고 시점의 재고 상태를 선택하세요.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="remarks" class="form-label">
+                                <i class="fas fa-sticky-note"></i>
+                                비고
+                            </label>
+                            <textarea class="form-control"
+                                      id="remarks"
+                                      name="remarks"
+                                      th:field="*{remarks}"
+                                      rows="3"
+                                      placeholder="특이사항이나 주의사항을 입력하세요."
+                                      maxlength="500"></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                보관 시 주의사항이나 특이사항을 기록해주세요. (최대 500자)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="form-card">
+                <div class="form-actions">
+                    <a href="/stocks" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                        취소
+                    </a>
+
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetForm()" th:if="${stock.id == null}">
+                        <i class="fas fa-undo"></i>
+                        초기화
+                    </button>
+
+                    <button type="button" class="btn btn-outline-danger" onclick="deleteStock()" th:if="${stock.id != null}" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                        <i class="fas fa-trash"></i>
+                        삭제
+                    </button>
+
+                    <button type="submit" class="btn btn-success" id="submitButton">
+                        <i class="fas fa-save"></i>
+                        <span th:text="${stock.id != null ? '수정하기' : '입고 등록'}">입고 등록</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        // 전역 변수
+        let medicines = [];
+        let selectedMedicineId = null;
+        let barcodeActive = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            loadMedicines();
+            setupEventListeners();
+            initializeTooltips();
+        });
+
+        // 폼 초기화
+        function initializeForm() {
+            // 오늘 날짜를 입고일 기본값으로 설정
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('receivedDate').value = today;
+
+            // 기존 선택된 의약품이 있는 경우 (수정 모드)
+            const medicineId = document.getElementById('medicineId').value;
+            if (medicineId) {
+                selectedMedicineId = parseInt(medicineId);
+                showSelectedMedicine();
+            }
+        }
+
+        // 의약품 목록 로드
+        async function loadMedicines() {
+            try {
+                const response = await ApiClient.get('/api/medicines?size=1000&sort=name');
+                medicines = response.content || [];
+            } catch (error) {
+                console.error('의약품 목록 로드 오류:', error);
+                showAlert('의약품 목록을 불러오는 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            const form = document.getElementById('stockForm');
+            const submitButton = document.getElementById('submitButton');
+
+            // 폼 제출 처리
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                setLoading(true);
+
+                try {
+                    const formData = new FormData(form);
+                    const data = {};
+
+                    // FormData를 JSON 객체로 변환
+                    for (let [key, value] of formData.entries()) {
+                        if (value !== '') {
+                            if (key === 'quantity' || key === 'medicineId') {
+                                data[key] = parseInt(value);
+                            } else if (key === 'purchasePrice') {
+                                data[key] = parseFloat(value) || 0;
+                            } else {
+                                data[key] = value;
+                            }
+                        }
+                    }
+
+                    const isEdit = form.action.includes('/api/stocks/') && !form.action.endsWith('/api/stocks');
+                    const method = isEdit ? 'PUT' : 'POST';
+
+                    const response = await fetch(form.action, {
+                        method: method,
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        showAlert(isEdit ? '재고가 수정되었습니다.' : '재고가 입고 등록되었습니다.', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/stocks/' + result.data.id;
+                        }, 1500);
+                    } else {
+                        throw new Error(result.message || '처리 중 오류가 발생했습니다.');
+                    }
+                } catch (error) {
+                    console.error('폼 제출 오류:', error);
+                    showAlert(error.message || '처리 중 오류가 발생했습니다.', 'danger');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // 의약품 검색
+            const medicineSearch = document.getElementById('medicineSearch');
+            let searchTimeout;
+
+            medicineSearch.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchMedicines(this.value);
+                }, 300);
+            });
+
+            medicineSearch.addEventListener('focus', function() {
+                if (this.value) {
+                    searchMedicines(this.value);
+                }
+            });
+
+            medicineSearch.addEventListener('blur', function() {
+                // 드롭다운 숨기기 (약간의 지연을 두어 클릭 이벤트 처리)
+                setTimeout(() => {
+                    document.getElementById('medicineDropdown').style.display = 'none';
+                }, 200);
+            });
+
+            // 실시간 유효성 검증
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+
+                input.addEventListener('input', function() {
+                    clearFieldError(this);
+                });
+            });
+
+            // 날짜 검증
+            document.getElementById('expiryDate').addEventListener('change', validateDates);
+            document.getElementById('receivedDate').addEventListener('change', validateDates);
+            document.getElementById('manufactureDate').addEventListener('change', validateDates);
+        }
+
+        // 툴팁 초기화
+        function initializeTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+
+        // 의약품 검색
+        function searchMedicines(query) {
+            const dropdown = document.getElementById('medicineDropdown');
+
+            if (!query || query.length < 2) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            const filtered = medicines.filter(medicine =>
+                medicine.name.toLowerCase().includes(query.toLowerCase()) ||
+                medicine.code.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 10); // 최대 10개만 표시
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="medicine-option">검색 결과가 없습니다.</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(medicine => `
+                    <div class="medicine-option" onclick="selectMedicine(${medicine.id})">
+                        <div class="medicine-name">${medicine.name}</div>
+                        <div class="medicine-code">${medicine.code} | ${medicine.manufacturer}</div>
+                    </div>
+                `).join('');
+            }
+
+            dropdown.style.display = 'block';
+        }
+
+        // 의약품 선택
+        function selectMedicine(medicineId) {
+            const medicine = medicines.find(m => m.id === medicineId);
+            if (!medicine) return;
+
+            selectedMedicineId = medicineId;
+            document.getElementById('medicineId').value = medicineId;
+            document.getElementById('medicineSearch').value = medicine.name;
+            document.getElementById('medicineDropdown').style.display = 'none';
+
+            // 선택된 의약품 표시
+            document.getElementById('selectedMedicineName').textContent = medicine.name;
+            document.getElementById('selectedMedicineMeta').textContent =
+                `코드: ${medicine.code} | 제조사: ${medicine.manufacturer} | 단위: ${medicine.unit}`;
+
+            showSelectedMedicine();
+            clearFieldError(document.getElementById('medicineId'));
+        }
+
+        // 선택된 의약품 표시
+        function showSelectedMedicine() {
+            document.getElementById('selectedMedicine').classList.add('show');
+            document.getElementById('medicineSearch').style.display = 'none';
+        }
+
+        // 의약품 변경
+        function changeMedicine() {
+            selectedMedicineId = null;
+            document.getElementById('medicineId').value = '';
+            document.getElementById('medicineSearch').value = '';
+            document.getElementById('medicineSearch').style.display = 'block';
+            document.getElementById('selectedMedicine').classList.remove('show');
+            document.getElementById('medicineSearch').focus();
+        }
+
+        // 바코드 스캐너 토글
+        function toggleBarcodeScanner() {
+            const scanner = document.getElementById('barcodeScanner');
+            barcodeActive = !barcodeActive;
+
+            if (barcodeActive) {
+                scanner.classList.add('active');
+                scanner.innerHTML = `
+                    <div class="barcode-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="barcode-text">바코드 스캐닝 중...</div>
+                    <div class="barcode-hint">스캔을 중지하려면 클릭하세요</div>
+                `;
+
+                // 시뮬레이션: 3초 후 더미 데이터 입력
+                setTimeout(() => {
+                    simulateBarcodeResult();
+                }, 3000);
+            } else {
+                resetBarcodeScanner();
+            }
+        }
+
+        // 바코드 스캔 결과 시뮬레이션
+        function simulateBarcodeResult() {
+            if (!barcodeActive) return;
+
+            // 더미 데이터로 자동 입력
+            const dummyData = {
+                medicineCode: 'MED001',
+                lotNumber: 'LOT' + Date.now().toString().slice(-6),
+                quantity: Math.floor(Math.random() * 100) + 10,
+                expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 1년 후
+            };
+
+            // 의약품 자동 선택
+            const medicine = medicines.find(m => m.code === dummyData.medicineCode);
+            if (medicine) {
+                selectMedicine(medicine.id);
+            }
+
+            // 다른 필드 자동 입력
+            document.getElementById('lotNumber').value = dummyData.lotNumber;
+            document.getElementById('quantity').value = dummyData.quantity;
+            document.getElementById('expiryDate').value = dummyData.expiryDate;
+
+            resetBarcodeScanner();
+            showAlert('바코드 스캔이 완료되었습니다.', 'success');
+        }
+
+        // 바코드 스캐너 리셋
+        function resetBarcodeScanner() {
+            barcodeActive = false;
+            const scanner = document.getElementById('barcodeScanner');
+            scanner.classList.remove('active');
+            scanner.innerHTML = `
+                <div class="barcode-icon">
+                    <i class="fas fa-barcode"></i>
+                </div>
+                <div class="barcode-text">바코드를 스캔하여 자동 입력</div>
+                <div class="barcode-hint">클릭하여 바코드 스캐너 시뮬레이션</div>
+            `;
+        }
+
+        // 수량 조정
+        function adjustQuantity(delta) {
+            const quantityInput = document.getElementById('quantity');
+            const currentValue = parseInt(quantityInput.value) || 0;
+            const newValue = Math.max(1, currentValue + delta);
+            quantityInput.value = newValue;
+            validateField(quantityInput);
+        }
+
+        // 날짜 유효성 검증
+        function validateDates() {
+            const manufactureDate = new Date(document.getElementById('manufactureDate').value);
+            const expiryDate = new Date(document.getElementById('expiryDate').value);
+            const receivedDate = new Date(document.getElementById('receivedDate').value);
+            const today = new Date();
+
+            let isValid = true;
+
+            // 유효기간이 현재 날짜보다 이후인지 확인
+            if (expiryDate && expiryDate <= today) {
+                setFieldError(document.getElementById('expiryDate'), '유효기간이 이미 만료되었습니다.');
+                isValid = false;
+            }
+
+            // 제조일이 유효기간보다 이전인지 확인
+            if (manufactureDate && expiryDate && manufactureDate >= expiryDate) {
+                setFieldError(document.getElementById('manufactureDate'), '제조일은 유효기간보다 이전이어야 합니다.');
+                isValid = false;
+            }
+
+            // 입고일이 미래가 아닌지 확인
+            if (receivedDate && receivedDate > today) {
+                setFieldError(document.getElementById('receivedDate'), '입고일은 미래 날짜일 수 없습니다.');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // 폼 전체 유효성 검증
+        function validateForm() {
+            let isValid = true;
+
+            // 의약품 선택 확인
+            if (!selectedMedicineId) {
+                setFieldError(document.getElementById('medicineId'), '의약품을 선택해주세요.');
+                isValid = false;
+            }
+
+            // 필수 필드 검증
+            const requiredFields = ['lotNumber', 'quantity', 'expiryDate', 'receivedDate'];
+            requiredFields.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            // 날짜 유효성 검증
+            if (!validateDates()) {
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // 개별 필드 유효성 검증
+        function validateField(field) {
+            const value = field.value.trim();
+
+            if (field.required && !value) {
+                setFieldError(field, '필수 입력 항목입니다.');
+                return false;
+            }
+
+            // 숫자 필드 검증
+            if (field.type === 'number') {
+                const num = parseFloat(value);
+                if (value && (isNaN(num) || num < parseFloat(field.min))) {
+                    setFieldError(field, `${field.min} 이상의 값을 입력해주세요.`);
+                    return false;
+                }
+            }
+
+            // 로트번호 중복 검사 (실제 구현에서는 API 호출)
+            if (field.id === 'lotNumber' && value) {
+                // TODO: 로트번호 중복 검사 API 호출
+            }
+
+            setFieldValid(field);
+            return true;
+        }
+
+        // 필드 오류 설정
+        function setFieldError(field, message) {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+
+            const feedback = field.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                const span = feedback.querySelector('span');
+                if (span) {
+                    span.textContent = message;
+                }
+            }
+        }
+
+        // 필드 유효성 설정
+        function setFieldValid(field) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        }
+
+        // 필드 오류 제거
+        function clearFieldError(field) {
+            field.classList.remove('is-invalid', 'is-valid');
+        }
+
+        // 폼 초기화
+        function resetForm() {
+            if (confirm('입력한 내용이 모두 삭제됩니다. 계속하시겠습니까?')) {
+                document.getElementById('stockForm').reset();
+                changeMedicine();
+                resetBarcodeScanner();
+
+                // 오늘 날짜를 입고일로 재설정
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('receivedDate').value = today;
+
+                // 유효성 검증 클래스 제거
+                const fields = document.querySelectorAll('.form-control, .form-select');
+                fields.forEach(field => {
+                    field.classList.remove('is-valid', 'is-invalid');
+                });
+            }
+        }
+
+        // 재고 삭제
+        async function deleteStock() {
+            if (!confirm('이 재고를 삭제하시겠습니까?\n\n삭제된 재고는 복구할 수 없습니다.')) {
+                return;
+            }
+
+            try {
+                const stockId = window.location.pathname.split('/')[2];
+                const response = await ApiClient.delete(`/api/stocks/${stockId}`);
+
+                if (response.success) {
+                    showAlert('재고가 삭제되었습니다.', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/stocks';
+                    }, 1500);
+                }
+            } catch (error) {
+                showAlert(error.message || '재고 삭제 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 로딩 상태 설정
+        function setLoading(isLoading) {
+            const submitButton = document.getElementById('submitButton');
+
+            if (isLoading) {
+                submitButton.disabled = true;
+                submitButton.classList.add('btn-loading');
+            } else {
+                submitButton.disabled = false;
+                submitButton.classList.remove('btn-loading');
+            }
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + S: 저장
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('stockForm').dispatchEvent(new Event('submit'));
+            }
+
+            // Esc: 취소 (목록으로 이동)
+            if (e.key === 'Escape') {
+                if (confirm('작성 중인 내용이 저장되지 않습니다. 목록으로 이동하시겠습니까?')) {
+                    window.location.href = '/stocks';
+                }
+            }
+
+            // F1: 바코드 스캐너 토글
+            if (e.key === 'F1') {
+                e.preventDefault();
+                toggleBarcodeScanner();
+            }
+        });
+    </script>
+</th:block>
+
 </html>

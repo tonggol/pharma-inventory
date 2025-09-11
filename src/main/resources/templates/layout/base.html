@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' - 의약품 재고관리 시스템' : '의약품 재고관리 시스템'}">의약품 재고관리 시스템</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- 커스텀 CSS -->
+    <style>
+        :root {
+            --primary-color: #2c5aa0;
+            --secondary-color: #34d399;
+            --accent-color: #f59e0b;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --success-color: #10b981;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        /* 헤더 스타일 */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+            height: var(--header-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            padding: 0 1.5rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* 사이드바 스타일 */
+        .sidebar {
+            background: white;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            z-index: 999;
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: #f1f5f9;
+            color: var(--primary-color);
+            transform: translateX(2px);
+        }
+
+        .menu-item.active {
+            background-color: rgba(44, 90, 160, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .menu-section {
+            margin: 1rem 0;
+        }
+
+        .menu-section-title {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 메인 컨텐츠 */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 2rem;
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        /* 카드 스타일 (BoxHero 스타일) */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card-title {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .positive { color: var(--success-color); }
+        .negative { color: var(--danger-color); }
+
+        /* 테이블 스타일 */
+        .data-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background-color: #f8fafc;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+            color: var(--dark-color);
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: #1e40af;
+            border-color: #1e40af;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        /* 배지 스타일 */
+        .badge {
+            border-radius: 6px;
+            font-weight: 500;
+            padding: 0.4em 0.8em;
+        }
+
+        /* 알림 스타일 */
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+
+        .alert-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+        }
+
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .header-content {
+                padding: 0 1rem;
+            }
+        }
+
+        /* 로딩 스피너 */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 페이드인 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <!-- 페이지별 CSS -->
+    <th:block layout:fragment="css"></th:block>
+</head>
+<body>
+<!-- 헤더 -->
+<header class="main-header">
+    <div class="header-content">
+        <div class="logo-section">
+            <button class="btn btn-link text-white d-md-none" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="/dashboard" class="logo">
+                <i class="fas fa-pills me-2"></i>
+                PharmaInventory
+            </a>
+        </div>
+
+        <div class="user-section" sec:authorize="isAuthenticated()">
+            <div class="user-info">
+                <div class="fw-semibold" th:text="${#authentication.principal.fullName ?: #authentication.principal.username}">사용자명</div>
+                <small class="opacity-75" th:text="${#authentication.principal.role?.description ?: #authentication.principal.authorities}">역할</small>
+            </div>
+            <div class="dropdown">
+                <div class="user-avatar dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                    <span th:text="${#strings.substring(#authentication.principal.fullName ?: #authentication.principal.username, 0, 1)?.toUpperCase()}">U</span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/users/profile"><i class="fas fa-user me-2"></i>프로필</a></li>
+                    <li><a class="dropdown-item" href="/auth/change-password"><i class="fas fa-key me-2"></i>비밀번호 변경</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 비로그인 사용자 -->
+        <div class="user-section" sec:authorize="!isAuthenticated()">
+            <a href="/auth/login" class="btn btn-outline-light btn-sm">로그인</a>
+        </div>
+    </div>
+</header>
+
+<!-- 사이드바 -->
+<nav class="sidebar" id="sidebar" sec:authorize="isAuthenticated()">
+    <div class="sidebar-menu">
+        <!-- 대시보드 -->
+        <div class="menu-section">
+            <a href="/dashboard" class="menu-item" th:classappend="${#request.requestURI == '/dashboard' ? 'active' : ''}">
+                <i class="fas fa-chart-pie"></i>
+                대시보드
+            </a>
+        </div>
+
+        <!-- 재고 관리 -->
+        <div class="menu-section">
+            <div class="menu-section-title">재고 관리</div>
+            <a href="/medicines" class="menu-item" th:classappend="${#strings.startsWith(#request.requestURI, '/medicines') ? 'active' : ''}">
+                <i class="fas fa-pills"></i>
+                의약품 관리
+            </a>
+            <a href="/stocks" class="menu-item" th:classappend="${#strings.startsWith(#request.requestURI, '/stocks') ? 'active' : ''}">
+                <i class="fas fa-boxes"></i>
+                재고 현황
+            </a>
+            <a href="/transactions" class="menu-item" th:classappend="${#strings.startsWith(#request.requestURI, '/transactions') ? 'active' : ''}">
+                <i class="fas fa-exchange-alt"></i>
+                입출고 관리
+            </a>
+        </div>
+
+        <!-- 빠른 작업 -->
+        <div class="menu-section">
+            <div class="menu-section-title">빠른 작업</div>
+            <a href="/stocks/new" class="menu-item">
+                <i class="fas fa-plus-circle text-success"></i>
+                재고 입고
+            </a>
+            <a href="/transactions/new" class="menu-item">
+                <i class="fas fa-minus-circle text-warning"></i>
+                재고 출고
+            </a>
+            <a href="/stocks/audit" class="menu-item">
+                <i class="fas fa-clipboard-check text-info"></i>
+                재고 실사
+            </a>
+        </div>
+
+        <!-- 보고서 -->
+        <div class="menu-section">
+            <div class="menu-section-title">보고서</div>
+            <a href="/reports/stock" class="menu-item">
+                <i class="fas fa-chart-bar"></i>
+                재고 보고서
+            </a>
+            <a href="/reports/expiry" class="menu-item">
+                <i class="fas fa-calendar-times"></i>
+                유효기간 보고서
+            </a>
+        </div>
+
+        <!-- 시스템 관리 -->
+        <div class="menu-section" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+            <div class="menu-section-title">시스템 관리</div>
+            <a href="/users" class="menu-item" th:classappend="${#strings.startsWith(#request.requestURI, '/users') ? 'active' : ''}">
+                <i class="fas fa-users"></i>
+                사용자 관리
+            </a>
+            <a href="/system/settings" class="menu-item">
+                <i class="fas fa-cog"></i>
+                시스템 설정
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- 메인 컨텐츠 -->
+<main class="main-content">
+    <!-- 페이지 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4" th:if="${pageTitle}">
+        <div>
+            <h1 class="h3 mb-1" th:text="${pageTitle}">페이지 제목</h1>
+            <p class="text-muted mb-0" th:text="${pageDescription ?: ''}" th:if="${pageDescription}">페이지 설명</p>
+        </div>
+        <div th:if="${headerActions}" th:utext="${headerActions}">
+            <!-- 헤더 액션 버튼들 -->
+        </div>
+    </div>
+
+    <!-- 알림 메시지 -->
+    <div th:if="${message}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="fas fa-info-circle me-2"></i>
+        <span th:text="${message}">메시지</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}">에러 메시지</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- 페이지 컨텐츠 -->
+    <div layout:fragment="content" class="fade-in">
+        <!-- 개별 페이지 컨텐츠가 여기에 들어갑니다 -->
+    </div>
+</main>
+
+<!-- Bootstrap 5.3 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 공통 JavaScript -->
+<script>
+    // 사이드바 토글 (모바일)
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+        }
+
+        // 외부 클릭시 사이드바 닫기 (모바일)
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                    sidebar.classList.remove('show');
+                }
+            }
+        });
+    });
+
+    // API 호출 헬퍼 함수
+    class ApiClient {
+        static async get(url) {
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
+                    'Content-Type': 'application/json'
+                }
+            });
+            return this.handleResponse(response);
+        }
+
+        static async post(url, data) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            return this.handleResponse(response);
+        }
+
+        static async put(url, data) {
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            return this.handleResponse(response);
+        }
+
+        static async delete(url) {
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken'),
+                    'Content-Type': 'application/json'
+                }
+            });
+            return this.handleResponse(response);
+        }
+
+        static async handleResponse(response) {
+            if (response.status === 401) {
+                localStorage.removeItem('accessToken');
+                window.location.href = '/auth/login';
+                return;
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || '요청 처리 중 오류가 발생했습니다.');
+            }
+
+            return data;
+        }
+    }
+
+    // 알림 표시 함수
+    function showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alertDiv.style.top = '80px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'danger' ? 'times' : 'info'}-circle me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // 숫자 포맷팅
+    function formatNumber(num) {
+        return new Intl.NumberFormat('ko-KR').format(num);
+    }
+
+    // 날짜 포맷팅
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).format(date);
+    }
+
+    // 상대 시간 표시
+    function timeAgo(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+
+        const intervals = {
+            year: 31536000,
+            month: 2592000,
+            week: 604800,
+            day: 86400,
+            hour: 3600,
+            minute: 60
+        };
+
+        for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+            const interval = Math.floor(seconds / secondsInUnit);
+            if (interval >= 1) {
+                return `${interval}${unit === 'year' ? '년' : unit === 'month' ? '개월' : unit === 'week' ? '주' : unit === 'day' ? '일' : unit === 'hour' ? '시간' : '분'} 전`;
+            }
+        }
+
+        return '방금 전';
+    }
+</script>
+
+<!-- 페이지별 JavaScript -->
+<th:block layout:fragment="javascript"></th:block>
+</body>
+</html>

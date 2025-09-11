@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>사용자 매뉴얼 - 의약품 재고관리 시스템</title>
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 매뉴얼 페이지 특화 스타일 */
+        .manual-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        /* 사이드 네비게이션 */
+        .manual-sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            height: fit-content;
+            position: sticky;
+            top: calc(var(--header-height) + 2rem);
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(44, 90, 160, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        /* 검색 박스 */
+        .search-box {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* 목차 네비게이션 */
+        .toc-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toc-section {
+            margin-bottom: 1rem;
+        }
+
+        .toc-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .toc-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toc-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .toc-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #64748b;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .toc-link:hover {
+            background: rgba(44, 90, 160, 0.1);
+            color: var(--primary-color);
+            transform: translateX(2px);
+        }
+
+        .toc-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* 메인 콘텐츠 */
+        .manual-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .manual-header {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .manual-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .manual-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .content-body {
+            padding: 3rem;
+        }
+
+        /* 섹션 스타일 */
+        .manual-section {
+            margin-bottom: 4rem;
+            scroll-margin-top: calc(var(--header-height) + 2rem);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .section-description {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* 서브섹션 */
+        .subsection {
+            margin-bottom: 2.5rem;
+        }
+
+        .subsection-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .subsection-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(44, 90, 160, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+        }
+
+        /* 단계별 가이드 */
+        .step-guide {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-item {
+            counter-increment: step-counter;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .step-number::before {
+            content: counter(step-counter);
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* 스크린샷/이미지 */
+        .screenshot {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .screenshot-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .screenshot-caption {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* 팁/주의사항 박스 */
+        .info-box {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-box.tip {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .info-box.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .info-box.tip .info-icon { background: #10b981; }
+        .info-box.warning .info-icon { background: #f59e0b; }
+        .info-box.danger .info-icon { background: #ef4444; }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box.tip .info-title { color: #065f46; }
+        .info-box.warning .info-title { color: #92400e; }
+        .info-box.danger .info-title { color: #dc2626; }
+
+        .info-description {
+            line-height: 1.6;
+        }
+
+        .info-box.tip .info-description { color: #047857; }
+        .info-box.warning .info-description { color: #b45309; }
+        .info-box.danger .info-description { color: #dc2626; }
+
+        /* FAQ 섹션 */
+        .faq-item {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            background: #f8fafc;
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: #f1f5f9;
+        }
+
+        .faq-question-text {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .faq-toggle {
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.open .faq-toggle {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.open .faq-answer {
+            padding: 1.5rem;
+            max-height: 500px;
+        }
+
+        .faq-answer-content {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* 네비게이션 버튼 */
+        .content-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            background: #f8fafc;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
+            color: white;
+        }
+
+        .nav-button.disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .manual-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .manual-sidebar {
+                position: static;
+                order: 2;
+            }
+
+            .manual-content {
+                order: 1;
+            }
+
+            .content-body {
+                padding: 2rem;
+            }
+
+            .manual-header {
+                padding: 2rem;
+            }
+
+            .manual-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-body {
+                padding: 1.5rem;
+            }
+
+            .manual-header {
+                padding: 1.5rem;
+            }
+
+            .manual-title {
+                font-size: 1.8rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .step-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .content-navigation {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .content-navigation .nav-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* 애니메이션 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 스크롤 하이라이트 */
+        .highlight {
+            animation: highlight 2s ease-in-out;
+        }
+
+        @keyframes highlight {
+            0% { background: rgba(44, 90, 160, 0.1); }
+            100% { background: transparent; }
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="manual-container fade-in">
+        <!-- 사이드바 네비게이션 -->
+        <div class="manual-sidebar">
+            <h3 class="sidebar-title">
+                <div class="sidebar-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                목차
+            </h3>
+
+            <!-- 검색 박스 -->
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="매뉴얼 검색..." id="manualSearch">
+            </div>
+
+            <!-- 목차 네비게이션 -->
+            <nav class="toc-nav">
+                <div class="toc-section">
+                    <div class="toc-title">시작하기</div>
+                    <ul class="toc-items">
+                        <li class="toc-item"><a href="#intro" class="toc-link">시스템 소개</a></li>
+                        <li class="toc-item"><a href="#login" class="toc-link">로그인 방법</a></li>
+                        <li class="toc-item"><a href="#dashboard" class="toc-link">대시보드 둘러보기</a></li>
+                    </ul>
+                </div>
+
+                <div class="toc-section">
+                    <div class="toc-title">의약품 관리</div>
+                    <ul class="toc-items">
+                        <li class="toc-item"><a href="#medicine-list" class="toc-link">의약품 목록</a></li>
+                        <li class="toc-item"><a href="#medicine-add" class="toc-link">새 의약품 등록</a></li>
+                        <li class="toc-item"><a href="#medicine-edit" class="toc-link">의약품 수정/삭제</a></li>
+                    </ul>
+                </div>
+
+                <div class="toc-section">
+                    <div class="toc-title">재고 관리</div>
+                    <ul class="toc-items">
+                        <li class="toc-item"><a href="#stock-overview" class="toc-link">재고 현황 확인</a></li>
+                        <li class="toc-item"><a href="#stock-adjustment" class="toc-link">재고 조정</a></li>
+                        <li class="toc-item"><a href="#expiry-management" class="toc-link">유효기간 관리</a></li>
+                    </ul>
+                </div>
+
+                <div class="toc-section">
+                    <div class="toc-title">거래 관리</div>
+                    <ul class="toc-items">
+                        <li class="toc-item"><a href="#inbound" class="toc-link">입고 처리</a></li>
+                        <li class="toc-item"><a href="#outbound" class="toc-link">출고 처리</a></li>
+                        <li class="toc-item"><a href="#transaction-history" class="toc-link">거래 내역 조회</a></li>
+                    </ul>
+                </div>
+
+                <div class="toc-section">
+                    <div class="toc-title">보고서</div>
+                    <ul class="toc-items">
+                        <li class="toc-item"><a href="#stock-report" class="toc-link">재고 보고서</a></li>
+                        <li class="toc-item"><a href="#expiry-report" class="toc-link">유효기간 보고서</a></li>
+                        <li class="toc-item"><a href="#export-data" class="toc-link">데이터 내보내기</a></li>
+                    </ul>
+                </div>
+
+                <div class="toc-section">
+                    <div class="toc-title">사용자 관리</div>
+                    <ul class="toc-items">
+                        <li class="toc-item"><a href="#user-management" class="toc-link">사용자 관리</a></li>
+                        <li class="toc-item"><a href="#profile" class="toc-link">프로필 설정</a></li>
+                        <li class="toc-item"><a href="#permissions" class="toc-link">권한 관리</a></li>
+                    </ul>
+                </div>
+
+                <div class="toc-section">
+                    <div class="toc-title">시스템 설정</div>
+                    <ul class="toc-items">
+                        <li class="toc-item"><a href="#system-settings" class="toc-link">시스템 설정</a></li>
+                        <li class="toc-item"><a href="#backup" class="toc-link">백업/복원</a></li>
+                        <li class="toc-item"><a href="#faq" class="toc-link">자주 묻는 질문</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="manual-content">
+            <!-- 헤더 -->
+            <div class="manual-header">
+                <h1 class="manual-title">사용자 매뉴얼</h1>
+                <p class="manual-subtitle">의약품 재고관리 시스템 완전 가이드</p>
+            </div>
+
+            <div class="content-body">
+                <!-- 시스템 소개 -->
+                <section id="intro" class="manual-section">
+                    <div class="section-header">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">시스템 소개</h2>
+                    </div>
+                    <p class="section-description">
+                        의약품 재고관리 시스템은 병원, 약국, 의료기관에서 의약품의 입고, 출고, 재고 현황을
+                        효율적으로 관리할 수 있도록 설계된 웹 기반 시스템입니다.
+                    </p>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">
+                            <div class="subsection-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            주요 기능
+                        </h3>
+
+                        <div class="step-guide">
+                            <ul class="step-list">
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">의약품 정보 관리</div>
+                                        <div class="step-description">의약품 등록, 수정, 삭제 및 상세 정보 관리</div>
+                                    </div>
+                                </li>
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">실시간 재고 현황</div>
+                                        <div class="step-description">현재 재고량, 최소 재고 기준, 유효기간 추적</div>
+                                    </div>
+                                </li>
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">입출고 거래 관리</div>
+                                        <div class="step-description">입고, 출고, 조정, 폐기 등 모든 거래 기록 관리</div>
+                                    </div>
+                                </li>
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">종합 보고서</div>
+                                        <div class="step-description">재고 현황, 유효기간, 거래 내역 등 다양한 보고서 생성</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="info-box tip">
+                        <div class="info-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-title">팁</div>
+                            <div class="info-description">
+                                처음 사용하시는 경우 대시보드에서 전체적인 시스템 현황을 먼저 확인해보세요.
+                                각 메뉴별 주요 기능을 파악하는데 도움이 됩니다.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 로그인 방법 -->
+                <section id="login" class="manual-section">
+                    <div class="section-header">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">로그인 방법</h2>
+                    </div>
+                    <p class="section-description">
+                        시스템에 접속하여 로그인하는 방법을 안내합니다.
+                    </p>
+
+                    <div class="step-guide">
+                        <ul class="step-list">
+                            <li class="step-item">
+                                <div class="step-number"></div>
+                                <div class="step-content">
+                                    <div class="step-title">로그인 페이지 접속</div>
+                                    <div class="step-description">웹 브라우저에서 시스템 URL에 접속합니다.</div>
+                                </div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-number"></div>
+                                <div class="step-content">
+                                    <div class="step-title">사용자 정보 입력</div>
+                                    <div class="step-description">사용자명과 비밀번호를 입력합니다.</div>
+                                </div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-number"></div>
+                                <div class="step-content">
+                                    <div class="step-title">로그인 버튼 클릭</div>
+                                    <div class="step-description">'로그인' 버튼을 클릭하여 시스템에 접속합니다.</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="screenshot">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-image" style="font-size: 3rem; margin-right: 1rem;"></i>
+                            로그인 페이지 스크린샷
+                        </div>
+                        <div class="screenshot-caption">그림 1. 로그인 페이지 화면</div>
+                    </div>
+
+                    <div class="info-box warning">
+                        <div class="info-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-title">주의사항</div>
+                            <div class="info-description">
+                                보안을 위해 로그인 정보를 다른 사람과 공유하지 마세요.
+                                사용 완료 후에는 반드시 로그아웃하시기 바랍니다.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 대시보드 둘러보기 -->
+                <section id="dashboard" class="manual-section">
+                    <div class="section-header">
+                        <div class="section-number">3</div>
+                        <h2 class="section-title">대시보드 둘러보기</h2>
+                    </div>
+                    <p class="section-description">
+                        로그인 후 가장 먼저 보게 되는 대시보드의 각 구성 요소를 설명합니다.
+                    </p>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">
+                            <div class="subsection-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            주요 통계 카드
+                        </h3>
+                        <p>대시보드 상단에는 다음과 같은 주요 통계 정보가 표시됩니다:</p>
+
+                        <div class="step-guide">
+                            <ul class="step-list">
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">총 의약품 수</div>
+                                        <div class="step-description">현재 시스템에 등록된 전체 의약품 종류 수</div>
+                                    </div>
+                                </li>
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">총 재고량</div>
+                                        <div class="step-description">모든 의약품의 현재 총 재고 수량</div>
+                                    </div>
+                                </li>
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">재고 부족</div>
+                                        <div class="step-description">최소 재고 기준 이하로 떨어진 의약품 수</div>
+                                    </div>
+                                </li>
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">만료 임박</div>
+                                        <div class="step-description">유효기간이 임박한 의약품 수</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="screenshot">
+                        <div class="screenshot-placeholder">
+                            <i class="fas fa-chart-bar" style="font-size: 3rem; margin-right: 1rem;"></i>
+                            대시보드 메인 화면
+                        </div>
+                        <div class="screenshot-caption">그림 2. 대시보드 메인 화면</div>
+                    </div>
+                </section>
+
+                <!-- 의약품 관리 -->
+                <section id="medicine-list" class="manual-section">
+                    <div class="section-header">
+                        <div class="section-number">4</div>
+                        <h2 class="section-title">의약품 관리</h2>
+                    </div>
+                    <p class="section-description">
+                        의약품 정보를 등록, 수정, 삭제하는 방법을 설명합니다.
+                    </p>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">
+                            <div class="subsection-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            의약품 목록 조회
+                        </h3>
+
+                        <div class="step-guide">
+                            <ul class="step-list">
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">메뉴 접근</div>
+                                        <div class="step-description">좌측 메뉴에서 '의약품 관리' > '의약품 목록'을 클릭합니다.</div>
+                                    </div>
+                                </li>
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">검색 및 필터</div>
+                                        <div class="step-description">필요시 검색창이나 필터를 사용해 원하는 의약품을 찾습니다.</div>
+                                    </div>
+                                </li>
+                                <li class="step-item">
+                                    <div class="step-number"></div>
+                                    <div class="step-content">
+                                        <div class="step-title">상세 정보 확인</div>
+                                        <div class="step-description">의약품명을 클릭하여 상세 정보를 확인할 수 있습니다.</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 자주 묻는 질문 -->
+                <section id="faq" class="manual-section">
+                    <div class="section-header">
+                        <div class="section-number">9</div>
+                        <h2 class="section-title">자주 묻는 질문</h2>
+                    </div>
+                    <p class="section-description">
+                        사용자들이 자주 묻는 질문과 답변을 정리했습니다.
+                    </p>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <div class="faq-question-text">비밀번호를 잊어버렸을 때 어떻게 해야 하나요?</div>
+                            <div class="faq-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                로그인 페이지에서 '비밀번호 찾기' 링크를 클릭하여 이메일로 재설정 링크를 받으실 수 있습니다.
+                                또는 시스템 관리자에게 문의하여 비밀번호를 재설정 받으실 수 있습니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <div class="faq-question-text">의약품 재고가 부족할 때 자동으로 알림을 받을 수 있나요?</div>
+                            <div class="faq-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                네, 가능합니다. 시스템 설정에서 알림 기능을 활성화하면 재고가 최소 기준 이하로 떨어질 때
+                                이메일 알림을 받으실 수 있습니다. 설정 방법은 '시스템 설정' 섹션을 참고하세요.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <div class="faq-question-text">데이터를 Excel로 내보낼 수 있나요?</div>
+                            <div class="faq-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                네, 대부분의 목록 페이지와 보고서에서 Excel, PDF, CSV 형식으로 데이터를 내보낼 수 있습니다.
+                                각 페이지의 '내보내기' 버튼을 클릭하여 원하는 형식을 선택하세요.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <div class="faq-question-text">잘못 입력한 거래 내역을 수정할 수 있나요?</div>
+                            <div class="faq-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                거래 내역은 수정할 수 없습니다. 대신 조정 거래를 생성하여 오류를 수정할 수 있습니다.
+                                거래 목록에서 해당 거래를 선택한 후 '조정' 버튼을 사용하세요.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <div class="faq-question-text">시스템 백업은 언제 이루어지나요?</div>
+                            <div class="faq-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                시스템은 매일 자동으로 백업됩니다. 백업 시간과 주기는 시스템 설정에서 확인하실 수 있으며,
+                                필요시 수동으로 백업을 생성할 수도 있습니다.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 네비게이션 -->
+            <div class="content-navigation">
+                <a href="#" class="nav-button disabled">
+                    <i class="fas fa-chevron-left"></i>
+                    이전 페이지
+                </a>
+                <a href="/about" class="nav-button">
+                    시스템 소개
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeManual();
+            setupScrollSpy();
+            setupSearch();
+        });
+
+        // 매뉴얼 초기화
+        function initializeManual() {
+            // 목차 링크 클릭 이벤트
+            document.querySelectorAll('.toc-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+
+                    if (targetElement) {
+                        scrollToSection(targetElement);
+                        updateActiveLink(this);
+                    }
+                });
+            });
+        }
+
+        // 섹션으로 스크롤
+        function scrollToSection(element) {
+            const headerHeight = document.querySelector('.main-header').offsetHeight;
+            const offset = headerHeight + 20;
+            const targetPosition = element.offsetTop - offset;
+
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+
+            // 하이라이트 효과
+            element.classList.add('highlight');
+            setTimeout(() => {
+                element.classList.remove('highlight');
+            }, 2000);
+        }
+
+        // 활성 링크 업데이트
+        function updateActiveLink(activeLink) {
+            document.querySelectorAll('.toc-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            activeLink.classList.add('active');
+        }
+
+        // 스크롤 스파이 설정
+        function setupScrollSpy() {
+            const sections = document.querySelectorAll('.manual-section');
+            const tocLinks = document.querySelectorAll('.toc-link');
+
+            window.addEventListener('scroll', function() {
+                let current = '';
+                const scrollPosition = window.scrollY + 150;
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                // 활성 링크 업데이트
+                tocLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // 검색 기능 설정
+        function setupSearch() {
+            const searchInput = document.getElementById('manualSearch');
+            const sections = document.querySelectorAll('.manual-section');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+
+                if (searchTerm === '') {
+                    // 검색어가 없으면 모든 섹션 표시
+                    sections.forEach(section => {
+                        section.style.display = 'block';
+                    });
+                    return;
+                }
+
+                // 검색어가 있으면 매칭되는 섹션만 표시
+                sections.forEach(section => {
+                    const sectionText = section.textContent.toLowerCase();
+                    if (sectionText.includes(searchTerm)) {
+                        section.style.display = 'block';
+                        highlightSearchTerms(section, searchTerm);
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // 검색어 하이라이트
+        function highlightSearchTerms(element, searchTerm) {
+            // 간단한 하이라이트 구현
+            // 실제 구현에서는 더 정교한 하이라이트 로직 필요
+        }
+
+        // FAQ 토글
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const isOpen = faqItem.classList.contains('open');
+
+            // 모든 FAQ 항목 닫기
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('open');
+            });
+
+            // 클릭한 항목이 닫혀있었다면 열기
+            if (!isOpen) {
+                faqItem.classList.add('open');
+            }
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + F: 검색 포커스
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('manualSearch').focus();
+            }
+
+            // ESC: 검색 초기화
+            if (e.key === 'Escape') {
+                const searchInput = document.getElementById('manualSearch');
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // 인쇄 최적화
+        window.addEventListener('beforeprint', function() {
+            // 인쇄 시 사이드바 숨기기
+            document.querySelector('.manual-sidebar').style.display = 'none';
+            document.querySelector('.manual-container').style.gridTemplateColumns = '1fr';
+        });
+
+        window.addEventListener('afterprint', function() {
+            // 인쇄 후 사이드바 복원
+            document.querySelector('.manual-sidebar').style.display = 'block';
+            document.querySelector('.manual-container').style.gridTemplateColumns = '300px 1fr';
+        });
+    </script>
+</th:block>
+
+</html>

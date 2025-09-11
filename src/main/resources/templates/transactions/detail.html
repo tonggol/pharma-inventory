@@ -1,72 +1,794 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="${transaction.transactionType + ' - ' + transaction.medicine.name + ' (' + transaction.lotNumber + ')'}">거래 상세 정보 - 의약품 재고관리 시스템</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/tables.css">
+</head>
+
+<th:block layout:fragment="css">
+    <style>
+        /* 거래 상세 페이지 특화 스타일 */
+        .detail-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .detail-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .transaction-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .transaction-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .transaction-icon.inbound {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+        }
+
+        .transaction-icon.outbound {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+        }
+
+        .transaction-icon.adjustment {
+            background: linear-gradient(135deg, var(--info-color), #2563eb);
+        }
+
+        .transaction-icon.disposal {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .transaction-subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .transaction-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .meta-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .meta-value {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .transaction-id {
+            font-family: 'Courier New', monospace;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* 그리드 레이아웃 */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* 거래 정보 그리드 */
+        .transaction-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .info-value.large {
+            font-size: 1.5rem;
+        }
+
+        .info-value.success {
+            color: var(--success-color);
+        }
+
+        .info-value.warning {
+            color: var(--warning-color);
+        }
+
+        .info-value.danger {
+            color: var(--danger-color);
+        }
+
+        /* 관련 정보 카드 */
+        .related-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .related-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .related-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: var(--primary-color);
+        }
+
+        .related-card-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .related-card-content {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .related-card-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 0.5rem;
+        }
+
+        /* 타임라인 스타일 */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--border-color);
+        }
+
+        .timeline-content {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .timeline-time {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .timeline-description {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* 승인 정보 */
+        .approval-info {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .approval-info.pending {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning-color);
+        }
+
+        .approval-info.rejected {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger-color);
+        }
+
+        .approval-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .approval-status {
+            font-weight: 600;
+        }
+
+        .approval-details {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-content {
+                order: -1;
+            }
+
+            .related-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .transaction-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .transaction-meta {
+                justify-content: center;
+            }
+
+            .detail-header,
+            .card-content {
+                padding: 1.5rem;
+            }
+
+            .transaction-title {
+                font-size: 1.5rem;
+            }
+
+            .transaction-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</th:block>
+
 <div layout:fragment="content">
+    <div class="detail-container">
+        <!-- 거래 헤더 -->
+        <div class="detail-header fade-in">
+            <div class="transaction-header">
+                <div class="transaction-icon" th:classappend="${transaction.transactionType.toLowerCase()}">
+                    <i class="fas" th:classappend="${transaction.transactionType == 'INBOUND' ? 'fa-arrow-down' :
+                                                   transaction.transactionType == 'OUTBOUND' ? 'fa-arrow-up' :
+                                                   transaction.transactionType == 'ADJUSTMENT' ? 'fa-edit' : 'fa-trash'}"></i>
+                </div>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div>
-            <h1>Transaction Details</h1>
-            <p class="text-muted fs-5" th:text="'ID: ' + ${transaction.id}">ID: 12345</p>
+                <div class="transaction-info">
+                    <h1 class="transaction-title" th:text="${transaction.transactionTypeDescription}">재고 입고</h1>
+                    <p class="transaction-subtitle" th:text="${transaction.medicine.name + ' (' + transaction.lotNumber + ')'}">아스피린정 100mg (LOT2024001)</p>
+
+                    <div class="transaction-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">거래 ID:</span>
+                            <span class="transaction-id" th:text="${transaction.id}">TXN001</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">거래 일시:</span>
+                            <span class="meta-value" th:text="${#temporals.format(transaction.transactionDate, 'yyyy-MM-dd HH:mm')}">2024-01-15 09:30</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">담당자:</span>
+                            <span class="meta-value" th:text="${transaction.createdByUsername}">김약사</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">상태:</span>
+                            <span class="status-badge" th:classappend="${transaction.status.toLowerCase()}" th:text="${transaction.statusDescription}">완료</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a th:href="@{/transactions/{id}/edit(id=${transaction.id})}"
+                       class="btn btn-primary"
+                       sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')"
+                       th:if="${transaction.status == 'PENDING'}">
+                        <i class="fas fa-edit"></i>
+                        수정
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="printTransaction()">
+                        <i class="fas fa-print"></i>
+                        인쇄
+                    </button>
+                    <a th:href="@{/transactions}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        목록으로
+                    </a>
+                </div>
+            </div>
         </div>
-        <a th:href="@{/transactions}" class="btn btn-outline-secondary">Back to List</a>
-    </div>
 
-    <div class="card">
-        <div class="card-header d-flex align-items-center">
-            <i data-feather="repeat" class="me-2"></i>
-            <span>Transaction Record</span>
-        </div>
-        <div class="card-body">
-            <h5 class="mb-3">Transaction Information</h5>
-            <dl class="row">
-                <dt class="col-sm-3">Date & Time</dt>
-                <dd class="col-sm-9" th:text="${#temporals.format(transaction.transactionDate, 'yyyy-MM-dd HH:mm:ss')}">2023-10-27 10:00:00</dd>
+        <!-- 메인 그리드 -->
+        <div class="detail-grid">
+            <!-- 메인 컨텐츠 -->
+            <div class="main-content">
+                <!-- 거래 상세 정보 -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            거래 상세 정보
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="transaction-info-grid">
+                            <div class="info-item">
+                                <div class="info-label">거래 수량</div>
+                                <div class="info-value large"
+                                     th:classappend="${transaction.transactionType == 'INBOUND' ? 'success' :
+                                                     transaction.transactionType == 'OUTBOUND' ? 'warning' : 'danger'}"
+                                     th:text="${(transaction.transactionType == 'OUTBOUND' ? '-' : '+') + transaction.quantity + ' ' + transaction.medicine.unit}">+500 정</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">단가</div>
+                                <div class="info-value" th:text="${transaction.unitPrice != null ? #numbers.formatCurrency(transaction.unitPrice) : '-'}">₩1,200</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">총 금액</div>
+                                <div class="info-value" th:text="${transaction.totalAmount != null ? #numbers.formatCurrency(transaction.totalAmount) : '-'}">₩600,000</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">거래 전 재고</div>
+                                <div class="info-value" th:text="${transaction.stockBefore + ' ' + transaction.medicine.unit}">150 정</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">거래 후 재고</div>
+                                <div class="info-value" th:text="${transaction.stockAfter + ' ' + transaction.medicine.unit}">650 정</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">거래 위치</div>
+                                <div class="info-value" th:text="${transaction.location ?: '-'}">A동-1층-냉장고1</div>
+                            </div>
+                        </div>
 
-                <dt class="col-sm-3">Type</dt>
-                <dd class="col-sm-9">
-                    <span class="badge fs-6" 
-                          th:classappend="${transaction.transactionType.name() == 'INBOUND' or transaction.transactionType.name() == 'RETURN' ? 'bg-success-soft' : (transaction.transactionType.name() == 'OUTBOUND' or transaction.transactionType.name() == 'DISPOSAL' ? 'bg-danger-soft' : 'bg-secondary-soft')}" 
-                          th:text="${transaction.transactionType}">OUTBOUND</span>
-                </dd>
+                        <!-- 거래 사유 -->
+                        <div th:if="${transaction.reason}" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">거래 사유</h5>
+                            <p style="color: #64748b; line-height: 1.6; margin: 0;" th:text="${transaction.reason}">
+                                정기 재고 보충
+                            </p>
+                        </div>
 
-                <dt class="col-sm-3">Reason</dt>
-                <dd class="col-sm-9" th:text="${transaction.reason}">Prescription</dd>
+                        <!-- 추가 비고 -->
+                        <div th:if="${transaction.remarks}" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">추가 비고</h5>
+                            <p style="color: #64748b; line-height: 1.6; margin: 0;" th:text="${transaction.remarks}">
+                                유효기간 확인 완료. 정상 입고 처리됨.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-                <dt class="col-sm-3">User</dt>
-                <dd class="col-sm-9" th:text="${transaction.username}">user1</dd>
+                <!-- 승인 및 처리 이력 -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            처리 이력
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="timeline" id="transactionTimeline">
+                            <!-- 동적으로 로드됨 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <dt class="col-sm-3">Department</dt>
-                <dd class="col-sm-9" th:text="${transaction.department}">Cardiology</dd>
+            <!-- 사이드바 -->
+            <div class="sidebar-content">
+                <!-- 관련 정보 -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            관련 정보
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="related-info">
+                            <a th:href="@{/medicines/{id}(id=${transaction.medicine.id})}" class="related-card">
+                                <div class="related-card-title">
+                                    <i class="fas fa-pills"></i>
+                                    의약품 정보
+                                </div>
+                                <div class="related-card-content" th:text="${transaction.medicine.name}">아스피린정 100mg</div>
+                                <div class="related-card-value" th:text="${transaction.medicine.code}">MED001</div>
+                            </a>
 
-                <dt class="col-sm-3">Notes</dt>
-                <dd class="col-sm-9" th:text="${transaction.notes}">Urgent request</dd>
-            </dl>
+                            <a th:href="@{/stocks/{id}(id=${transaction.stockId})}" class="related-card">
+                                <div class="related-card-title">
+                                    <i class="fas fa-box"></i>
+                                    재고 정보
+                                </div>
+                                <div class="related-card-content">로트번호</div>
+                                <div class="related-card-value" th:text="${transaction.lotNumber}">LOT2024001</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-            <hr class="my-4">
+                <!-- 승인 정보 -->
+                <div class="card fade-in" th:if="${transaction.requiresApproval}">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            승인 정보
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="approval-info" th:classappend="${transaction.approvalStatus?.toLowerCase()}">
+                            <div class="approval-header">
+                                <i class="fas" th:classappend="${transaction.approvalStatus == 'APPROVED' ? 'fa-check-circle' :
+                                                               transaction.approvalStatus == 'PENDING' ? 'fa-clock' : 'fa-times-circle'}"></i>
+                                <span class="approval-status" th:text="${transaction.approvalStatusDescription}">승인 완료</span>
+                            </div>
+                            <div class="approval-details">
+                                <div th:if="${transaction.approvedBy}">승인자: <span th:text="${transaction.approvedBy}">관리자</span></div>
+                                <div th:if="${transaction.approvedAt}">승인일시: <span th:text="${#temporals.format(transaction.approvedAt, 'yyyy-MM-dd HH:mm')}">2024-01-15 10:00</span></div>
+                                <div th:if="${transaction.approvalComments}">승인 의견: <span th:text="${transaction.approvalComments}">정상 처리</span></div>
+                            </div>
+                        </div>
 
-            <h5 class="mb-3">Stock & Quantity Details</h5>
-            <dl class="row">
-                <dt class="col-sm-3">Medicine</dt>
-                <dd class="col-sm-9">
-                    <a th:href="@{/medicines/{id}(id=${transaction.medicineId})}" th:text="${transaction.medicineName}">Aspirin</a>
-                </dd>
+                        <!-- 승인 액션 버튼 (대기 중인 경우) -->
+                        <div th:if="${transaction.approvalStatus == 'PENDING'}" class="mt-3 d-flex gap-2" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+                            <button class="btn btn-success btn-sm" onclick="approveTransaction()">
+                                <i class="fas fa-check"></i>
+                                승인
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="rejectTransaction()">
+                                <i class="fas fa-times"></i>
+                                거부
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                <dt class="col-sm-3">Stock / Lot</dt>
-                <dd class="col-sm-9">
-                    <a th:href="@{/stocks/{id}(id=${transaction.stockId})}" th:text="'ID: ' + ${transaction.stockId}">ID: 101</a>
-                    <span class="text-muted" th:text="'(Lot: ' + ${transaction.lotNumber} + ')'">(Lot: L12345)</span>
-                </dd>
+                <!-- 빠른 작업 -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            빠른 작업
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <a th:href="@{/transactions/new(medicineId=${transaction.medicine.id})}"
+                               class="btn btn-primary"
+                               sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
+                                <i class="fas fa-plus"></i>
+                                새 거래 등록
+                            </a>
 
-                <dt class="col-sm-3">Quantity Change</dt>
-                <dd class="col-sm-9 fs-5 fw-bold" th:classappend="${transaction.quantity < 0 ? 'text-danger' : 'text-success'}" th:text="${transaction.quantity}">-10</dd>
+                            <a th:href="@{/transactions(medicineId=${transaction.medicine.id})}"
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-list"></i>
+                                관련 거래 목록
+                            </a>
 
-                <dt class="col-sm-3">Quantity Before</dt>
-                <dd class="col-sm-9" th:text="${transaction.quantityBefore}">110</dd>
+                            <button class="btn btn-outline-secondary" onclick="copyTransaction()">
+                                <i class="fas fa-copy"></i>
+                                거래 복사
+                            </button>
 
-                <dt class="col-sm-3">Quantity After</dt>
-                <dd class="col-sm-9" th:text="${transaction.quantityAfter}">100</dd>
-            </dl>
+                            <button class="btn btn-outline-secondary" onclick="exportTransaction()">
+                                <i class="fas fa-download"></i>
+                                데이터 내보내기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        // 전역 변수
+        const transactionId = /*[[${transaction.id}]]*/ 1;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransactionTimeline();
+        });
+
+        // 거래 타임라인 로드
+        async function loadTransactionTimeline() {
+            try {
+                const response = await ApiClient.get(`/api/transactions/${transactionId}/timeline`);
+
+                if (response.success) {
+                    renderTimeline(response.data);
+                }
+            } catch (error) {
+                console.error('타임라인 로드 오류:', error);
+                // 기본 타임라인 표시
+                renderDefaultTimeline();
+            }
+        }
+
+        // 타임라인 렌더링
+        function renderTimeline(timelineData) {
+            const container = document.getElementById('transactionTimeline');
+
+            if (!timelineData || timelineData.length === 0) {
+                renderDefaultTimeline();
+                return;
+            }
+
+            container.innerHTML = timelineData.map(item => `
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">${item.title}</div>
+                            <div class="timeline-time">${formatDateTime(item.timestamp)}</div>
+                        </div>
+                        <div class="timeline-description">${item.description}</div>
+                        ${item.user ? `<div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem;">처리자: ${item.user}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 기본 타임라인 표시
+        function renderDefaultTimeline() {
+            const container = document.getElementById('transactionTimeline');
+            const transaction = /*[[${transaction}]]*/ {};
+
+            const defaultItems = [
+                {
+                    title: '거래 등록',
+                    description: '거래가 시스템에 등록되었습니다.',
+                    timestamp: transaction.createdAt,
+                    user: transaction.createdByUsername
+                }
+            ];
+
+            if (transaction.status === 'COMPLETED') {
+                defaultItems.push({
+                    title: '거래 완료',
+                    description: '거래가 성공적으로 완료되었습니다.',
+                    timestamp: transaction.updatedAt,
+                    user: transaction.updatedByUsername
+                });
+            }
+
+            renderTimeline(defaultItems);
+        }
+
+        // 거래 승인
+        async function approveTransaction() {
+            const comments = prompt('승인 의견을 입력하세요 (선택사항):');
+
+            try {
+                const response = await ApiClient.post(`/api/transactions/${transactionId}/approve`, {
+                    comments: comments
+                });
+
+                if (response.success) {
+                    showAlert('거래가 승인되었습니다.', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                }
+            } catch (error) {
+                showAlert(error.message || '승인 처리 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 거래 거부
+        async function rejectTransaction() {
+            const reason = prompt('거부 사유를 입력하세요:');
+            if (!reason) return;
+
+            try {
+                const response = await ApiClient.post(`/api/transactions/${transactionId}/reject`, {
+                    reason: reason
+                });
+
+                if (response.success) {
+                    showAlert('거래가 거부되었습니다.', 'warning');
+                    setTimeout(() => location.reload(), 1500);
+                }
+            } catch (error) {
+                showAlert(error.message || '거부 처리 중 오류가 발생했습니다.', 'danger');
+            }
+        }
+
+        // 거래 복사
+        function copyTransaction() {
+            const transaction = /*[[${transaction}]]*/ {};
+            const params = new URLSearchParams({
+                medicineId: transaction.medicine.id,
+                transactionType: transaction.transactionType,
+                quantity: transaction.quantity,
+                copy: true
+            });
+
+            window.location.href = `/transactions/new?${params.toString()}`;
+        }
+
+        // 거래 인쇄
+        function printTransaction() {
+            window.print();
+        }
+
+        // 데이터 내보내기
+        function exportTransaction() {
+            const params = new URLSearchParams({ transactionId: transactionId });
+            window.open(`/api/transactions/export?${params.toString()}`, '_blank');
+        }
+
+        // 유틸리티 함수
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            // F5: 새로고침
+            if (e.key === 'F5') {
+                e.preventDefault();
+                location.reload();
+            }
+
+            // Ctrl + P: 인쇄
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                printTransaction();
+            }
+
+            // Ctrl + E: 편집 (수정 가능한 경우)
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                const editButton = document.querySelector('a[href*="/edit"]');
+                if (editButton) {
+                    window.location.href = editButton.href;
+                }
+            }
+        });
+    </script>
+</th:block>
+
 </html>
