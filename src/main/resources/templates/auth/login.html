@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 - 의약품 재고관리 시스템</title>
+    <title>로그인 - PharmaInventory</title>
 
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -49,6 +49,22 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-home:hover {
+            color: var(--dark-color);
+            transform: translateX(-5px);
         }
 
         .login-brand {
@@ -204,6 +220,16 @@
             color: #dc2626;
         }
 
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .alert-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
         .demo-accounts {
             margin-top: 2rem;
             padding: 1.5rem;
@@ -245,22 +271,6 @@
             font-family: 'Courier New', monospace;
         }
 
-        .loading-spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid transparent;
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 0.5rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         @media (max-width: 768px) {
             .login-container {
                 flex-direction: column;
@@ -276,6 +286,13 @@
 
             .login-form-section {
                 padding: 2rem;
+            }
+
+            .back-home {
+                position: static;
+                display: inline-block;
+                margin-bottom: 1rem;
+                text-align: left;
             }
 
             .login-info-title {
@@ -313,6 +330,11 @@
 <div class="login-container fade-in">
     <!-- 로그인 폼 섹션 -->
     <div class="login-form-section">
+        <a href="/" class="back-home">
+            <i class="fas fa-arrow-left me-1"></i>
+            홈으로 돌아가기
+        </a>
+
         <div class="login-brand slide-up">
             <div class="login-brand-icon">
                 <i class="fas fa-pills"></i>
@@ -321,20 +343,26 @@
             <p class="login-brand-subtitle">의약품 재고관리 시스템</p>
         </div>
 
-        <!-- 에러 메시지 -->
-        <div id="errorAlert" class="alert alert-danger" style="display: none;" role="alert">
+        <!-- 에러 메시지 (Spring Security에서 자동 처리) -->
+        <div th:if="${param.error}" class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="errorMessage"></span>
+            <span>로그인에 실패했습니다. 사용자명과 비밀번호를 확인해주세요.</span>
+        </div>
+
+        <!-- 로그아웃 메시지 -->
+        <div th:if="${param.logout}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span>성공적으로 로그아웃되었습니다.</span>
         </div>
 
         <!-- 로그인 성공 메시지 -->
-        <div th:if="${message}" class="alert alert-success" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
+        <div th:if="${message}" class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
             <span th:text="${message}"></span>
         </div>
 
-        <!-- 로그인 폼 -->
-        <form class="login-form slide-up" id="loginForm" th:action="@{/api/auth/login}" method="post">
+        <!-- 로그인 폼 (Spring Security formLogin 방식) -->
+        <form class="login-form slide-up" th:action="@{/auth/login}" method="post">
             <div class="form-floating">
                 <input type="text"
                        class="form-control"
@@ -359,8 +387,8 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
-                    <label class="form-check-label" for="rememberMe">
+                    <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me">
+                    <label class="form-check-label" for="remember-me">
                         로그인 상태 유지
                     </label>
                 </div>
@@ -369,9 +397,9 @@
                 </a>
             </div>
 
-            <button type="submit" class="btn btn-login" id="loginButton">
-                <div class="loading-spinner" id="loadingSpinner"></div>
-                <span id="buttonText">로그인</span>
+            <button type="submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                로그인
             </button>
         </form>
 
@@ -379,9 +407,9 @@
         <div class="demo-accounts">
             <h6><i class="fas fa-flask me-2"></i>데모 계정으로 체험하기</h6>
 
-            <div class="demo-account" onclick="fillDemoAccount('testadmin', 'password123!')">
-                <div class="demo-account-title">관리자 계정 (테스트)</div>
-                <div class="demo-account-creds">testadmin / password123!</div>
+            <div class="demo-account" onclick="fillDemoAccount('admin', 'admin123')">
+                <div class="demo-account-title">관리자 계정</div>
+                <div class="demo-account-creds">admin / admin123</div>
             </div>
 
             <div class="demo-account" onclick="fillDemoAccount('pharmacist', 'pharma123')">
@@ -393,6 +421,14 @@
                 <div class="demo-account-title">직원 계정</div>
                 <div class="demo-account-creds">staff / staff123</div>
             </div>
+        </div>
+
+        <!-- 회원가입 링크 -->
+        <div class="text-center mt-3">
+            <p class="mb-0 text-muted">아직 계정이 없으신가요?</p>
+            <a href="/register" class="text-decoration-none fw-bold">
+                회원가입하기
+            </a>
         </div>
     </div>
 
@@ -406,7 +442,7 @@
             <ul class="feature-list">
                 <li class="feature-item">
                     <i class="fas fa-shield-alt"></i>
-                    <span>JWT 기반 보안 인증</span>
+                    <span>강력한 보안 시스템</span>
                 </li>
                 <li class="feature-item">
                     <i class="fas fa-chart-line"></i>
@@ -438,91 +474,44 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const loginForm = document.getElementById('loginForm');
-        const loginButton = document.getElementById('loginButton');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const buttonText = document.getElementById('buttonText');
-        const errorAlert = document.getElementById('errorAlert');
-        const errorMessage = document.getElementById('errorMessage');
-
-        // URL 파라미터에서 에러 메시지 확인
+        // URL 파라미터에서 에러나 로그아웃 메시지 확인 후 스크롤
         const urlParams = new URLSearchParams(window.location.search);
-        const error = urlParams.get('error');
-        if (error) {
-            showError('로그인에 실패했습니다. 사용자명과 비밀번호를 확인해주세요.');
+        if (urlParams.get('error') || urlParams.get('logout')) {
+            // 메시지가 있으면 폼 영역으로 스크롤
+            document.querySelector('.login-form-section').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
         }
 
-        // 로그인 폼 제출 처리 (AJAX)
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // 기본 폼 제출 방지
+        // 입력 필드 포커스 이벤트 처리
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
 
-            setLoading(true);
-            hideError();
-
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    // 서버에서 받은 에러 메시지를 사용
-                    return response.json().then(errorBody => {
-                        throw new Error(errorBody.message || '아이디와 비밀번호를 확인해주세요.');
-                    });
+            input.addEventListener('blur', function() {
+                if (this.value === '') {
+                    this.parentElement.classList.remove('focused');
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success && data.data.accessToken) {
-                    // 로그인 성공
-                    console.log('Login successful');
-                    // 로컬 스토리지에 토큰 저장
-                    localStorage.setItem('accessToken', data.data.accessToken);
-                    localStorage.setItem('refreshToken', data.data.refreshToken);
-
-                    // 메인 페이지 또는 대시보드로 리디렉션
-                    window.location.href = '/';
-                } else {
-                    throw new Error(data.message || '로그인에 실패했습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('Login failed:', error);
-                showError(error.message);
-            })
-            .finally(() => {
-                setLoading(false);
             });
         });
 
-        // 로딩 상태 관리
-        function setLoading(isLoading) {
-            loginButton.disabled = isLoading;
-            loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
-            buttonText.textContent = isLoading ? '로그인 중...' : '로그인';
-        }
+        // 폼 제출 시 버튼 비활성화 (중복 제출 방지)
+        const loginForm = document.querySelector('form');
+        const submitButton = document.querySelector('.btn-login');
 
-        // 에러 메시지 표시
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorAlert.style.display = 'block';
-            errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        loginForm.addEventListener('submit', function() {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>로그인 중...';
 
-        // 에러 메시지 숨기기
-        function hideError() {
-            errorAlert.style.display = 'none';
-        }
-
-        // 입력 필드 변경 시 에러 메시지 숨기기
-        document.getElementById('username').addEventListener('input', hideError);
-        document.getElementById('password').addEventListener('input', hideError);
+            // 5초 후 버튼 다시 활성화 (네트워크 오류 등으로 응답이 없을 경우 대비)
+            setTimeout(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>로그인';
+            }, 5000);
+        });
     });
 
     // 데모 계정 자동 입력
@@ -531,17 +520,38 @@
         document.getElementById('password').value = password;
 
         // 시각적 피드백
-        document.getElementById('username').focus();
-        document.getElementById('password').focus();
-        document.getElementById('username').focus();
+        const usernameField = document.getElementById('username');
+        const passwordField = document.getElementById('password');
+
+        usernameField.parentElement.classList.add('focused');
+        passwordField.parentElement.classList.add('focused');
+
+        // 포커스 효과
+        usernameField.focus();
+        setTimeout(() => passwordField.focus(), 100);
+        setTimeout(() => usernameField.focus(), 200);
     }
 
-    // 비밀번호 가시성 토글 (향후 확장)
-    function togglePasswordVisibility() {
-        const passwordField = document.getElementById('password');
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-    }
+    // Enter 키 처리
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const form = document.querySelector('form');
+            const activeElement = document.activeElement;
+
+            // 폼 내부의 입력 필드에서 Enter를 누르면 폼 제출
+            if (form.contains(activeElement) && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'BUTTON')) {
+                if (activeElement.type !== 'submit') {
+                    e.preventDefault();
+                    form.requestSubmit();
+                }
+            }
+        }
+    });
+
+    // 페이지 로드 시 사용자명 필드에 포커스
+    window.addEventListener('load', function() {
+        document.getElementById('username').focus();
+    });
 </script>
 </body>
 </html>

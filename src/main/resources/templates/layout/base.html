@@ -375,7 +375,7 @@
         <div class="user-section" sec:authorize="isAuthenticated()">
             <div class="user-info">
                 <div class="fw-semibold" th:text="${#authentication.principal.fullName ?: #authentication.principal.username}">사용자명</div>
-                <small class="opacity-75" th:text="${#authentication.principal.role?.description ?: #authentication.principal.authorities}">역할</small>
+                <small class="opacity-75" th:text="${#authentication.principal.authorities}">역할</small>
             </div>
             <div class="dropdown">
                 <div class="user-avatar dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
@@ -402,7 +402,7 @@
     <div class="sidebar-menu">
         <!-- 대시보드 -->
         <div class="menu-section">
-            <a href="/dashboard" class="menu-item" th:classappend="${#request.requestURI == '/dashboard' ? 'active' : ''}">
+            <a href="/dashboard" class="menu-item" th:classappend="${currentPage == 'dashboard' ? 'active' : ''}">
                 <i class="fas fa-chart-pie"></i>
                 대시보드
             </a>
@@ -411,15 +411,15 @@
         <!-- 재고 관리 -->
         <div class="menu-section">
             <div class="menu-section-title">재고 관리</div>
-            <a href="/medicines" class="menu-item" th:classappend="${#strings.startsWith(#request.requestURI, '/medicines') ? 'active' : ''}">
+            <a href="/medicines" class="menu-item" th:classappend="${currentPage == 'medicines' ? 'active' : ''}">
                 <i class="fas fa-pills"></i>
                 의약품 관리
             </a>
-            <a href="/stocks" class="menu-item" th:classappend="${#strings.startsWith(#request.requestURI, '/stocks') ? 'active' : ''}">
+            <a href="/stocks" class="menu-item" th:classappend="${currentPage == 'stocks' ? 'active' : ''}">
                 <i class="fas fa-boxes"></i>
                 재고 현황
             </a>
-            <a href="/transactions" class="menu-item" th:classappend="${#strings.startsWith(#request.requestURI, '/transactions') ? 'active' : ''}">
+            <a href="/transactions" class="menu-item" th:classappend="${currentPage == 'transactions' ? 'active' : ''}">
                 <i class="fas fa-exchange-alt"></i>
                 입출고 관리
             </a>
@@ -458,7 +458,7 @@
         <!-- 시스템 관리 -->
         <div class="menu-section" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
             <div class="menu-section-title">시스템 관리</div>
-            <a href="/users" class="menu-item" th:classappend="${#strings.startsWith(#request.requestURI, '/users') ? 'active' : ''}">
+            <a href="/users" class="menu-item" th:classappend="${currentPage == 'users' ? 'active' : ''}">
                 <i class="fas fa-users"></i>
                 사용자 관리
             </a>
