@@ -148,6 +148,7 @@
         .form-group {
             display: flex;
             flex-direction: column;
+            position: relative; /* 드롭다운을 위한 추가 */
         }
 
         .form-label {
@@ -714,12 +715,57 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* 드롭다운 스타일 (inbound.html에서 가져옴) */
+        .medicine-search {
+            position: relative;
+        }
+
+        .medicine-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .medicine-item {
+            padding: 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.2s ease;
+        }
+
+        .medicine-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .medicine-item:last-child {
+            border-bottom: none;
+        }
+
+        .medicine-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .medicine-details {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
     </style>
 </th:block>
 
 <div layout:fragment="content">
     <div class="transactions-container">
-        <!-- 페이지 헤더 -->
         <div class="page-header fade-in">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -748,12 +794,9 @@
             </div>
         </div>
 
-        <!-- 통계 카드 -->
         <div class="stats-grid fade-in" id="statsGrid">
-            <!-- 동적으로 로드됨 -->
         </div>
 
-        <!-- 검색 및 필터 -->
         <div class="search-filter-card fade-in">
             <form class="search-form" id="searchForm">
                 <div class="form-group">
@@ -766,11 +809,23 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="medicineId">의약품</label>
-                    <select class="form-select" id="medicineId" name="medicineId">
-                        <option value="">전체 의약품</option>
-                        <!-- 동적으로 로드됨 -->
-                    </select>
+                    <label class="form-label">의약품</label>
+                    <div class="medicine-search">
+                        <button type="button" class="form-control text-start" id="medicineSelectButton"
+                                style="background: white; border: 1px solid #ced4da;">
+                            전체 의약품
+                        </button>
+                        <input type="hidden" id="medicineId" name="medicineId" value="">
+
+                        <div class="medicine-dropdown" id="medicineDropdown">
+                            <div class="p-2 border-bottom">
+                                <input type="text" class="form-control form-control-sm"
+                                       id="searchMedicineInput" placeholder="의약품 검색...">
+                            </div>
+                            <div id="medicineOptions">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -827,7 +882,6 @@
             </form>
         </div>
 
-        <!-- 거래 내역 목록 -->
         <div class="transactions-list-card fade-in" id="transactionsContainer">
             <div class="list-header">
                 <h2 class="list-title">
@@ -880,12 +934,10 @@
                     </tr>
                     </thead>
                     <tbody id="transactionsTableBody">
-                    <!-- 동적으로 로드됨 -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- 빈 상태 -->
             <div class="empty-state" id="emptyState" style="display: none;">
                 <div class="empty-state-icon">
                     <i class="fas fa-receipt"></i>
@@ -899,7 +951,7 @@
                         <i class="fas fa-plus-circle"></i>
                         입고 처리
                     </a>
-                    <a href="/transactions/outbound"
+                    <a href="/stocks/outbound"
                        class="btn btn-warning"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-minus-circle"></i>
@@ -908,19 +960,15 @@
                 </div>
             </div>
 
-            <!-- 페이지네이션 -->
             <div class="pagination-container" id="paginationContainer">
                 <div class="pagination-info" id="paginationInfo">
-                    <!-- 동적으로 업데이트됨 -->
                 </div>
                 <nav>
                     <ul class="pagination" id="pagination">
-                        <!-- 동적으로 생성됨 -->
                     </ul>
                 </nav>
             </div>
 
-            <!-- 로딩 오버레이 -->
             <div class="loading-overlay" id="loadingOverlay" style="display: none;">
                 <div class="loading-spinner"></div>
             </div>
@@ -936,18 +984,23 @@
         let totalElements = 0;
         let transactionsData = [];
         let searchParams = {};
+        let allMedicines = [];
 
         document.addEventListener('DOMContentLoaded', function() {
+            // 페이지 초기화 순서를 조정
             initializePage();
+            // 초기 데이터 로드 (검색)
             loadInitialData();
+            // 이벤트 리스너 설정
             setupEventListeners();
         });
 
         // 페이지 초기화
         function initializePage() {
-            loadMedicines();
-            loadStatsData();
+            // 날짜 범위를 먼저 설정하여 API 호출 시 값이 비어있지 않도록 합니다.
             setDefaultDateRange();
+            initMedicineDropdown();
+            loadStatsData();
         }
 
         // 초기 데이터 로드
@@ -985,7 +1038,7 @@
             });
 
             // 필터 변경 시 자동 검색
-            const filterElements = ['medicineId', 'transactionType', 'startDate', 'endDate', 'sortBy'];
+            const filterElements = ['transactionType', 'startDate', 'endDate', 'sortBy'];
             filterElements.forEach(id => {
                 document.getElementById(id).addEventListener('change', function() {
                     currentPage = 0;
@@ -994,23 +1047,87 @@
             });
         }
 
-        // 의약품 목록 로드
-        async function loadMedicines() {
+        // 의약품 드롭다운 초기화 (inbound.html 로직 통합)
+        async function initMedicineDropdown() {
+            const medicineSelectButton = document.getElementById('medicineSelectButton');
+            const medicineDropdown = document.getElementById('medicineDropdown');
+            const searchMedicineInput = document.getElementById('searchMedicineInput');
+            const medicineOptions = document.getElementById('medicineOptions');
+            const medicineIdInput = document.getElementById('medicineId');
+
             try {
                 const response = await ApiClient.get('/api/medicines?size=1000&sort=name');
-                const select = document.getElementById('medicineId');
-
-                if (response.content) {
-                    response.content.forEach(medicine => {
-                        const option = document.createElement('option');
-                        option.value = medicine.id;
-                        option.textContent = `${medicine.name} (${medicine.code})`;
-                        select.appendChild(option);
-                    });
+                if (response.success && response.data && Array.isArray(response.data.content)) {
+                    allMedicines = response.data.content;
+                } else if (response.content && Array.isArray(response.content)) {
+                    allMedicines = response.content;
                 }
+                showMedicines(allMedicines);
             } catch (error) {
                 console.error('의약품 목록 로드 오류:', error);
+                showMedicines([]);
             }
+
+            function showMedicines(medicinesToShow) {
+                medicineOptions.innerHTML = '';
+                if (medicinesToShow.length === 0) {
+                    const noResultItem = document.createElement('div');
+                    noResultItem.className = 'medicine-item text-muted';
+                    noResultItem.innerHTML = '<div class="medicine-name">검색 결과가 없습니다</div>';
+                    medicineOptions.appendChild(noResultItem);
+                    return;
+                }
+                medicinesToShow.forEach(med => {
+                    const item = document.createElement('div');
+                    item.className = 'medicine-item';
+                    const name = med.name || med.medicineName || 'Unknown Medicine';
+                    const code = med.code || med.medicineCode || 'N/A';
+                    const manufacturer = med.manufacturer || '제조사 미상';
+
+                    item.innerHTML = `<div class="medicine-name">${name}</div><div class="medicine-details">${code} | ${manufacturer}</div>`;
+
+                    item.addEventListener('click', function() {
+                        medicineSelectButton.textContent = `${name} (${code})`;
+                        medicineIdInput.value = med.id;
+                        medicineDropdown.style.display = 'none';
+                        searchMedicineInput.value = '';
+                        currentPage = 0;
+                        searchTransactions();
+                    });
+                    medicineOptions.appendChild(item);
+                });
+            }
+
+            medicineSelectButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isVisible = medicineDropdown.style.display === 'block';
+                medicineDropdown.style.display = isVisible ? 'none' : 'block';
+                if (!isVisible) setTimeout(() => searchMedicineInput.focus(), 100);
+            });
+
+            searchMedicineInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                if (!query.trim()) {
+                    showMedicines(allMedicines);
+                    return;
+                }
+                const filtered = allMedicines.filter(med => {
+                    const name = (med.name || med.medicineName || '').toLowerCase();
+                    const code = (med.code || med.medicineCode || '').toLowerCase();
+                    const manufacturer = (med.manufacturer || '').toLowerCase();
+                    return name.includes(query) || code.includes(query) || manufacturer.includes(query);
+                });
+                showMedicines(filtered);
+            });
+
+            searchMedicineInput.addEventListener('click', e => e.stopPropagation());
+            document.addEventListener('click', e => {
+                if (!e.target.closest('.medicine-search')) {
+                    medicineDropdown.style.display = 'none';
+                    searchMedicineInput.value = '';
+                    showMedicines(allMedicines);
+                }
+            });
         }
 
         // 통계 데이터 로드
@@ -1018,6 +1135,13 @@
             try {
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
+
+                // 날짜가 비어 있으면 API 호출을 중단합니다.
+                if (!startDate || !endDate) {
+                    console.error('날짜가 설정되지 않았습니다. API 호출을 중단합니다.');
+                    renderStatsCards({}); // 빈 카드를 렌더링
+                    return;
+                }
 
                 const response = await ApiClient.get(`/api/transactions/statistics/summary?startDate=${startDate}&endDate=${endDate}`);
 
@@ -1105,6 +1229,9 @@
                 searchParams = {};
 
                 for (let [key, value] of formData.entries()) {
+                    if (key === 'medicineId' && value === '') { // 의약품 검색 필드가 비어 있으면 continue
+                        continue;
+                    }
                     if (value && value.trim() !== '') {
                         searchParams[key] = value;
                     }
@@ -1334,6 +1461,29 @@
             });
         }
 
+        // 검색 초기화 함수 수정
+        function resetSearch() {
+            document.getElementById('searchForm').reset();
+            setDefaultDateRange();
+
+            // 의약품 드롭다운 초기화
+            document.getElementById('medicineSelectButton').textContent = '전체 의약품';
+            document.getElementById('medicineId').value = '';
+            document.getElementById('searchMedicineInput').value = '';
+            showMedicines(allMedicines);
+
+
+            // 통계 카드 활성 상태 초기화
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            currentPage = 0;
+            searchParams = {};
+            searchTransactions();
+            loadStatsData();
+        }
+
         // 이벤트 핸들러들
         function filterByType(type) {
             // 통계 카드 활성 상태 업데이트
@@ -1348,21 +1498,6 @@
             document.getElementById('transactionType').value = type;
             currentPage = 0;
             searchTransactions();
-        }
-
-        function resetSearch() {
-            document.getElementById('searchForm').reset();
-            setDefaultDateRange();
-
-            // 통계 카드 활성 상태 초기화
-            document.querySelectorAll('.stat-card').forEach(card => {
-                card.classList.remove('active');
-            });
-
-            currentPage = 0;
-            searchParams = {};
-            searchTransactions();
-            loadStatsData();
         }
 
         function refreshData() {

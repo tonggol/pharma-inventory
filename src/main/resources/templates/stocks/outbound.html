@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>재고 출고 - 의약품 재고관리 시스템</title>
 
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- 커스텀 CSS -->
     <style>
         :root {
             --primary-color: #2c5aa0;
@@ -336,7 +333,6 @@
     </style>
 </head>
 <body>
-<!-- 헤더 -->
 <header class="main-header">
     <div class="header-content">
         <div class="logo-section">
@@ -367,17 +363,14 @@
             </div>
         </div>
 
-        <!-- 비로그인 사용자 -->
         <div class="user-section" sec:authorize="!isAuthenticated()">
             <a href="/auth/login" class="btn btn-outline-light btn-sm">로그인</a>
         </div>
     </div>
 </header>
 
-<!-- 사이드바 -->
 <nav class="sidebar" id="sidebar" sec:authorize="isAuthenticated()">
     <div class="sidebar-menu">
-        <!-- 대시보드 -->
         <div class="menu-section">
             <a href="/dashboard" class="menu-item" th:classappend="${currentPage == 'dashboard' ? 'active' : ''}">
                 <i class="fas fa-chart-pie"></i>
@@ -385,7 +378,6 @@
             </a>
         </div>
 
-        <!-- 재고 관리 -->
         <div class="menu-section">
             <div class="menu-section-title">재고 관리</div>
             <a href="/medicines" class="menu-item" th:classappend="${currentPage == 'medicines' ? 'active' : ''}">
@@ -402,7 +394,6 @@
             </a>
         </div>
 
-        <!-- 빠른 작업 -->
         <div class="menu-section">
             <div class="menu-section-title">빠른 작업</div>
             <a href="/stocks/inbound" class="menu-item">
@@ -419,7 +410,6 @@
             </a>
         </div>
 
-        <!-- 보고서 -->
         <div class="menu-section">
             <div class="menu-section-title">보고서</div>
             <a href="/reports/stock" class="menu-item">
@@ -432,7 +422,6 @@
             </a>
         </div>
 
-        <!-- 시스템 관리 -->
         <div class="menu-section" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
             <div class="menu-section-title">시스템 관리</div>
             <a href="/users" class="menu-item" th:classappend="${currentPage == 'users' ? 'active' : ''}">
@@ -445,7 +434,6 @@
             </a>
         </div>
 
-        <!-- 시스템 도구 (ADMIN만 접근 가능) -->
         <div class="menu-section" sec:authorize="hasRole('ADMIN')">
             <div class="menu-section-title">시스템 도구</div>
             <a href="/system/backup" class="menu-item">
@@ -464,9 +452,7 @@
     </div>
 </nav>
 
-<!-- 메인 컨텐츠 -->
 <main class="main-content">
-    <!-- 페이지 헤더 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-1" th:text="${pageTitle ?: '재고 출고'}">재고 출고</h1>
@@ -479,7 +465,6 @@
         </div>
     </div>
 
-    <!-- 알림 메시지 -->
     <div th:if="${message}" class="alert alert-info alert-dismissible fade show" role="alert">
         <i class="fas fa-info-circle me-2"></i>
         <span th:text="${message}">메시지</span>
@@ -492,10 +477,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- 출고 폼 -->
     <div class="form-container">
         <form id="outboundForm">
-            <!-- 의약품 선택 -->
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-search text-info"></i>
@@ -520,7 +503,6 @@
                                                id="searchInput" placeholder="검색...">
                                     </div>
                                     <div id="medicineOptions">
-                                        <!-- 의약품 목록이 여기에 표시됩니다 -->
                                     </div>
                                 </div>
                             </div>
@@ -532,14 +514,13 @@
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="totalStock" class="form-label">이 재고 수량</label>
+                            <label for="totalStock" class="form-label">총 재고 수량</label>
                             <input type="text" class="form-control" id="totalStock" readonly
                                    placeholder="의약품 선택 후 표시">
                         </div>
                     </div>
                 </div>
 
-                <!-- 재고 현황 표시 -->
                 <div id="stockInfo" class="stock-info-card" style="display: none;">
                     <h6 class="mb-3">
                         <i class="fas fa-boxes me-2"></i>사용 가능한 재고 (만료일 순)
@@ -548,7 +529,6 @@
                 </div>
             </div>
 
-            <!-- 출고 정보 -->
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-minus-circle text-warning"></i>
@@ -598,7 +578,6 @@
                 </div>
             </div>
 
-            <!-- 요청자 정보 -->
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-user text-success"></i>
@@ -629,7 +608,6 @@
                 </div>
             </div>
 
-            <!-- 기타 정보 -->
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-sticky-note text-secondary"></i>
@@ -642,7 +620,6 @@
                 </div>
             </div>
 
-            <!-- 버튼 -->
             <div class="d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
                     <i class="fas fa-times me-2"></i>취소
@@ -655,10 +632,8 @@
     </div>
 </main>
 
-<!-- Bootstrap 5.3 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- 인라인 스크립트로 직접 테스트 -->
 <script>
     console.log('=== 재고 출고 페이지 스크립트 시작 ===');
 
@@ -667,199 +642,168 @@
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('transactionDate').value = now.toISOString().slice(0, 16);
 
-    // 테스트용 의약품 데이터
-    const testMedicines = [
-        { id: 1, name: "타이레놀정 500mg", code: "MED001", manufacturer: "한국존슨앤존슨" },
-        { id: 2, name: "애드빌정 200mg", code: "MED002", manufacturer: "화이자" },
-        { id: 3, name: "판콜에스정", code: "MED003", manufacturer: "동화약품" },
-        { id: 4, name: "게보린정", code: "MED004", manufacturer: "삼진제약" },
-        { id: 5, name: "낙센정", code: "MED005", manufacturer: "동국제약" }
-    ];
+    // 의약품 데이터 로드 (inbound.html과 동일한 로직)
+    async function loadMedicines() {
+        try {
+            let response = await fetch('/api/medicines/all');
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data && Array.isArray(result.data)) {
+                    return result.data;
+                }
+            }
+            console.warn('전체 목록 API 실패, 페이징 API로 대체 시도');
+            response = await fetch('/api/medicines?size=1000');
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data && result.data.content) {
+                    return result.data.content;
+                }
+                if (result.content && Array.isArray(result.content)) {
+                    return result.content;
+                }
+            }
+        } catch (error) {
+            console.error('의약품 목록 로드 중 오류:', error);
+        }
+        return [];
+    }
+
+    // 재고 정보 로드 (medicineId에 해당하는 재고 목록을 API에서 가져옴)
+    async function loadStockInfo(medicineId) {
+        try {
+            const response = await fetch(`/api/medicines/${medicineId}/stocks?includeExpired=false`);
+            const result = await response.json();
+            if (response.ok && result.success) {
+                return result.data;
+            } else {
+                console.error("재고 정보 로드 실패:", result.message);
+                return [];
+            }
+        } catch (error) {
+            console.error("재고 정보 API 호출 중 오류:", error);
+            return [];
+        }
+    }
 
     // 의약품 드롭다운 초기화
-    function initMedicineDropdown() {
-        console.log('의약품 드롭다운 초기화 시작');
-
+    async function initMedicineDropdown() {
         const medicineSelect = document.getElementById('medicineSelect');
         const medicineDropdown = document.getElementById('medicineDropdown');
         const searchInput = document.getElementById('searchInput');
         const medicineOptions = document.getElementById('medicineOptions');
         const medicineIdInput = document.getElementById('medicineId');
+        const totalStockInput = document.getElementById('totalStock');
+        const stockInfoCard = document.getElementById('stockInfo');
+        const stockListContainer = document.getElementById('stockList');
 
-        console.log('요소 확인:', {
-            medicineSelect: !!medicineSelect,
-            medicineDropdown: !!medicineDropdown,
-            searchInput: !!searchInput,
-            medicineOptions: !!medicineOptions,
-            medicineIdInput: !!medicineIdInput
-        });
+        const medicines = await loadMedicines();
 
-        if (!medicineSelect || !medicineDropdown || !searchInput || !medicineOptions || !medicineIdInput) {
-            console.error('필수 요소를 찾을 수 없습니다!');
-            return;
-        }
-
-        // 의약품 목록 표시 함수
-        function showMedicines(medicines) {
-            console.log('의약품 목록 표시:', medicines.length + '개');
+        function showMedicines(medicinesToShow) {
             medicineOptions.innerHTML = '';
+            if (medicinesToShow.length === 0) {
+                const noResultItem = document.createElement('div');
+                noResultItem.className = 'medicine-item text-muted';
+                noResultItem.innerHTML = '<div class="medicine-name">검색 결과가 없습니다</div>';
+                medicineOptions.appendChild(noResultItem);
+                return;
+            }
 
-            medicines.forEach(med => {
+            medicinesToShow.forEach(med => {
                 const item = document.createElement('div');
                 item.className = 'medicine-item';
-                item.innerHTML = `
-                    <div class="medicine-name">${med.name}</div>
-                    <div class="medicine-details">${med.code} | ${med.manufacturer}</div>
-                `;
+                const name = med.name || med.medicineName || 'Unknown Medicine';
+                const code = med.code || med.medicineCode || med.id || 'N/A';
+                const manufacturer = med.manufacturer || '제조사 미상';
 
-                item.addEventListener('click', function() {
-                    console.log('의약품 선택:', med.name);
-                    medicineSelect.textContent = `${med.name} (${med.code})`;
+                item.innerHTML = `<div class="medicine-name">${name}</div><div class="medicine-details">${code} | ${manufacturer}</div>`;
+
+                item.addEventListener('click', async function() {
+                    medicineSelect.textContent = `${name} (${code})`;
                     medicineIdInput.value = med.id;
                     medicineDropdown.style.display = 'none';
                     searchInput.value = '';
 
-                    // 재고 정보 로드
-                    loadStockInfo(med.id);
+                    const stocks = await loadStockInfo(med.id);
+                    const totalQuantity = stocks.reduce((sum, stock) => sum + stock.quantity, 0);
+                    totalStockInput.value = `${totalQuantity}개`;
+                    displayStockList(stocks);
+                    stockInfoCard.style.display = 'block';
                 });
-
                 medicineOptions.appendChild(item);
             });
         }
-
-        // 초기 목록 표시
-        showMedicines(testMedicines);
-
-        // 드롭다운 버튼 클릭
+        showMedicines(medicines);
         medicineSelect.addEventListener('click', function(e) {
-            console.log('드롭다운 버튼 클릭');
             e.preventDefault();
             const isVisible = medicineDropdown.style.display === 'block';
             medicineDropdown.style.display = isVisible ? 'none' : 'block';
-
-            if (!isVisible) {
-                setTimeout(() => searchInput.focus(), 100);
-            }
+            if (!isVisible) setTimeout(() => searchInput.focus(), 100);
         });
-
-        // 검색 기능
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase();
-            console.log('검색어:', query);
-
-            const filtered = testMedicines.filter(med =>
-                med.name.toLowerCase().includes(query) ||
-                med.code.toLowerCase().includes(query) ||
-                med.manufacturer.toLowerCase().includes(query)
-            );
-
+            const filtered = medicines.filter(med => {
+                const name = (med.name || med.medicineName || '').toLowerCase();
+                const code = (med.code || med.medicineCode || '').toLowerCase();
+                const manufacturer = (med.manufacturer || '').toLowerCase();
+                return name.includes(query) || code.includes(query) || manufacturer.includes(query);
+            });
             showMedicines(filtered);
         });
-
-        // 검색창 클릭 시 이벤트 전파 중단
-        searchInput.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-
-        // 외부 클릭시 드롭다운 숨기기
-        document.addEventListener('click', function(e) {
+        searchInput.addEventListener('click', e => e.stopPropagation());
+        document.addEventListener('click', e => {
             if (!e.target.closest('.medicine-search')) {
                 medicineDropdown.style.display = 'none';
                 searchInput.value = '';
-                showMedicines(testMedicines);
+                showMedicines(medicines);
             }
         });
 
-        console.log('의약품 드롭다운 초기화 완료');
-    }
-
-    function loadStockInfo(medicineId) {
-        // 실제 구현에서는 API 호출하여 해당 의약품의 재고 정보를 가져옴
-        const dummyStocks = [
-            {
-                id: 1,
-                lotNumber: 'LOT001',
-                quantity: 50,
-                expiryDate: '2024-12-31',
-                location: 'A-1-01',
-                daysUntilExpiry: 45
-            },
-            {
-                id: 2,
-                lotNumber: 'LOT002',
-                quantity: 30,
-                expiryDate: '2025-03-15',
-                location: 'A-1-02',
-                daysUntilExpiry: 120
-            },
-            {
-                id: 3,
-                lotNumber: 'LOT003',
-                quantity: 20,
-                expiryDate: '2024-11-30',
-                location: 'A-1-03',
-                daysUntilExpiry: 15
+        function displayStockList(stocks) {
+            // FEFO (First-Expired, First-Out) 원칙에 따라 만료일 순으로 정렬
+            stocks.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+            stockListContainer.innerHTML = '';
+            if (stocks.length === 0) {
+                stockListContainer.innerHTML = '<div class="text-muted text-center p-3">사용 가능한 재고가 없습니다.</div>';
+                return;
             }
-        ];
-
-        const totalQuantity = dummyStocks.reduce((sum, stock) => sum + stock.quantity, 0);
-        document.getElementById('totalStock').value = `${totalQuantity}개`;
-
-        displayStockList(dummyStocks);
-        document.getElementById('stockInfo').style.display = 'block';
-    }
-
-    function displayStockList(stocks) {
-        // 만료일 순으로 정렬 (FEFO)
-        stocks.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
-
-        const stockList = document.getElementById('stockList');
-        stockList.innerHTML = '';
-
-        stocks.forEach(stock => {
-            const item = document.createElement('div');
-            item.className = 'stock-item';
-            item.dataset.stockId = stock.id;
-
-            let expiryClass = '';
-            let expiryText = '';
-            if (stock.daysUntilExpiry <= 0) {
-                expiryClass = 'expiry-danger';
-                expiryText = '만료됨';
-            } else if (stock.daysUntilExpiry <= 30) {
-                expiryClass = 'expiry-warning';
-                expiryText = `${stock.daysUntilExpiry}일 남음`;
-            } else {
-                expiryText = `${stock.daysUntilExpiry}일 남음`;
-            }
-
-            item.innerHTML = `
-                <div class="stock-details">
-                    <div class="fw-semibold">로트번호: ${stock.lotNumber}</div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">위치: ${stock.location}</span>
-                        <span class="text-muted">만료일: ${stock.expiryDate}</span>
+            stocks.forEach(stock => {
+                const item = document.createElement('div');
+                item.className = 'stock-item';
+                let expiryClass = '';
+                let expiryText = '';
+                if (stock.daysUntilExpiry <= 0) {
+                    expiryClass = 'expiry-danger';
+                    expiryText = '만료됨';
+                } else if (stock.daysUntilExpiry <= 30) {
+                    expiryClass = 'expiry-warning';
+                    expiryText = `${stock.daysUntilExpiry}일 남음`;
+                } else {
+                    expiryText = `${stock.daysUntilExpiry}일 남음`;
+                }
+                item.innerHTML = `
+                    <div class="stock-details">
+                        <div class="fw-semibold">로트번호: ${stock.lotNumber}</div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">위치: ${stock.location || '정보 없음'}</span>
+                            <span class="text-muted">만료일: ${stock.expiryDate}</span>
+                        </div>
+                        <div class="${expiryClass}">${expiryText}</div>
                     </div>
-                    <div class="${expiryClass}">${expiryText}</div>
-                </div>
-                <div class="stock-quantity">${stock.quantity}개</div>
-            `;
-
-            stockList.appendChild(item);
-        });
+                    <div class="stock-quantity">${stock.quantity}개</div>
+                `;
+                stockListContainer.appendChild(item);
+            });
+        }
     }
 
     // 폼 제출 처리
     function initForm() {
         const form = document.getElementById('outboundForm');
-        if (!form) {
-            console.error('폼을 찾을 수 없습니다');
-            return;
-        }
+        if (!form) return;
 
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
-            console.log('폼 제출 시작');
 
             const medicineIdInput = document.getElementById('medicineId');
             const quantityInput = document.getElementById('quantity');
@@ -869,58 +813,93 @@
                 alert('의약품을 선택해주세요.');
                 return;
             }
-
             if (!quantityInput.value || quantityInput.value <= 0) {
                 alert('출고 수량을 입력해주세요.');
                 return;
             }
 
-            // 기본적인 재고 부족 검사 (실제 검사는 서버에서 수행)
             const totalStock = parseInt(totalStockInput.value.replace(/[^0-9]/g, ''));
             if (parseInt(quantityInput.value) > totalStock) {
-                alert(`재고가 부족할 수 있습니다. 현재 재고: ${totalStock}개`);
-                if (!confirm('그래도 출고를 진행하시겠습니까?')) {
+                if (!confirm(`재고가 부족합니다. 현재 가용 재고: ${totalStock}개.\n그래도 출고를 진행하시겠습니까?`)) {
                     return;
                 }
             }
-
-            // 출고 확인
-            if (!confirm(`${quantityInput.value}개를 출고하시겠습니까?\n\nFEFO 방식으로 만료일이 가장 임박한 재고부터 출고됩니다.`)) {
+            if (!confirm(`${quantityInput.value}개를 출고하시겠습니까?`)) {
                 return;
             }
 
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
 
-            console.log('폼 데이터:', data);
-            alert('출고 처리가 완료되었습니다! (테스트 모드)');
-        });
+            // StockTransactionRequest DTO에 맞게 데이터 구성
+            const requestData = {
+                medicineId: parseInt(data.medicineId),
+                quantity: parseInt(data.quantity),
+                transactionType: 'OUTBOUND',
+                transactionDate: data.transactionDate || new Date().toISOString().slice(0, 16),
+                reason: data.reason || null,
+                referenceNumber: data.referenceNumber || null,
+                department: data.department || null,
+                requesterName: data.requesterName || null,
+                approverName: data.approverName || null,
+                remarks: data.remarks || null
+            };
 
-        console.log('폼 초기화 완료');
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>처리 중...';
+
+            try {
+                const response = await fetch('/api/transactions/outbound', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert(result.message || '출고 처리가 성공적으로 완료되었습니다!');
+                    form.reset();
+                    document.getElementById('medicineSelect').textContent = '등록된 의약품을 선택하세요...';
+                    document.getElementById('medicineId').value = '';
+                    document.getElementById('totalStock').value = '';
+                    document.getElementById('stockInfo').style.display = 'none';
+                    if (confirm('출고가 완료되었습니다. 입출고 내역을 확인하시겠습니까?')) {
+                        window.location.href = '/transactions';
+                    }
+                } else {
+                    const errorMessage = result.message || '출고 처리 중 오류가 발생했습니다.';
+                    alert('출고 실패: ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('네트워크 오류:', error);
+                alert('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
     }
 
     // 사이드바 토글
     function initSidebar() {
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
-
         if (sidebarToggle && sidebar) {
             sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('show');
             });
-            console.log('사이드바 토글 초기화 완료');
         }
     }
 
-    // 페이지 로드 후 초기화
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOMContentLoaded - 초기화 시작');
-
         setTimeout(function() {
             initMedicineDropdown();
             initForm();
             initSidebar();
-            console.log('=== 모든 초기화 완료 ===');
         }, 100);
     });
 </script>
