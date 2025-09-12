@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>재고 출고 - 의약품 재고관리 시스템</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- 커스텀 CSS -->
+    <style>
+        :root {
+            --primary-color: #2c5aa0;
+            --secondary-color: #34d399;
+            --accent-color: #f59e0b;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --success-color: #10b981;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        /* 헤더 스타일 */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+            height: var(--header-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            padding: 0 1.5rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* 사이드바 스타일 */
+        .sidebar {
+            background: white;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            z-index: 999;
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: #f1f5f9;
+            color: var(--primary-color);
+            transform: translateX(2px);
+        }
+
+        .menu-item.active {
+            background-color: rgba(44, 90, 160, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .menu-section {
+            margin: 1rem 0;
+        }
+
+        .menu-section-title {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 메인 컨텐츠 */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 2rem;
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        /* 폼 스타일 */
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required {
+            color: var(--danger-color);
+        }
+
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            border-color: #d97706;
+            transform: translateY(-1px);
+        }
+
+        .medicine-search {
+            position: relative;
+        }
+
+        .medicine-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .medicine-item {
+            padding: 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.2s ease;
+        }
+
+        .medicine-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .medicine-item:last-child {
+            border-bottom: none;
+        }
+
+        .medicine-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .medicine-details {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* 재고 정보 카드 */
+        .stock-info-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stock-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stock-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .stock-item.selected {
+            border-color: var(--primary-color);
+            background: rgba(44, 90, 160, 0.1);
+        }
+
+        .stock-details {
+            flex: 1;
+        }
+
+        .stock-quantity {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .expiry-warning {
+            color: var(--warning-color);
+            font-size: 0.85rem;
+        }
+
+        .expiry-danger {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .header-content {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 헤더 -->
+<header class="main-header">
+    <div class="header-content">
+        <div class="logo-section">
+            <button class="btn btn-link text-white d-md-none" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="/dashboard" class="logo">
+                <i class="fas fa-pills me-2"></i>
+                PharmaInventory
+            </a>
+        </div>
+
+        <div class="user-section" sec:authorize="isAuthenticated()">
+            <div class="user-info">
+                <div class="fw-semibold" th:text="${#authentication.principal.fullName ?: #authentication.principal.username}">사용자명</div>
+                <small class="opacity-75" th:text="${#authentication.principal.authorities}">역할</small>
+            </div>
+            <div class="dropdown">
+                <div class="user-avatar dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                    <span th:text="${#strings.substring(#authentication.principal.fullName ?: #authentication.principal.username, 0, 1)?.toUpperCase()}">U</span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/users/profile"><i class="fas fa-user me-2"></i>프로필</a></li>
+                    <li><a class="dropdown-item" href="/auth/change-password"><i class="fas fa-key me-2"></i>비밀번호 변경</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 비로그인 사용자 -->
+        <div class="user-section" sec:authorize="!isAuthenticated()">
+            <a href="/auth/login" class="btn btn-outline-light btn-sm">로그인</a>
+        </div>
+    </div>
+</header>
+
+<!-- 사이드바 -->
+<nav class="sidebar" id="sidebar" sec:authorize="isAuthenticated()">
+    <div class="sidebar-menu">
+        <!-- 대시보드 -->
+        <div class="menu-section">
+            <a href="/dashboard" class="menu-item" th:classappend="${currentPage == 'dashboard' ? 'active' : ''}">
+                <i class="fas fa-chart-pie"></i>
+                대시보드
+            </a>
+        </div>
+
+        <!-- 재고 관리 -->
+        <div class="menu-section">
+            <div class="menu-section-title">재고 관리</div>
+            <a href="/medicines" class="menu-item" th:classappend="${currentPage == 'medicines' ? 'active' : ''}">
+                <i class="fas fa-pills"></i>
+                의약품 관리
+            </a>
+            <a href="/stocks" class="menu-item" th:classappend="${currentPage == 'stocks' ? 'active' : ''}">
+                <i class="fas fa-boxes"></i>
+                재고 현황
+            </a>
+            <a href="/transactions" class="menu-item" th:classappend="${currentPage == 'transactions' ? 'active' : ''}">
+                <i class="fas fa-exchange-alt"></i>
+                입출고 관리
+            </a>
+        </div>
+
+        <!-- 빠른 작업 -->
+        <div class="menu-section">
+            <div class="menu-section-title">빠른 작업</div>
+            <a href="/stocks/inbound" class="menu-item">
+                <i class="fas fa-plus-circle text-success"></i>
+                재고 입고
+            </a>
+            <a href="/stocks/outbound" class="menu-item active">
+                <i class="fas fa-minus-circle text-warning"></i>
+                재고 출고
+            </a>
+            <a href="/stocks/audit" class="menu-item">
+                <i class="fas fa-clipboard-check text-info"></i>
+                재고 실사
+            </a>
+        </div>
+
+        <!-- 보고서 -->
+        <div class="menu-section">
+            <div class="menu-section-title">보고서</div>
+            <a href="/reports/stock" class="menu-item">
+                <i class="fas fa-chart-bar"></i>
+                재고 보고서
+            </a>
+            <a href="/reports/expiry" class="menu-item">
+                <i class="fas fa-calendar-times"></i>
+                유효기간 보고서
+            </a>
+        </div>
+
+        <!-- 시스템 관리 -->
+        <div class="menu-section" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+            <div class="menu-section-title">시스템 관리</div>
+            <a href="/users" class="menu-item" th:classappend="${currentPage == 'users' ? 'active' : ''}">
+                <i class="fas fa-users"></i>
+                사용자 관리
+            </a>
+            <a href="/system/settings" class="menu-item">
+                <i class="fas fa-cog"></i>
+                시스템 설정
+            </a>
+        </div>
+
+        <!-- 시스템 도구 (ADMIN만 접근 가능) -->
+        <div class="menu-section" sec:authorize="hasRole('ADMIN')">
+            <div class="menu-section-title">시스템 도구</div>
+            <a href="/system/backup" class="menu-item">
+                <i class="fas fa-database"></i>
+                백업 관리
+            </a>
+            <a href="/system/monitor" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                시스템 모니터
+            </a>
+            <a href="/system/logs" class="menu-item">
+                <i class="fas fa-file-alt"></i>
+                시스템 로그
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- 메인 컨텐츠 -->
+<main class="main-content">
+    <!-- 페이지 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1" th:text="${pageTitle ?: '재고 출고'}">재고 출고</h1>
+            <p class="text-muted mb-0" th:text="${pageDescription ?: '재고를 출고 처리합니다 (FEFO 방식 적용)'}">재고를 출고 처리합니다 (FEFO 방식 적용)</p>
+        </div>
+        <div>
+            <a href="/transactions" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-2"></i>출고 내역
+            </a>
+        </div>
+    </div>
+
+    <!-- 알림 메시지 -->
+    <div th:if="${message}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="fas fa-info-circle me-2"></i>
+        <span th:text="${message}">메시지</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}">에러 메시지</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- 출고 폼 -->
+    <div class="form-container">
+        <form id="outboundForm">
+            <!-- 의약품 선택 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-search text-info"></i>
+                    의약품 선택
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="medicineSelect" class="form-label">
+                                의약품 <span class="required">*</span>
+                            </label>
+                            <div class="medicine-search">
+                                <button type="button" class="form-control text-start" id="medicineSelect"
+                                        style="background: white; border: 1px solid #ced4da;">
+                                    등록된 의약품을 선택하세요...
+                                </button>
+                                <input type="hidden" id="medicineId" name="medicineId" required>
+
+                                <div class="medicine-dropdown" id="medicineDropdown">
+                                    <div class="p-2 border-bottom">
+                                        <input type="text" class="form-control form-control-sm"
+                                               id="searchInput" placeholder="검색...">
+                                    </div>
+                                    <div id="medicineOptions">
+                                        <!-- 의약품 목록이 여기에 표시됩니다 -->
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                등록된 의약품만 선택 가능합니다.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="totalStock" class="form-label">이 재고 수량</label>
+                            <input type="text" class="form-control" id="totalStock" readonly
+                                   placeholder="의약품 선택 후 표시">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 재고 현황 표시 -->
+                <div id="stockInfo" class="stock-info-card" style="display: none;">
+                    <h6 class="mb-3">
+                        <i class="fas fa-boxes me-2"></i>사용 가능한 재고 (만료일 순)
+                    </h6>
+                    <div id="stockList"></div>
+                </div>
+            </div>
+
+            <!-- 출고 정보 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-minus-circle text-warning"></i>
+                    출고 정보
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">
+                                출고 수량 <span class="required">*</span>
+                            </label>
+                            <input type="number" class="form-control" id="quantity" name="quantity"
+                                   min="1" placeholder="출고할 수량" required>
+                            <small class="text-muted">FEFO 방식으로 자동 배정됩니다</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="transactionDate" class="form-label">출고일시</label>
+                            <input type="datetime-local" class="form-control" id="transactionDate" name="transactionDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">출고 사유</label>
+                            <select class="form-select" id="reason" name="reason">
+                                <option value="">선택하세요</option>
+                                <option value="PRESCRIPTION">처방</option>
+                                <option value="SALES">판매</option>
+                                <option value="SAMPLE">샘플</option>
+                                <option value="DONATION">기부</option>
+                                <option value="EXPIRED">유효기간만료</option>
+                                <option value="DAMAGED">파손</option>
+                                <option value="OTHER">기타</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="referenceNumber" class="form-label">참조번호</label>
+                            <input type="text" class="form-control" id="referenceNumber" name="referenceNumber"
+                                   placeholder="처방전번호, 주문번호 등">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 요청자 정보 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-user text-success"></i>
+                    요청자 정보
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="department" class="form-label">부서/진료과</label>
+                            <input type="text" class="form-control" id="department" name="department"
+                                   placeholder="부서 또는 진료과">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="requesterName" class="form-label">요청자</label>
+                            <input type="text" class="form-control" id="requesterName" name="requesterName"
+                                   placeholder="요청자 이름">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="approverName" class="form-label">승인자</label>
+                            <input type="text" class="form-control" id="approverName" name="approverName"
+                                   placeholder="승인자 이름">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 기타 정보 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-sticky-note text-secondary"></i>
+                    기타 정보
+                </div>
+                <div class="mb-3">
+                    <label for="remarks" class="form-label">비고</label>
+                    <textarea class="form-control" id="remarks" name="remarks" rows="3"
+                              placeholder="특이사항이나 비고를 입력하세요"></textarea>
+                </div>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                    <i class="fas fa-times me-2"></i>취소
+                </button>
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-minus me-2"></i>출고 처리
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<!-- Bootstrap 5.3 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 인라인 스크립트로 직접 테스트 -->
+<script>
+    console.log('=== 재고 출고 페이지 스크립트 시작 ===');
+
+    // 현재 시간을 기본값으로 설정
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('transactionDate').value = now.toISOString().slice(0, 16);
+
+    // 테스트용 의약품 데이터
+    const testMedicines = [
+        { id: 1, name: "타이레놀정 500mg", code: "MED001", manufacturer: "한국존슨앤존슨" },
+        { id: 2, name: "애드빌정 200mg", code: "MED002", manufacturer: "화이자" },
+        { id: 3, name: "판콜에스정", code: "MED003", manufacturer: "동화약품" },
+        { id: 4, name: "게보린정", code: "MED004", manufacturer: "삼진제약" },
+        { id: 5, name: "낙센정", code: "MED005", manufacturer: "동국제약" }
+    ];
+
+    // 의약품 드롭다운 초기화
+    function initMedicineDropdown() {
+        console.log('의약품 드롭다운 초기화 시작');
+
+        const medicineSelect = document.getElementById('medicineSelect');
+        const medicineDropdown = document.getElementById('medicineDropdown');
+        const searchInput = document.getElementById('searchInput');
+        const medicineOptions = document.getElementById('medicineOptions');
+        const medicineIdInput = document.getElementById('medicineId');
+
+        console.log('요소 확인:', {
+            medicineSelect: !!medicineSelect,
+            medicineDropdown: !!medicineDropdown,
+            searchInput: !!searchInput,
+            medicineOptions: !!medicineOptions,
+            medicineIdInput: !!medicineIdInput
+        });
+
+        if (!medicineSelect || !medicineDropdown || !searchInput || !medicineOptions || !medicineIdInput) {
+            console.error('필수 요소를 찾을 수 없습니다!');
+            return;
+        }
+
+        // 의약품 목록 표시 함수
+        function showMedicines(medicines) {
+            console.log('의약품 목록 표시:', medicines.length + '개');
+            medicineOptions.innerHTML = '';
+
+            medicines.forEach(med => {
+                const item = document.createElement('div');
+                item.className = 'medicine-item';
+                item.innerHTML = `
+                    <div class="medicine-name">${med.name}</div>
+                    <div class="medicine-details">${med.code} | ${med.manufacturer}</div>
+                `;
+
+                item.addEventListener('click', function() {
+                    console.log('의약품 선택:', med.name);
+                    medicineSelect.textContent = `${med.name} (${med.code})`;
+                    medicineIdInput.value = med.id;
+                    medicineDropdown.style.display = 'none';
+                    searchInput.value = '';
+
+                    // 재고 정보 로드
+                    loadStockInfo(med.id);
+                });
+
+                medicineOptions.appendChild(item);
+            });
+        }
+
+        // 초기 목록 표시
+        showMedicines(testMedicines);
+
+        // 드롭다운 버튼 클릭
+        medicineSelect.addEventListener('click', function(e) {
+            console.log('드롭다운 버튼 클릭');
+            e.preventDefault();
+            const isVisible = medicineDropdown.style.display === 'block';
+            medicineDropdown.style.display = isVisible ? 'none' : 'block';
+
+            if (!isVisible) {
+                setTimeout(() => searchInput.focus(), 100);
+            }
+        });
+
+        // 검색 기능
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            console.log('검색어:', query);
+
+            const filtered = testMedicines.filter(med =>
+                med.name.toLowerCase().includes(query) ||
+                med.code.toLowerCase().includes(query) ||
+                med.manufacturer.toLowerCase().includes(query)
+            );
+
+            showMedicines(filtered);
+        });
+
+        // 검색창 클릭 시 이벤트 전파 중단
+        searchInput.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // 외부 클릭시 드롭다운 숨기기
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.medicine-search')) {
+                medicineDropdown.style.display = 'none';
+                searchInput.value = '';
+                showMedicines(testMedicines);
+            }
+        });
+
+        console.log('의약품 드롭다운 초기화 완료');
+    }
+
+    function loadStockInfo(medicineId) {
+        // 실제 구현에서는 API 호출하여 해당 의약품의 재고 정보를 가져옴
+        const dummyStocks = [
+            {
+                id: 1,
+                lotNumber: 'LOT001',
+                quantity: 50,
+                expiryDate: '2024-12-31',
+                location: 'A-1-01',
+                daysUntilExpiry: 45
+            },
+            {
+                id: 2,
+                lotNumber: 'LOT002',
+                quantity: 30,
+                expiryDate: '2025-03-15',
+                location: 'A-1-02',
+                daysUntilExpiry: 120
+            },
+            {
+                id: 3,
+                lotNumber: 'LOT003',
+                quantity: 20,
+                expiryDate: '2024-11-30',
+                location: 'A-1-03',
+                daysUntilExpiry: 15
+            }
+        ];
+
+        const totalQuantity = dummyStocks.reduce((sum, stock) => sum + stock.quantity, 0);
+        document.getElementById('totalStock').value = `${totalQuantity}개`;
+
+        displayStockList(dummyStocks);
+        document.getElementById('stockInfo').style.display = 'block';
+    }
+
+    function displayStockList(stocks) {
+        // 만료일 순으로 정렬 (FEFO)
+        stocks.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+        const stockList = document.getElementById('stockList');
+        stockList.innerHTML = '';
+
+        stocks.forEach(stock => {
+            const item = document.createElement('div');
+            item.className = 'stock-item';
+            item.dataset.stockId = stock.id;
+
+            let expiryClass = '';
+            let expiryText = '';
+            if (stock.daysUntilExpiry <= 0) {
+                expiryClass = 'expiry-danger';
+                expiryText = '만료됨';
+            } else if (stock.daysUntilExpiry <= 30) {
+                expiryClass = 'expiry-warning';
+                expiryText = `${stock.daysUntilExpiry}일 남음`;
+            } else {
+                expiryText = `${stock.daysUntilExpiry}일 남음`;
+            }
+
+            item.innerHTML = `
+                <div class="stock-details">
+                    <div class="fw-semibold">로트번호: ${stock.lotNumber}</div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">위치: ${stock.location}</span>
+                        <span class="text-muted">만료일: ${stock.expiryDate}</span>
+                    </div>
+                    <div class="${expiryClass}">${expiryText}</div>
+                </div>
+                <div class="stock-quantity">${stock.quantity}개</div>
+            `;
+
+            stockList.appendChild(item);
+        });
+    }
+
+    // 폼 제출 처리
+    function initForm() {
+        const form = document.getElementById('outboundForm');
+        if (!form) {
+            console.error('폼을 찾을 수 없습니다');
+            return;
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('폼 제출 시작');
+
+            const medicineIdInput = document.getElementById('medicineId');
+            const quantityInput = document.getElementById('quantity');
+            const totalStockInput = document.getElementById('totalStock');
+
+            if (!medicineIdInput.value) {
+                alert('의약품을 선택해주세요.');
+                return;
+            }
+
+            if (!quantityInput.value || quantityInput.value <= 0) {
+                alert('출고 수량을 입력해주세요.');
+                return;
+            }
+
+            // 기본적인 재고 부족 검사 (실제 검사는 서버에서 수행)
+            const totalStock = parseInt(totalStockInput.value.replace(/[^0-9]/g, ''));
+            if (parseInt(quantityInput.value) > totalStock) {
+                alert(`재고가 부족할 수 있습니다. 현재 재고: ${totalStock}개`);
+                if (!confirm('그래도 출고를 진행하시겠습니까?')) {
+                    return;
+                }
+            }
+
+            // 출고 확인
+            if (!confirm(`${quantityInput.value}개를 출고하시겠습니까?\n\nFEFO 방식으로 만료일이 가장 임박한 재고부터 출고됩니다.`)) {
+                return;
+            }
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            console.log('폼 데이터:', data);
+            alert('출고 처리가 완료되었습니다! (테스트 모드)');
+        });
+
+        console.log('폼 초기화 완료');
+    }
+
+    // 사이드바 토글
+    function initSidebar() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+            console.log('사이드바 토글 초기화 완료');
+        }
+    }
+
+    // 페이지 로드 후 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded - 초기화 시작');
+
+        setTimeout(function() {
+            initMedicineDropdown();
+            initForm();
+            initSidebar();
+            console.log('=== 모든 초기화 완료 ===');
+        }, 100);
+    });
+</script>
+</body>
+</html>

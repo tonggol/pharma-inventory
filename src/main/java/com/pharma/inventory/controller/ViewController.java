@@ -4,6 +4,9 @@ import com.pharma.inventory.dto.request.MedicineCreateRequest;
 import com.pharma.inventory.dto.request.MedicineSearchRequest;
 import com.pharma.inventory.dto.request.StockCreateRequest;
 import com.pharma.inventory.dto.request.UserRegisterRequest;
+import com.pharma.inventory.dto.request.UserSearchRequest;
+import com.pharma.inventory.dto.response.UserStats;
+import org.springframework.data.domain.Page;
 import com.pharma.inventory.dto.response.DashboardSummary;
 import com.pharma.inventory.dto.response.MedicineResponse;
 import com.pharma.inventory.dto.response.StockResponse;
@@ -164,14 +167,26 @@ public class ViewController {
         return "stocks/list";
     }
 
-    @GetMapping("stocks/new")
-    public String newStockForm(Model model, Authentication authentication) {
+    @GetMapping("stocks/inbound")
+    public String stockInboundForm(Model model, Authentication authentication) {
         if (authentication == null) {
             return "redirect:/login";
         }
         model.addAttribute("currentPage", "stocks");
-        model.addAttribute("stock", new StockCreateRequest());
-        return "stocks/form";
+        model.addAttribute("pageTitle", "재고 입고");
+        model.addAttribute("pageDescription", "새로운 재고를 입고 처리합니다");
+        return "stocks/inbound";
+    }
+
+    @GetMapping("stocks/outbound")
+    public String stockOutboundForm(Model model, Authentication authentication) {
+        if (authentication == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("currentPage", "stocks");
+        model.addAttribute("pageTitle", "재고 출고");
+        model.addAttribute("pageDescription", "재고를 출고 처리합니다 (FEFO 방식 적용)");
+        return "stocks/outbound";
     }
 
     @GetMapping("stocks/{id}")
@@ -241,7 +256,51 @@ public class ViewController {
             return "redirect:/login";
         }
         model.addAttribute("currentPage", "users");
-        model.addAttribute("users", userService.getUsers(pageable));
+
+        try {
+            // 사용자 목록 조회
+            model.addAttribute("users", userService.getUsers(pageable));
+
+            // 사용자 통계 조회 (에러 시 기본값 제공)
+            try {
+                // model.addAttribute("userStats", userService.getUserStats());
+                // 임시로 기본값 제공
+                model.addAttribute("userStats", UserStats.builder()
+                        .totalUsers(0L)
+                        .activeUsers(0L)
+                        .adminUsers(0L)
+                        .inactiveUsers(0L)
+                        .todayRegistrations(0L)
+                        .todayLogins(0L)
+                        .weeklyRegistrations(0L)
+                        .monthlyRegistrations(0L)
+                        .build());
+            } catch (Exception e) {
+                // 통계 조회 실패 시 기본값
+                model.addAttribute("userStats", UserStats.builder()
+                        .totalUsers(0L)
+                        .activeUsers(0L)
+                        .adminUsers(0L)
+                        .inactiveUsers(0L)
+                        .build());
+            }
+
+            // 검색 요청 객체 (올바른 타입 사용)
+            model.addAttribute("searchRequest", new UserSearchRequest());
+
+        } catch (Exception e) {
+            // 전체 조회 실패 시 빈 페이지 객체 제공
+            model.addAttribute("users", Page.empty());
+            model.addAttribute("userStats", UserStats.builder()
+                    .totalUsers(0L)
+                    .activeUsers(0L)
+                    .adminUsers(0L)
+                    .inactiveUsers(0L)
+                    .build());
+            model.addAttribute("searchRequest", new UserSearchRequest());
+            model.addAttribute("error", "사용자 목록을 불러오는 중 오류가 발생했습니다.");
+        }
+
         return "users/list";
     }
 
@@ -261,8 +320,15 @@ public class ViewController {
             return "redirect:/login";
         }
         model.addAttribute("currentPage", "users");
-        model.addAttribute("user", userService.getUser(id));
-        return "profile";
+
+        try {
+            model.addAttribute("user", userService.getUser(id));
+        } catch (Exception e) {
+            model.addAttribute("error", "사용자 정보를 불러올 수 없습니다.");
+            return "redirect:/users";
+        }
+
+        return "users/profile";
     }
 
     @GetMapping("users/{id}/edit")
@@ -271,11 +337,17 @@ public class ViewController {
             return "redirect:/login";
         }
         model.addAttribute("currentPage", "users");
-        UserResponse user = userService.getUser(id);
-        model.addAttribute("user", user);
+
+        try {
+            UserResponse user = userService.getUser(id);
+            model.addAttribute("user", user);
+        } catch (Exception e) {
+            model.addAttribute("error", "사용자 정보를 불러올 수 없습니다.");
+            return "redirect:/users";
+        }
+
         return "users/form";
     }
-
     @GetMapping("reports/stock")
     public String stockReport(Model model, Authentication authentication) {
         if (authentication == null) {
@@ -296,6 +368,91 @@ public class ViewController {
         model.addAttribute("pageTitle", "유효기간 보고서");
         model.addAttribute("pageDescription", "의약품 유효기간 현황과 만료 예정 리스트를 확인할 수 있습니다.");
         return "reports/expiry";
+    }
+
+    // ViewController.java에 추가할 메서드들
+
+    // System Settings
+    @GetMapping("system/settings")
+    public String systemSettings(Model model, Authentication authentication) {
+        if (authentication == null) {
+            return "redirect:/login";
+        }
+
+        // ADMIN 권한 체크
+        if (!authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "error/403"; // 403 Forbidden
+        }
+
+        model.addAttribute("pageTitle", "시스템 설정");
+        model.addAttribute("pageDescription", "시스템 전반적인 설정을 관리할 수 있습니다.");
+
+        // 시스템 설정 정보 로드 (서비스에서 가져올 예정)
+        try {
+            // model.addAttribute("systemConfig", systemConfigService.getConfig());
+            // model.addAttribute("backupInfo", backupService.getLatestBackupInfo());
+            // model.addAttribute("systemStatus", systemMonitorService.getSystemStatus());
+        } catch (Exception e) {
+            // 에러 시 기본값 제공
+            model.addAttribute("error", "시스템 설정 정보를 불러오는 중 오류가 발생했습니다.");
+        }
+
+        return "system/settings";
+    }
+
+    @GetMapping("system/backup")
+    public String systemBackup(Model model, Authentication authentication) {
+        if (authentication == null) {
+            return "redirect:/login";
+        }
+
+        // ADMIN 권한 체크
+        if (!authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "error/403";
+        }
+
+        model.addAttribute("pageTitle", "백업 관리");
+        model.addAttribute("pageDescription", "데이터베이스 백업을 생성하고 관리할 수 있습니다.");
+
+        return "system/backup";
+    }
+
+    @GetMapping("system/logs")
+    public String systemLogs(Model model, Authentication authentication) {
+        if (authentication == null) {
+            return "redirect:/login";
+        }
+
+        // ADMIN 권한 체크
+        if (!authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "error/403";
+        }
+
+        model.addAttribute("pageTitle", "시스템 로그");
+        model.addAttribute("pageDescription", "시스템 로그를 조회하고 분석할 수 있습니다.");
+
+        return "system/logs";
+    }
+
+    @GetMapping("system/monitor")
+    public String systemMonitor(Model model, Authentication authentication) {
+        if (authentication == null) {
+            return "redirect:/login";
+        }
+
+        // ADMIN 권한 체크
+        if (!authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "error/403";
+        }
+
+        model.addAttribute("pageTitle", "시스템 모니터링");
+        model.addAttribute("pageDescription", "시스템 성능과 상태를 실시간으로 모니터링할 수 있습니다.");
+
+        return "system/monitor";
     }
 
     // 에러 페이지들

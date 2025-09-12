@@ -732,13 +732,13 @@
                     <p class="page-subtitle">모든 입출고 거래 내역을 조회하고 관리할 수 있습니다.</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/transactions/outbound"
+                    <a href="/stocks/outbound"
                        class="btn btn-warning"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-minus-circle"></i>
                         출고 처리
                     </a>
-                    <a href="/stocks/new"
+                    <a href="/stocks/inbound"
                        class="btn btn-success"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-plus-circle"></i>

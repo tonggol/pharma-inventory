@@ -428,17 +428,13 @@
         <!-- 빠른 작업 -->
         <div class="menu-section">
             <div class="menu-section-title">빠른 작업</div>
-            <a href="/stocks/new" class="menu-item">
+            <a href="/stocks/inbound" class="menu-item">
                 <i class="fas fa-plus-circle text-success"></i>
                 재고 입고
             </a>
-            <a href="/transactions/new" class="menu-item">
+            <a href="/stocks/outbound" class="menu-item">
                 <i class="fas fa-minus-circle text-warning"></i>
                 재고 출고
-            </a>
-            <a href="/stocks/audit" class="menu-item">
-                <i class="fas fa-clipboard-check text-info"></i>
-                재고 실사
             </a>
         </div>
 
@@ -469,6 +465,23 @@
         </div>
     </div>
 </nav>
+
+<!-- 시스템 도구 (ADMIN만 접근 가능) -->
+<div class="menu-section" sec:authorize="hasRole('ADMIN')">
+    <div class="menu-section-title">시스템 도구</div>
+    <a href="/system/backup" class="menu-item">
+        <i class="fas fa-database"></i>
+        백업 관리
+    </a>
+    <a href="/system/monitor" class="menu-item">
+        <i class="fas fa-chart-line"></i>
+        시스템 모니터
+    </a>
+    <a href="/system/logs" class="menu-item">
+        <i class="fas fa-file-alt"></i>
+        시스템 로그
+    </a>
+</div>
 
 <!-- 메인 컨텐츠 -->
 <main class="main-content">

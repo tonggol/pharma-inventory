@@ -85,73 +85,6 @@
             font-weight: 500;
         }
 
-        .search-card {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-        }
-
-        .search-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            align-items: end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-label {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
-            font-size: 0.9rem;
-        }
-
-        .form-control {
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
-            outline: none;
-        }
-
-        .form-select {
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
-            outline: none;
-        }
-
-        .search-actions {
-            display: flex;
-            gap: 1rem;
-            grid-column: 1 / -1;
-            justify-content: flex-end;
-            margin-top: 1rem;
-        }
-
         .content-card {
             background: white;
             border-radius: 16px;
@@ -165,7 +98,7 @@
             border-bottom: 1px solid var(--border-color);
             background: #f8fafc;
             display: flex;
-            justify-content: space-between;
+            justify-content: between;
             align-items: center;
         }
 
@@ -270,24 +203,29 @@
             white-space: nowrap;
         }
 
-        .role-badge.admin {
+        .role-badge.ADMIN {
             background: rgba(239, 68, 68, 0.1);
             color: #dc2626;
         }
 
-        .role-badge.manager {
+        .role-badge.MANAGER {
             background: rgba(245, 158, 11, 0.1);
             color: #92400e;
         }
 
-        .role-badge.pharmacist {
+        .role-badge.PHARMACIST {
             background: rgba(16, 185, 129, 0.1);
             color: #065f46;
         }
 
-        .role-badge.staff {
+        .role-badge.STAFF {
             background: rgba(59, 130, 246, 0.1);
             color: #1e40af;
+        }
+
+        .role-badge.USER {
+            background: rgba(107, 114, 128, 0.1);
+            color: #374151;
         }
 
         .status-badge {
@@ -310,9 +248,19 @@
             color: #374151;
         }
 
-        .status-badge.locked {
-            background: rgba(239, 68, 68, 0.1);
-            color: #dc2626;
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-indicator.active {
+            background: #10b981;
+        }
+
+        .status-indicator.inactive {
+            background: #6b7280;
         }
 
         .action-buttons {
@@ -340,17 +288,6 @@
             border-radius: 8px;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), #1e40af);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(44, 90, 160, 0.3);
-            color: white;
-        }
-
         .btn-success {
             background: linear-gradient(135deg, var(--success-color), #059669);
             color: white;
@@ -360,18 +297,6 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
             color: white;
-        }
-
-        .btn-outline-secondary {
-            background: white;
-            border: 2px solid var(--border-color);
-            color: var(--dark-color);
-        }
-
-        .btn-outline-secondary:hover {
-            background: #f8fafc;
-            border-color: var(--primary-color);
-            color: var(--primary-color);
         }
 
         .btn-outline-primary {
@@ -396,15 +321,40 @@
             color: white;
         }
 
-        .btn-outline-danger {
+        .btn-outline-secondary {
             background: white;
-            border: 1px solid var(--danger-color);
-            color: var(--danger-color);
+            border: 1px solid var(--border-color);
+            color: var(--dark-color);
         }
 
-        .btn-outline-danger:hover {
-            background: var(--danger-color);
-            color: white;
+        .btn-outline-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .empty-state-description {
+            font-size: 1rem;
+            margin-bottom: 2rem;
         }
 
         .pagination-container {
@@ -412,7 +362,7 @@
             border-top: 1px solid var(--border-color);
             background: #f8fafc;
             display: flex;
-            justify-content: space-between;
+            justify-content: between;
             align-items: center;
         }
 
@@ -463,59 +413,16 @@
             cursor: not-allowed;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: #64748b;
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: #cbd5e1;
-        }
-
-        .empty-state-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
-        }
-
-        .empty-state-description {
-            font-size: 1rem;
-            margin-bottom: 2rem;
-        }
-
         /* 반응형 디자인 */
         @media (max-width: 768px) {
-            .search-form {
-                grid-template-columns: 1fr;
-            }
-
-            .search-actions {
-                grid-column: 1;
-                justify-content: stretch;
-            }
-
-            .search-actions .btn {
-                flex: 1;
-                justify-content: center;
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .content-header {
                 flex-direction: column;
                 gap: 1rem;
                 align-items: stretch;
-            }
-
-            .content-actions {
-                justify-content: stretch;
-            }
-
-            .content-actions .btn {
-                flex: 1;
-                justify-content: center;
             }
 
             .users-table {
@@ -537,49 +444,12 @@
                 flex-direction: column;
                 gap: 1rem;
             }
-
-            .stats-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
 
         @media (max-width: 480px) {
             .stats-row {
                 grid-template-columns: 1fr;
             }
-        }
-
-        /* 로딩 상태 */
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </th:block>
@@ -607,7 +477,7 @@
             <div class="stat-card-icon total">
                 <i class="fas fa-users"></i>
             </div>
-            <div class="stat-card-value" th:text="${userStats?.totalUsers ?: 0}">24</div>
+            <div class="stat-card-value" th:text="${userStats?.totalUsers ?: 0}">0</div>
             <div class="stat-card-label">전체 사용자</div>
         </div>
 
@@ -615,7 +485,7 @@
             <div class="stat-card-icon active">
                 <i class="fas fa-user-check"></i>
             </div>
-            <div class="stat-card-value" th:text="${userStats?.activeUsers ?: 0}">21</div>
+            <div class="stat-card-value" th:text="${userStats?.activeUsers ?: 0}">0</div>
             <div class="stat-card-label">활성 사용자</div>
         </div>
 
@@ -623,7 +493,7 @@
             <div class="stat-card-icon admin">
                 <i class="fas fa-user-shield"></i>
             </div>
-            <div class="stat-card-value" th:text="${userStats?.adminUsers ?: 0}">3</div>
+            <div class="stat-card-value" th:text="${userStats?.adminUsers ?: 0}">0</div>
             <div class="stat-card-label">관리자</div>
         </div>
 
@@ -631,67 +501,9 @@
             <div class="stat-card-icon inactive">
                 <i class="fas fa-user-times"></i>
             </div>
-            <div class="stat-card-value" th:text="${userStats?.inactiveUsers ?: 0}">3</div>
+            <div class="stat-card-value" th:text="${userStats?.inactiveUsers ?: 0}">0</div>
             <div class="stat-card-label">비활성 사용자</div>
         </div>
-    </div>
-
-    <!-- 검색 필터 -->
-    <div class="search-card">
-        <form class="search-form" id="searchForm" th:object="${searchRequest}">
-            <div class="form-group">
-                <label class="form-label" for="keyword">통합 검색</label>
-                <input type="text"
-                       class="form-control"
-                       id="keyword"
-                       name="keyword"
-                       th:field="*{keyword}"
-                       placeholder="사용자ID, 이름, 이메일로 검색">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="role">권한</label>
-                <select class="form-select" id="role" name="role" th:field="*{role}">
-                    <option value="">전체 권한</option>
-                    <option value="ADMIN">시스템 관리자</option>
-                    <option value="MANAGER">매니저</option>
-                    <option value="PHARMACIST">약사</option>
-                    <option value="STAFF">일반 직원</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="department">부서</label>
-                <select class="form-select" id="department" name="department" th:field="*{department}">
-                    <option value="">전체 부서</option>
-                    <option value="PHARMACY">약국</option>
-                    <option value="WAREHOUSE">창고</option>
-                    <option value="ADMIN">관리부서</option>
-                    <option value="IT">IT부서</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="status">상태</label>
-                <select class="form-select" id="status" name="status" th:field="*{status}">
-                    <option value="">전체</option>
-                    <option value="ACTIVE">활성</option>
-                    <option value="INACTIVE">비활성</option>
-                    <option value="LOCKED">잠금</option>
-                </select>
-            </div>
-
-            <div class="search-actions">
-                <button type="button" class="btn btn-outline-secondary" onclick="resetSearch()">
-                    <i class="fas fa-undo"></i>
-                    초기화
-                </button>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i>
-                    검색
-                </button>
-            </div>
-        </form>
     </div>
 
     <!-- 사용자 목록 -->
@@ -702,17 +514,6 @@
                 <span class="badge bg-primary" th:text="${users?.totalElements ?: 0}">0</span>
             </h2>
             <div class="content-actions">
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-download"></i>
-                        내보내기
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/api/users/export?format=excel"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
-                        <li><a class="dropdown-item" href="/api/users/export?format=csv"><i class="fas fa-file-csv me-2"></i>CSV</a></li>
-                        <li><a class="dropdown-item" href="/api/users/export?format=pdf"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
-                    </ul>
-                </div>
                 <button class="btn btn-outline-secondary" onclick="location.reload()">
                     <i class="fas fa-sync-alt"></i>
                     새로고침
@@ -721,7 +522,7 @@
         </div>
 
         <div class="table-container">
-            <table class="users-table" th:if="${users != null and #lists.size(users.content) > 0}">
+            <table class="users-table" th:if="${users != null and users.hasContent()}">
                 <thead>
                 <tr>
                     <th>사용자 정보</th>
@@ -738,22 +539,22 @@
                 <tr th:each="user : ${users.content}">
                     <td>
                         <div class="user-info">
-                            <div class="user-avatar" th:text="${#strings.substring(user.fullName, 0, 1)}">김</div>
+                            <div class="user-avatar" th:text="${#strings.substring(user.fullName ?: user.username ?: 'U', 0, 1)}">김</div>
                             <div class="user-details">
-                                <div class="user-name" th:text="${user.fullName}">김약사</div>
-                                <div class="user-email" th:text="${user.email}">kim@pharmacy.com</div>
+                                <div class="user-name" th:text="${user.fullName ?: user.username ?: 'N/A'}">김약사</div>
+                                <div class="user-email" th:text="${user.email ?: 'N/A'}">kim@pharmacy.com</div>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <span class="user-id" th:text="${user.username}">kim_pharmacist</span>
+                        <span class="user-id" th:text="${user.username ?: 'N/A'}">kim_pharmacist</span>
                     </td>
                     <td>
                         <span class="role-badge"
-                              th:classappend="${user.role.name().toLowerCase()}"
-                              th:text="${user.roleDescription}">약사</span>
+                              th:classappend="${user.role?.name()}"
+                              th:text="${user.roleDescription ?: user.role?.name() ?: 'N/A'}">약사</span>
                     </td>
-                    <td th:text="${user.departmentDescription ?: '-'}">약국</td>
+                    <td th:text="${user.departmentDescription ?: user.department ?: '-'}">약국</td>
                     <td>
                         <span th:if="${user.lastLoginAt}"
                               th:text="${#temporals.format(user.lastLoginAt, 'yyyy-MM-dd HH:mm')}">2024-01-20 14:30</span>
@@ -761,12 +562,13 @@
                     </td>
                     <td>
                         <span class="status-badge"
-                              th:classappend="${user.status.name().toLowerCase()}">
-                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
-                            <span th:text="${user.statusDescription}">활성</span>
+                              th:classappend="${user.isActive ? 'active' : 'inactive'}">
+                            <span class="status-indicator" th:classappend="${user.isActive ? 'active' : 'inactive'}"></span>
+                            <span th:text="${user.statusDescription ?: (user.isActive ? '활성' : '비활성')}">활성</span>
                         </span>
                     </td>
-                    <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}">2024-01-15</td>
+                    <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}" th:if="${user.createdAt}">2024-01-15</td>
+                    <td th:unless="${user.createdAt}">-</td>
                     <td>
                         <div class="action-buttons">
                             <a th:href="@{/users/{id}(id=${user.id})}"
@@ -780,12 +582,6 @@
                                title="수정">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button class="btn btn-outline-danger btn-sm"
-                                    sec:authorize="hasRole('ADMIN')"
-                                    th:onclick="|toggleUserStatus(${user.id}, '${user.fullName}', '${user.status.name()}')|"
-                                    title="상태 변경">
-                                <i class="fas fa-power-off"></i>
-                            </button>
                         </div>
                     </td>
                 </tr>
@@ -793,7 +589,7 @@
             </table>
 
             <!-- 빈 상태 -->
-            <div class="empty-state" th:if="${users == null or #lists.size(users.content) == 0}">
+            <div class="empty-state" th:if="${users == null or !users.hasContent()}">
                 <div class="empty-state-icon">
                     <i class="fas fa-users"></i>
                 </div>
@@ -810,7 +606,7 @@
         <div class="pagination-container" th:if="${users != null and users.totalPages > 1}">
             <div class="pagination-info">
                 <span th:text="|총 ${users.totalElements}개 중 ${users.number * users.size + 1}-${users.number * users.size + #lists.size(users.content)}개 표시|">
-                    총 24개 중 1-20개 표시
+                    총 0개 중 1-20개 표시
                 </span>
             </div>
 
@@ -834,12 +630,8 @@
                         </span>
                     </li>
 
-                    <li class="page-item"
-                        th:each="pageNum : ${#numbers.sequence(T(java.lang.Math).max(0, users.number - 2), T(java.lang.Math).min(users.totalPages - 1, users.number + 2))}"
-                        th:classappend="${pageNum == users.number ? 'active' : ''}">
-                        <a class="page-link"
-                           th:href="@{/users(page=${pageNum}, size=${users.size})}"
-                           th:text="${pageNum + 1}">1</a>
+                    <li class="page-item active">
+                        <span class="page-link" th:text="${users.number + 1}">1</span>
                     </li>
 
                     <li class="page-item" th:classappend="${users.last ? 'disabled' : ''}">
@@ -862,198 +654,19 @@
                 </ul>
             </nav>
         </div>
-
-        <!-- 로딩 오버레이 -->
-        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-            <div class="spinner"></div>
-        </div>
     </div>
 </div>
 
 <th:block layout:fragment="javascript">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 검색 폼 제출 처리
-            const searchForm = document.getElementById('searchForm');
-            searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                performSearch();
-            });
+            console.log('사용자 목록 페이지 로드됨');
 
-            // 엔터 키로 검색
-            document.getElementById('keyword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    performSearch();
-                }
-            });
-
-            // 검색 조건 변경 시 자동 검색 (디바운싱)
-            let searchTimeout;
-            const searchInputs = ['role', 'department', 'status'];
-            searchInputs.forEach(inputId => {
-                document.getElementById(inputId).addEventListener('change', function() {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(performSearch, 300);
-                });
-            });
-        });
-
-        // 검색 실행
-        async function performSearch() {
-            const formData = new FormData(document.getElementById('searchForm'));
-            const searchParams = new URLSearchParams();
-
-            // 폼 데이터를 URL 파라미터로 변환
-            for (let [key, value] of formData.entries()) {
-                if (value && value.trim() !== '') {
-                    searchParams.append(key, value);
-                }
-            }
-
-            // 페이지 번호 초기화
-            searchParams.append('page', '0');
-            searchParams.append('size', '20');
-
-            // 로딩 상태 표시
-            showLoading(true);
-
-            try {
-                // 페이지 이동
-                window.location.href = '/users?' + searchParams.toString();
-            } catch (error) {
-                console.error('검색 오류:', error);
-                showAlert('검색 중 오류가 발생했습니다.', 'danger');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // 검색 초기화
-        function resetSearch() {
-            document.getElementById('searchForm').reset();
-            window.location.href = '/users';
-        }
-
-        // 로딩 상태 표시/숨김
-        function showLoading(show) {
-            const overlay = document.getElementById('loadingOverlay');
-            const container = document.getElementById('usersContainer');
-
-            if (show) {
-                overlay.style.display = 'flex';
-                container.classList.add('loading');
-            } else {
-                overlay.style.display = 'none';
-                container.classList.remove('loading');
-            }
-        }
-
-        // 사용자 상태 토글
-        async function toggleUserStatus(userId, userName, currentStatus) {
-            const isActive = currentStatus === 'ACTIVE';
-            const action = isActive ? '비활성화' : '활성화';
-            const newStatus = isActive ? 'INACTIVE' : 'ACTIVE';
-
-            if (!confirm(`"${userName}" 사용자를 ${action}하시겠습니까?`)) {
-                return;
-            }
-
-            try {
-                const response = await ApiClient.patch(`/api/users/${userId}/status`, {
-                    status: newStatus
-                });
-
-                if (response.success) {
-                    showAlert(`사용자가 ${action}되었습니다.`, 'success');
-                    setTimeout(() => location.reload(), 1000);
-                }
-            } catch (error) {
-                showAlert(error.message || `사용자 ${action} 중 오류가 발생했습니다.`, 'danger');
-            }
-        }
-
-        // 사용자 삭제 (소프트 삭제)
-        async function deleteUser(userId, userName) {
-            if (!confirm(`"${userName}" 사용자를 삭제하시겠습니까?\n\n삭제된 사용자는 복구할 수 없습니다.`)) {
-                return;
-            }
-
-            if (!confirm(`정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
-                return;
-            }
-
-            try {
-                const response = await ApiClient.delete(`/api/users/${userId}`);
-                if (response.success) {
-                    showAlert('사용자가 삭제되었습니다.', 'success');
-                    setTimeout(() => location.reload(), 1000);
-                }
-            } catch (error) {
-                showAlert(error.message || '사용자 삭제 중 오류가 발생했습니다.', 'danger');
-            }
-        }
-
-        // 비밀번호 재설정
-        async function resetPassword(userId, userName) {
-            if (!confirm(`"${userName}" 사용자의 비밀번호를 재설정하시겠습니까?\n\n임시 비밀번호가 이메일로 발송됩니다.`)) {
-                return;
-            }
-
-            try {
-                const response = await ApiClient.post(`/api/users/${userId}/reset-password`);
-                if (response.success) {
-                    showAlert('비밀번호가 재설정되었습니다. 임시 비밀번호가 이메일로 발송되었습니다.', 'success');
-                }
-            } catch (error) {
-                showAlert(error.message || '비밀번호 재설정 중 오류가 발생했습니다.', 'danger');
-            }
-        }
-
-        // 일괄 작업 (향후 확장)
-        function bulkAction(action) {
-            const checkboxes = document.querySelectorAll('input[name="selectedUsers"]:checked');
-            if (checkboxes.length === 0) {
-                showAlert('작업할 사용자를 선택해주세요.', 'warning');
-                return;
-            }
-
-            const ids = Array.from(checkboxes).map(cb => cb.value);
-            console.log('Bulk action:', action, 'IDs:', ids);
-
-            // 실제 구현에서는 API 호출
-        }
-
-        // 페이지 로드 완료 후 실행
-        window.addEventListener('load', function() {
-            // URL 파라미터에서 메시지 확인
-            const urlParams = new URLSearchParams(window.location.search);
-            const message = urlParams.get('message');
-            const error = urlParams.get('error');
-
-            if (message) {
-                showAlert(message, 'success');
-            }
-            if (error) {
-                showAlert(error, 'danger');
-            }
-        });
-
-        // 키보드 단축키
-        document.addEventListener('keydown', function(e) {
-            // Ctrl + F: 검색 필드 포커스
-            if (e.ctrlKey && e.key === 'f') {
-                e.preventDefault();
-                document.getElementById('keyword').focus();
-            }
-
-            // Ctrl + N: 새 사용자 등록 (권한 있는 경우)
-            if (e.ctrlKey && e.key === 'n') {
-                e.preventDefault();
-                const newButton = document.querySelector('a[href="/users/new"]');
-                if (newButton) {
-                    window.location.href = '/users/new';
-                }
+            // 사용자 수 표시
+            const users = /*[[${users}]]*/ null;
+            if (users && users.content) {
+                console.log('로드된 사용자 수:', users.content.length);
+                console.log('전체 사용자 수:', users.totalElements);
             }
         });
     </script>
