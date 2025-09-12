@@ -48,6 +48,23 @@ public class MedicineService {
     }
 
     /**
+     * 전체 의약품 목록 조회 (페이징 없이) - 드롭다운용
+     */
+    public List<MedicineResponse> getAllMedicines() {
+        log.debug("전체 의약품 목록 조회 (드롭다운용)");
+
+        // 활성화된 의약품만 조회하고 이름순 정렬
+        List<Medicine> medicines = medicineRepository.findByIsActiveTrue()
+                .stream()
+                .sorted((m1, m2) -> m1.getName().compareToIgnoreCase(m2.getName()))
+                .collect(Collectors.toList());
+
+        return medicines.stream()
+                .map(MedicineResponse::from) // 재고 정보 없이 기본 응답만
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 의약품 검색
      */
     public Page<MedicineResponse> searchMedicines(MedicineSearchRequest request, Pageable pageable) {

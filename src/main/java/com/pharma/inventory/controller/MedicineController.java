@@ -41,20 +41,30 @@ public class MedicineController {
     private final MedicineService medicineService;
     private final StockService stockService;
 
-    /**
-     * 의약품 목록 조회 (페이징)
-     */
-    @Operation(summary = "의약품 목록 조회", description = "페이징된 의약품 목록을 조회합니다")
     @GetMapping
-    public ResponseEntity<Page<MedicineResponse>> getMedicines(
+    public ResponseEntity<ApiResponse<Page<MedicineResponse>>> getMedicines(
             @PageableDefault(size = 20)
             @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        log.info("의약품 목록 조회 요청 - page: {}, size: {}", 
-                pageable.getPageNumber(), pageable.getPageSize());
-
         Page<MedicineResponse> medicines = medicineService.getMedicines(pageable);
-        return ResponseEntity.ok(medicines);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(medicines,
+                        String.format("%d개의 의약품이 조회되었습니다", medicines.getTotalElements())
+                )
+        );
+    }
+
+    // 새로운 엔드포인트 추가
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<MedicineResponse>>> getAllMedicines() {
+        List<MedicineResponse> medicines = medicineService.getAllMedicines();
+
+        return ResponseEntity.ok(
+                ApiResponse.success(medicines,
+                        String.format("%d개의 의약품이 조회되었습니다", medicines.size())
+                )
+        );
     }
 
     /**
