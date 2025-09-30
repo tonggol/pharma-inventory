@@ -723,7 +723,6 @@
 
 <div layout:fragment="content">
     <div class="stocks-container">
-        <!-- 페이지 헤더 -->
         <div class="page-header fade-in">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -746,12 +745,9 @@
             </div>
         </div>
 
-        <!-- 통계 카드 -->
         <div class="stats-grid fade-in" id="statsGrid">
-            <!-- 동적으로 로드됨 -->
         </div>
 
-        <!-- 검색 및 필터 -->
         <div class="search-filter-card fade-in">
             <form class="search-form" id="searchForm">
                 <div class="form-group">
@@ -767,7 +763,6 @@
                     <label class="form-label" for="medicineId">의약품</label>
                     <select class="form-select" id="medicineId" name="medicineId">
                         <option value="">전체 의약품</option>
-                        <!-- 동적으로 로드됨 -->
                     </select>
                 </div>
 
@@ -826,7 +821,6 @@
             </form>
         </div>
 
-        <!-- 재고 목록 -->
         <div class="stocks-list-card fade-in" id="stocksContainer">
             <div class="list-header">
                 <h2 class="list-title">
@@ -874,7 +868,6 @@
                 </div>
             </div>
 
-            <!-- 테이블 뷰 -->
             <div class="table-view" id="tableView">
                 <table class="stocks-table">
                     <thead>
@@ -895,24 +888,20 @@
                     </tr>
                     </thead>
                     <tbody id="stocksTableBody">
-                    <!-- 동적으로 로드됨 -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- 카드 뷰 -->
             <div class="card-view" id="cardView" style="display: none;">
-                <!-- 동적으로 로드됨 -->
             </div>
 
-            <!-- 빈 상태 -->
             <div class="empty-state" id="emptyState" style="display: none;">
                 <div class="empty-state-icon">
                     <i class="fas fa-box-open"></i>
                 </div>
                 <h3 class="empty-state-title">재고가 없습니다</h3>
                 <p class="empty-state-description">검색 조건에 맞는 재고가 없거나 아직 재고가 등록되지 않았습니다.</p>
-                <a href="/stocks/new"
+                <a href="/stocks/inbound"
                    class="btn btn-success"
                    sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                     <i class="fas fa-plus"></i>
@@ -920,7 +909,6 @@
                 </a>
             </div>
 
-            <!-- 일괄 작업 -->
             <div class="bulk-actions" id="bulkActions">
                 <div class="bulk-info">
                     <span id="selectedCount">0</span>개 항목이 선택됨
@@ -941,19 +929,15 @@
                 </div>
             </div>
 
-            <!-- 페이지네이션 -->
             <div class="pagination-container" id="paginationContainer">
                 <div class="pagination-info" id="paginationInfo">
-                    <!-- 동적으로 업데이트됨 -->
                 </div>
                 <nav>
                     <ul class="pagination" id="pagination">
-                        <!-- 동적으로 생성됨 -->
                     </ul>
                 </nav>
             </div>
 
-            <!-- 로딩 오버레이 -->
             <div class="loading-overlay" id="loadingOverlay" style="display: none;">
                 <div class="loading-spinner"></div>
             </div>
@@ -1687,3 +1671,4 @@
 </th:block>
 
 </html>
+}

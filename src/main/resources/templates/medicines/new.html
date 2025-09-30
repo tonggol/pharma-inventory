@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>의약품 등록 - 의약품 재고관리 시스템</title>
+
+    <th:block layout:fragment="css">
+        <style>
+            /* 폼 스타일 */
+            .form-container {
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid var(--border-color);
+            }
+
+            .form-section {
+                margin-bottom: 2rem;
+                padding-bottom: 1.5rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .form-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: var(--dark-color);
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .required {
+                color: var(--danger-color);
+            }
+
+            .btn {
+                border-radius: 8px;
+                font-weight: 500;
+                padding: 0.6rem 1.2rem;
+                transition: all 0.2s ease;
+            }
+
+            .btn-primary {
+                background: var(--primary-color);
+                border-color: var(--primary-color);
+            }
+
+            .btn-primary:hover {
+                background: #1e40af;
+                border-color: #1e40af;
+                transform: translateY(-1px);
+            }
+
+            .category-select {
+                position: relative;
+            }
+
+            .category-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                max-height: 300px;
+                overflow-y: auto;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                display: none;
+            }
+
+            .category-item {
+                padding: 0.8rem 1rem;
+                cursor: pointer;
+                border-bottom: 1px solid #f1f5f9;
+                transition: background-color 0.2s ease;
+            }
+
+            .category-item:hover {
+                background-color: #f8fafc;
+            }
+
+            .category-item:last-child {
+                border-bottom: none;
+            }
+
+            .form-control:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+            }
+
+            .validation-error {
+                color: var(--danger-color);
+                font-size: 0.875rem;
+                margin-top: 0.25rem;
+                display: none;
+            }
+
+            .is-invalid {
+                border-color: var(--danger-color);
+            }
+
+            /* 반응형 디자인 */
+            @media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                }
+
+                .sidebar.show {
+                    transform: translateX(0);
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    padding: 1rem;
+                }
+
+                .header-content {
+                    padding: 0 1rem;
+                }
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1" th:text="${pageTitle ?: '의약품 등록'}">의약품 등록</h1>
+            <p class="text-muted mb-0" th:text="${pageDescription ?: '새로운 의약품을 시스템에 등록합니다'}">새로운 의약품을 시스템에 등록합니다</p>
+        </div>
+        <div>
+            <a href="/medicines" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-2"></i>의약품 목록
+            </a>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form id="medicineForm">
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-info-circle text-info"></i>
+                    기본 정보
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="code" class="form-label">
+                                의약품 코드 <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="code" name="code"
+                                   placeholder="의약품 코드를 입력하세요" maxlength="50" required>
+                            <div class="validation-error" id="code-error"></div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                고유한 의약품 코드를 입력하세요 (최대 50자).
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                의약품명 <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name"
+                                   placeholder="의약품명을 입력하세요" maxlength="100" required>
+                            <div class="validation-error" id="name-error"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="nameEn" class="form-label">영문명</label>
+                            <input type="text" class="form-control" id="nameEn" name="nameEn"
+                                   placeholder="영문명을 입력하세요" maxlength="100">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="manufacturer" class="form-label">
+                                제조사 <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="manufacturer" name="manufacturer"
+                                   placeholder="제조사명을 입력하세요" maxlength="50" required>
+                            <div class="validation-error" id="manufacturer-error"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">설명</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"
+                              placeholder="의약품 설명을 입력하세요"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-tags text-warning"></i>
+                    분류 정보
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="categorySelect" class="form-label">카테고리</label>
+                            <div class="category-select">
+                                <button type="button" class="form-control text-start" id="categorySelect"
+                                        style="background: white; border: 1px solid #ced4da;">
+                                    카테고리를 선택하세요...
+                                </button>
+                                <input type="hidden" id="category" name="category">
+
+                                <div class="category-dropdown" id="categoryDropdown">
+                                    <div class="category-item" data-value="">카테고리 없음</div>
+                                    <div class="category-item" data-value="PAIN_RELIEVER">진통제</div>
+                                    <div class="category-item" data-value="ANTIBIOTIC">항생제</div>
+                                    <div class="category-item" data-value="VITAMIN">비타민</div>
+                                    <div class="category-item" data-value="SUPPLEMENT">보조제</div>
+                                    <div class="category-item" data-value="DIGESTIVE">소화제</div>
+                                    <div class="category-item" data-value="CARDIOVASCULAR">심혈관</div>
+                                    <div class="category-item" data-value="RESPIRATORY">호흡기</div>
+                                    <div class="category-item" data-value="DERMATOLOGICAL">피부과</div>
+                                    <div class="category-item" data-value="NEUROLOGICAL">신경계</div>
+                                    <div class="category-item" data-value="HORMONAL">호르몬</div>
+                                    <div class="category-item" data-value="OTHER">기타</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="unit" class="form-label">
+                                단위 <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="unit" name="unit"
+                                   placeholder="예: 정, 캡슐, ml, g" maxlength="20" required>
+                            <div class="validation-error" id="unit-error"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="storageCondition" class="form-label">보관 조건</label>
+                            <input type="text" class="form-control" id="storageCondition" name="storageCondition"
+                                   placeholder="예: 실온보관, 냉장보관" maxlength="100">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="minStockQuantity" class="form-label">
+                                최소 재고 수량 <span class="required">*</span>
+                            </label>
+                            <input type="number" class="form-control" id="minStockQuantity" name="minStockQuantity"
+                                   min="0" value="0" required>
+                            <div class="validation-error" id="minStockQuantity-error"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-cog text-secondary"></i>
+                    설정
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isPrescriptionRequired"
+                                       name="isPrescriptionRequired">
+                                <label class="form-check-label" for="isPrescriptionRequired">
+                                    처방전 필요
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">
+                                이 의약품이 처방전을 필요로 하는지 선택하세요.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isActive"
+                                       name="isActive" checked>
+                                <label class="form-check-label" for="isActive">
+                                    활성 상태
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">
+                                비활성화하면 재고 입고 및 판매에서 제외됩니다.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                    <i class="fas fa-times me-2"></i>취소
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>의약품 등록
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<th:block layout:fragment="javascript">
+    <script>
+        console.log('=== 의약품 등록 페이지 스크립트 시작 ===');
+
+        // 카테고리 드롭다운 초기화
+        function initCategoryDropdown() {
+            const categorySelect = document.getElementById('categorySelect');
+            const categoryDropdown = document.getElementById('categoryDropdown');
+            const categoryInput = document.getElementById('category');
+
+            if (!categorySelect || !categoryDropdown || !categoryInput) {
+                console.error('카테고리 요소를 찾을 수 없습니다!');
+                return;
+            }
+
+            // 드롭다운 버튼 클릭
+            categorySelect.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isVisible = categoryDropdown.style.display === 'block';
+                categoryDropdown.style.display = isVisible ? 'none' : 'block';
+            });
+
+            // 카테고리 아이템 클릭
+            const categoryItems = categoryDropdown.querySelectorAll('.category-item');
+            categoryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const text = this.textContent;
+
+                    categorySelect.textContent = text;
+                    categoryInput.value = value;
+                    categoryDropdown.style.display = 'none';
+
+                    console.log('카테고리 선택:', text, 'value:', value);
+                });
+            });
+
+            // 외부 클릭시 드롭다운 숨기기
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.category-select')) {
+                    categoryDropdown.style.display = 'none';
+                }
+            });
+
+            console.log('카테고리 드롭다운 초기화 완료');
+        }
+
+        // 폼 검증 함수들
+        function validateCode(code) {
+            if (!code || code.trim().length === 0) {
+                return '의약품 코드는 필수입니다.';
+            }
+            if (code.length > 50) {
+                return '의약품 코드는 50자를 초과할 수 없습니다.';
+            }
+            return null;
+        }
+
+        function validateName(name) {
+            if (!name || name.trim().length === 0) {
+                return '의약품명은 필수입니다.';
+            }
+            if (name.length > 100) {
+                return '의약품명은 100자를 초과할 수 없습니다.';
+            }
+            return null;
+        }
+
+        function validateManufacturer(manufacturer) {
+            if (!manufacturer || manufacturer.trim().length === 0) {
+                return '제조사는 필수입니다.';
+            }
+            if (manufacturer.length > 50) {
+                return '제조사명은 50자를 초과할 수 없습니다.';
+            }
+            return null;
+        }
+
+        function validateUnit(unit) {
+            if (!unit || unit.trim().length === 0) {
+                return '단위는 필수입니다.';
+            }
+            if (unit.length > 20) {
+                return '단위는 20자를 초과할 수 없습니다.';
+            }
+            return null;
+        }
+
+        function validateMinStockQuantity(quantity) {
+            if (quantity === null || quantity === undefined || quantity === '') {
+                return '최소 재고 수량은 필수입니다.';
+            }
+            const num = parseInt(quantity);
+            if (isNaN(num) || num < 0) {
+                return '최소 재고 수량은 0 이상의 숫자여야 합니다.';
+            }
+            return null;
+        }
+
+        // 검증 에러 표시
+        function showValidationError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + '-error');
+
+            if (field && errorDiv) {
+                field.classList.add('is-invalid');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // 검증 에러 제거
+        function hideValidationError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + '-error');
+
+            if (field && errorDiv) {
+                field.classList.remove('is-invalid');
+                errorDiv.style.display = 'none';
+            }
+        }
+
+        // 폼 검증
+        function validateForm() {
+            let isValid = true;
+
+            // 모든 에러 제거
+            ['code', 'name', 'manufacturer', 'unit', 'minStockQuantity'].forEach(fieldId => {
+                hideValidationError(fieldId);
+            });
+
+            // 각 필드 검증
+            const code = document.getElementById('code').value;
+            const codeError = validateCode(code);
+            if (codeError) {
+                showValidationError('code', codeError);
+                isValid = false;
+            }
+
+            const name = document.getElementById('name').value;
+            const nameError = validateName(name);
+            if (nameError) {
+                showValidationError('name', nameError);
+                isValid = false;
+            }
+
+            const manufacturer = document.getElementById('manufacturer').value;
+            const manufacturerError = validateManufacturer(manufacturer);
+            if (manufacturerError) {
+                showValidationError('manufacturer', manufacturerError);
+                isValid = false;
+            }
+
+            const unit = document.getElementById('unit').value;
+            const unitError = validateUnit(unit);
+            if (unitError) {
+                showValidationError('unit', unitError);
+                isValid = false;
+            }
+
+            const minStockQuantity = document.getElementById('minStockQuantity').value;
+            const minStockError = validateMinStockQuantity(minStockQuantity);
+            if (minStockError) {
+                showValidationError('minStockQuantity', minStockError);
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // 폼 제출 처리
+        function initForm() {
+            const form = document.getElementById('medicineForm');
+            if (!form) {
+                console.error('폼을 찾을 수 없습니다');
+                return;
+            }
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                console.log('의약품 등록 시작');
+
+                // 폼 검증
+                if (!validateForm()) {
+                    showAlert('입력 정보를 확인해주세요.', 'danger');
+                    return;
+                }
+
+                // 요청 데이터 구성
+                const requestData = {
+                    code: document.getElementById('code').value.trim(),
+                    name: document.getElementById('name').value.trim(),
+                    nameEn: document.getElementById('nameEn').value.trim() || null,
+                    description: document.getElementById('description').value.trim() || null,
+                    manufacturer: document.getElementById('manufacturer').value.trim(),
+                    unit: document.getElementById('unit').value.trim(),
+                    category: document.getElementById('category').value || null,
+                    storageCondition: document.getElementById('storageCondition').value.trim() || null,
+                    minStockQuantity: parseInt(document.getElementById('minStockQuantity').value),
+                    isPrescriptionRequired: document.getElementById('isPrescriptionRequired').checked,
+                    isActive: document.getElementById('isActive').checked
+                };
+
+                console.log('등록 요청 데이터:', requestData);
+
+                // 로딩 상태 표시
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>등록 중...';
+
+                try {
+                    const response = await fetch('/api/medicines', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        showAlert(result.message || '의약품이 성공적으로 등록되었습니다!', 'success');
+                        console.log('등록 성공:', result.data);
+
+                        // 의약품 목록 페이지로 이동할지 확인
+                        if (confirm('의약품이 등록되었습니다. 의약품 목록을 확인하시겠습니까?')) {
+                            window.location.href = '/medicines';
+                        } else {
+                            // 폼 리셋
+                            form.reset();
+                            document.getElementById('categorySelect').textContent = '카테고리를 선택하세요...';
+                            document.getElementById('category').value = '';
+                            document.getElementById('isActive').checked = true;
+                        }
+
+                    } else {
+                        // API 에러 응답 처리
+                        const errorMessage = result.message || result.error || '의약품 등록 중 오류가 발생했습니다.';
+                        console.error('등록 실패:', result);
+
+                        if (response.status === 400) {
+                            // 유효성 검증 오류
+                            if (result.errors && Array.isArray(result.errors)) {
+                                const errorMessages = result.errors.join('\n');
+                                showAlert('입력 정보를 확인해주세요:\n' + errorMessages, 'danger');
+                            } else {
+                                showAlert('입력 정보를 확인해주세요:\n' + errorMessage, 'danger');
+                            }
+                        } else if (response.status === 409) {
+                            // 중복 코드 등
+                            showAlert('의약품 코드가 이미 존재합니다:\n' + errorMessage, 'danger');
+                            document.getElementById('code').focus();
+                            document.getElementById('code').select();
+                        } else {
+                            showAlert('의약품 등록 중 오류가 발생했습니다:\n' + errorMessage, 'danger');
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('네트워크 오류:', error);
+                    showAlert('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.', 'danger');
+                } finally {
+                    // 로딩 상태 해제
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            });
+
+            console.log('폼 초기화 완료');
+        }
+
+        // 실시간 검증 추가
+        function addRealTimeValidation() {
+            const fields = [
+                { id: 'code', validator: validateCode },
+                { id: 'name', validator: validateName },
+                { id: 'manufacturer', validator: validateManufacturer },
+                { id: 'unit', validator: validateUnit },
+                { id: 'minStockQuantity', validator: validateMinStockQuantity }
+            ];
+
+            fields.forEach(({ id, validator }) => {
+                const field = document.getElementById(id);
+                if (field) {
+                    field.addEventListener('blur', function() {
+                        const error = validator(this.value);
+                        if (error) {
+                            showValidationError(id, error);
+                        } else {
+                            hideValidationError(id);
+                        }
+                    });
+
+                    // 입력 중에는 에러 제거
+                    field.addEventListener('input', function() {
+                        hideValidationError(id);
+                    });
+                }
+            });
+        }
+
+        // 페이지 로드 후 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded - 초기화 시작');
+
+            setTimeout(function() {
+                try {
+                    initCategoryDropdown();
+                    initForm();
+                    addRealTimeValidation();
+                    console.log('=== 모든 초기화 완료 ===');
+                } catch (error) {
+                    console.error('초기화 중 오류 발생:', error);
+                    showAlert('페이지 초기화 중 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'danger');
+                }
+            }, 100);
+        });
+
+    </script>
+</th:block>
+
+</body>
+</html>

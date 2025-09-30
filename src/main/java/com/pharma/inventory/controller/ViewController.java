@@ -61,16 +61,12 @@ public class ViewController {
         return "auth/login"; // auth/login.html 템플릿을 직접 반환
     }
 
-    @GetMapping("register")
+    @GetMapping({"register", "auth/register"})
     public String registerPage(Model model) {
         model.addAttribute("user", new UserRegisterRequest());
-        return "register";
+        return "auth/register";
     }
 
-    @GetMapping("auth/register")
-    public String authRegisterPage(Model model) {
-        return "redirect:/register"; // 기존 경로 호환성을 위한 리다이렉트
-    }
 
     // Dashboard (로그인 후 접근)
     @GetMapping("dashboard")
@@ -131,7 +127,7 @@ public class ViewController {
         }
         model.addAttribute("currentPage", "medicines");
         model.addAttribute("medicine", new MedicineCreateRequest());
-        return "medicines/form";
+        return "medicines/new";
     }
 
     @GetMapping("medicines/{id}")

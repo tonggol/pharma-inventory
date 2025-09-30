@@ -60,8 +60,8 @@ public class SecurityConfig {
                     // 공개적으로 접근 가능한 경로
                     "/",
                     "/dashboard",
-                    "/auth/login",
-                    "/auth/register",
+                    "/auth/**",
+                    "/api/auth/**",
                     "/css/**",
                     "/js/**",
                     "/images/**",

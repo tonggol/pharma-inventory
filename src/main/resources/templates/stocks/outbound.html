@@ -1,458 +1,192 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>재고 출고 - 의약품 재고관리 시스템</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        :root {
-            --primary-color: #2c5aa0;
-            --secondary-color: #34d399;
-            --accent-color: #f59e0b;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --info-color: #3b82f6;
-            --success-color: #10b981;
-            --dark-color: #1f2937;
-            --light-color: #f8fafc;
-            --border-color: #e2e8f0;
-            --sidebar-width: 280px;
-            --header-height: 70px;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--light-color);
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-
-        /* 헤더 스타일 */
-        .main-header {
-            background: linear-gradient(135deg, var(--primary-color), #1e40af);
-            color: white;
-            height: var(--header-height);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 100%;
-            padding: 0 1.5rem;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            text-decoration: none;
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .user-info {
-            text-align: right;
-            font-size: 0.9rem;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-
-        /* 사이드바 스타일 */
-        .sidebar {
-            background: white;
-            width: var(--sidebar-width);
-            height: calc(100vh - var(--header-height));
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            z-index: 999;
-            border-right: 1px solid var(--border-color);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-menu {
-            padding: 1rem 0;
-        }
-
-        .menu-item {
-            display: block;
-            padding: 0.75rem 1.5rem;
-            color: var(--dark-color);
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .menu-item:hover {
-            background-color: #f1f5f9;
-            color: var(--primary-color);
-            transform: translateX(2px);
-        }
-
-        .menu-item.active {
-            background-color: rgba(44, 90, 160, 0.1);
-            color: var(--primary-color);
-            border-left-color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .menu-item i {
-            width: 20px;
-            margin-right: 0.75rem;
-            text-align: center;
-        }
-
-        .menu-section {
-            margin: 1rem 0;
-        }
-
-        .menu-section-title {
-            padding: 0.5rem 1.5rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* 메인 컨텐츠 */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            padding: 2rem;
-            min-height: calc(100vh - var(--header-height));
-        }
-
-        /* 폼 스타일 */
-        .form-container {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-        }
-
-        .form-section {
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .form-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .required {
-            color: var(--danger-color);
-        }
-
-        .btn {
-            border-radius: 8px;
-            font-weight: 500;
-            padding: 0.6rem 1.2rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-warning {
-            background: var(--warning-color);
-            border-color: var(--warning-color);
-        }
-
-        .btn-warning:hover {
-            background: #d97706;
-            border-color: #d97706;
-            transform: translateY(-1px);
-        }
-
-        .medicine-search {
-            position: relative;
-        }
-
-        .medicine-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: none;
-        }
-
-        .medicine-item {
-            padding: 1rem;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f5f9;
-            transition: background-color 0.2s ease;
-        }
-
-        .medicine-item:hover {
-            background-color: #f8fafc;
-        }
-
-        .medicine-item:last-child {
-            border-bottom: none;
-        }
-
-        .medicine-name {
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 0.25rem;
-        }
-
-        .medicine-details {
-            font-size: 0.85rem;
-            color: #64748b;
-        }
-
-        /* 재고 정보 카드 */
-        .stock-info-card {
-            background: #f8fafc;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .stock-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .stock-item:hover {
-            border-color: var(--primary-color);
-            background: rgba(44, 90, 160, 0.05);
-        }
-
-        .stock-item.selected {
-            border-color: var(--primary-color);
-            background: rgba(44, 90, 160, 0.1);
-        }
-
-        .stock-details {
-            flex: 1;
-        }
-
-        .stock-quantity {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .expiry-warning {
-            color: var(--warning-color);
-            font-size: 0.85rem;
-        }
-
-        .expiry-danger {
-            color: var(--danger-color);
-            font-size: 0.85rem;
-        }
-
-        /* 반응형 디자인 */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
+    <th:block layout:fragment="css">
+        <style>
+            /* 폼 스타일 */
+            .form-container {
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid var(--border-color);
             }
 
-            .sidebar.show {
-                transform: translateX(0);
+            .form-section {
+                margin-bottom: 2rem;
+                padding-bottom: 1.5rem;
+                border-bottom: 1px solid var(--border-color);
             }
 
-            .main-content {
-                margin-left: 0;
+            .form-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: var(--dark-color);
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .required {
+                color: var(--danger-color);
+            }
+
+            .btn {
+                border-radius: 8px;
+                font-weight: 500;
+                padding: 0.6rem 1.2rem;
+                transition: all 0.2s ease;
+            }
+
+            .btn-primary {
+                background: var(--primary-color);
+                border-color: var(--primary-color);
+            }
+
+            .btn-warning {
+                background: var(--warning-color);
+                border-color: var(--warning-color);
+            }
+
+            .btn-warning:hover {
+                background: #d97706;
+                border-color: #d97706;
+                transform: translateY(-1px);
+            }
+
+            .medicine-search {
+                position: relative;
+            }
+
+            .medicine-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                max-height: 300px;
+                overflow-y: auto;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                display: none;
+            }
+
+            .medicine-item {
                 padding: 1rem;
+                cursor: pointer;
+                border-bottom: 1px solid #f1f5f9;
+                transition: background-color 0.2s ease;
             }
 
-            .header-content {
-                padding: 0 1rem;
+            .medicine-item:hover {
+                background-color: #f8fafc;
             }
-        }
-    </style>
+
+            .medicine-item:last-child {
+                border-bottom: none;
+            }
+
+            .medicine-name {
+                font-weight: 600;
+                color: var(--dark-color);
+                margin-bottom: 0.25rem;
+            }
+
+            .medicine-details {
+                font-size: 0.85rem;
+                color: #64748b;
+            }
+
+            /* 재고 정보 카드 */
+            .stock-info-card {
+                background: #f8fafc;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+
+            .stock-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem;
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                margin-bottom: 0.5rem;
+                background: white;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .stock-item:hover {
+                border-color: var(--primary-color);
+                background: rgba(44, 90, 160, 0.05);
+            }
+
+            .stock-item.selected {
+                border-color: var(--primary-color);
+                background: rgba(44, 90, 160, 0.1);
+            }
+
+            .stock-details {
+                flex: 1;
+            }
+
+            .stock-quantity {
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+
+            .expiry-warning {
+                color: var(--warning-color);
+                font-size: 0.85rem;
+            }
+
+            .expiry-danger {
+                color: var(--danger-color);
+                font-size: 0.85rem;
+            }
+
+            /* 반응형 디자인 */
+            @media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                }
+
+                .sidebar.show {
+                    transform: translateX(0);
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    padding: 1rem;
+                }
+
+                .header-content {
+                    padding: 0 1rem;
+                }
+            }
+        </style>
+    </th:block>
 </head>
 <body>
-<header class="main-header">
-    <div class="header-content">
-        <div class="logo-section">
-            <button class="btn btn-link text-white d-md-none" id="sidebarToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-            <a href="/dashboard" class="logo">
-                <i class="fas fa-pills me-2"></i>
-                PharmaInventory
-            </a>
-        </div>
 
-        <div class="user-section" sec:authorize="isAuthenticated()">
-            <div class="user-info">
-                <div class="fw-semibold" th:text="${#authentication.principal.fullName ?: #authentication.principal.username}">사용자명</div>
-                <small class="opacity-75" th:text="${#authentication.principal.authorities}">역할</small>
-            </div>
-            <div class="dropdown">
-                <div class="user-avatar dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                    <span th:text="${#strings.substring(#authentication.principal.fullName ?: #authentication.principal.username, 0, 1)?.toUpperCase()}">U</span>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="/users/profile"><i class="fas fa-user me-2"></i>프로필</a></li>
-                    <li><a class="dropdown-item" href="/auth/change-password"><i class="fas fa-key me-2"></i>비밀번호 변경</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="user-section" sec:authorize="!isAuthenticated()">
-            <a href="/auth/login" class="btn btn-outline-light btn-sm">로그인</a>
-        </div>
-    </div>
-</header>
-
-<nav class="sidebar" id="sidebar" sec:authorize="isAuthenticated()">
-    <div class="sidebar-menu">
-        <div class="menu-section">
-            <a href="/dashboard" class="menu-item" th:classappend="${currentPage == 'dashboard' ? 'active' : ''}">
-                <i class="fas fa-chart-pie"></i>
-                대시보드
-            </a>
-        </div>
-
-        <div class="menu-section">
-            <div class="menu-section-title">재고 관리</div>
-            <a href="/medicines" class="menu-item" th:classappend="${currentPage == 'medicines' ? 'active' : ''}">
-                <i class="fas fa-pills"></i>
-                의약품 관리
-            </a>
-            <a href="/stocks" class="menu-item" th:classappend="${currentPage == 'stocks' ? 'active' : ''}">
-                <i class="fas fa-boxes"></i>
-                재고 현황
-            </a>
-            <a href="/transactions" class="menu-item" th:classappend="${currentPage == 'transactions' ? 'active' : ''}">
-                <i class="fas fa-exchange-alt"></i>
-                입출고 관리
-            </a>
-        </div>
-
-        <div class="menu-section">
-            <div class="menu-section-title">빠른 작업</div>
-            <a href="/stocks/inbound" class="menu-item">
-                <i class="fas fa-plus-circle text-success"></i>
-                재고 입고
-            </a>
-            <a href="/stocks/outbound" class="menu-item active">
-                <i class="fas fa-minus-circle text-warning"></i>
-                재고 출고
-            </a>
-            <a href="/stocks/audit" class="menu-item">
-                <i class="fas fa-clipboard-check text-info"></i>
-                재고 실사
-            </a>
-        </div>
-
-        <div class="menu-section">
-            <div class="menu-section-title">보고서</div>
-            <a href="/reports/stock" class="menu-item">
-                <i class="fas fa-chart-bar"></i>
-                재고 보고서
-            </a>
-            <a href="/reports/expiry" class="menu-item">
-                <i class="fas fa-calendar-times"></i>
-                유효기간 보고서
-            </a>
-        </div>
-
-        <div class="menu-section" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
-            <div class="menu-section-title">시스템 관리</div>
-            <a href="/users" class="menu-item" th:classappend="${currentPage == 'users' ? 'active' : ''}">
-                <i class="fas fa-users"></i>
-                사용자 관리
-            </a>
-            <a href="/system/settings" class="menu-item">
-                <i class="fas fa-cog"></i>
-                시스템 설정
-            </a>
-        </div>
-
-        <div class="menu-section" sec:authorize="hasRole('ADMIN')">
-            <div class="menu-section-title">시스템 도구</div>
-            <a href="/system/backup" class="menu-item">
-                <i class="fas fa-database"></i>
-                백업 관리
-            </a>
-            <a href="/system/monitor" class="menu-item">
-                <i class="fas fa-chart-line"></i>
-                시스템 모니터
-            </a>
-            <a href="/system/logs" class="menu-item">
-                <i class="fas fa-file-alt"></i>
-                시스템 로그
-            </a>
-        </div>
-    </div>
-</nav>
-
-<main class="main-content">
+<div layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-1" th:text="${pageTitle ?: '재고 출고'}">재고 출고</h1>
@@ -463,18 +197,6 @@
                 <i class="fas fa-list me-2"></i>출고 내역
             </a>
         </div>
-    </div>
-
-    <div th:if="${message}" class="alert alert-info alert-dismissible fade show" role="alert">
-        <i class="fas fa-info-circle me-2"></i>
-        <span th:text="${message}">메시지</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        <span th:text="${error}">에러 메시지</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
     <div class="form-container">
@@ -630,278 +352,260 @@
             </div>
         </form>
     </div>
-</main>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<th:block layout:fragment="javascript">
+    <script>
+        console.log('=== 재고 출고 페이지 스크립트 시작 ===');
 
-<script>
-    console.log('=== 재고 출고 페이지 스크립트 시작 ===');
+        // 현재 시간을 기본값으로 설정
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('transactionDate').value = now.toISOString().slice(0, 16);
 
-    // 현재 시간을 기본값으로 설정
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('transactionDate').value = now.toISOString().slice(0, 16);
-
-    // 의약품 데이터 로드 (inbound.html과 동일한 로직)
-    async function loadMedicines() {
-        try {
-            let response = await fetch('/api/medicines/all');
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success && result.data && Array.isArray(result.data)) {
-                    return result.data;
-                }
-            }
-            console.warn('전체 목록 API 실패, 페이징 API로 대체 시도');
-            response = await fetch('/api/medicines?size=1000');
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success && result.data && result.data.content) {
-                    return result.data.content;
-                }
-                if (result.content && Array.isArray(result.content)) {
-                    return result.content;
-                }
-            }
-        } catch (error) {
-            console.error('의약품 목록 로드 중 오류:', error);
-        }
-        return [];
-    }
-
-    // 재고 정보 로드 (medicineId에 해당하는 재고 목록을 API에서 가져옴)
-    async function loadStockInfo(medicineId) {
-        try {
-            const response = await fetch(`/api/medicines/${medicineId}/stocks?includeExpired=false`);
-            const result = await response.json();
-            if (response.ok && result.success) {
-                return result.data;
-            } else {
-                console.error("재고 정보 로드 실패:", result.message);
-                return [];
-            }
-        } catch (error) {
-            console.error("재고 정보 API 호출 중 오류:", error);
-            return [];
-        }
-    }
-
-    // 의약품 드롭다운 초기화
-    async function initMedicineDropdown() {
-        const medicineSelect = document.getElementById('medicineSelect');
-        const medicineDropdown = document.getElementById('medicineDropdown');
-        const searchInput = document.getElementById('searchInput');
-        const medicineOptions = document.getElementById('medicineOptions');
-        const medicineIdInput = document.getElementById('medicineId');
-        const totalStockInput = document.getElementById('totalStock');
-        const stockInfoCard = document.getElementById('stockInfo');
-        const stockListContainer = document.getElementById('stockList');
-
-        const medicines = await loadMedicines();
-
-        function showMedicines(medicinesToShow) {
-            medicineOptions.innerHTML = '';
-            if (medicinesToShow.length === 0) {
-                const noResultItem = document.createElement('div');
-                noResultItem.className = 'medicine-item text-muted';
-                noResultItem.innerHTML = '<div class="medicine-name">검색 결과가 없습니다</div>';
-                medicineOptions.appendChild(noResultItem);
-                return;
-            }
-
-            medicinesToShow.forEach(med => {
-                const item = document.createElement('div');
-                item.className = 'medicine-item';
-                const name = med.name || med.medicineName || 'Unknown Medicine';
-                const code = med.code || med.medicineCode || med.id || 'N/A';
-                const manufacturer = med.manufacturer || '제조사 미상';
-
-                item.innerHTML = `<div class="medicine-name">${name}</div><div class="medicine-details">${code} | ${manufacturer}</div>`;
-
-                item.addEventListener('click', async function() {
-                    medicineSelect.textContent = `${name} (${code})`;
-                    medicineIdInput.value = med.id;
-                    medicineDropdown.style.display = 'none';
-                    searchInput.value = '';
-
-                    const stocks = await loadStockInfo(med.id);
-                    const totalQuantity = stocks.reduce((sum, stock) => sum + stock.quantity, 0);
-                    totalStockInput.value = `${totalQuantity}개`;
-                    displayStockList(stocks);
-                    stockInfoCard.style.display = 'block';
-                });
-                medicineOptions.appendChild(item);
-            });
-        }
-        showMedicines(medicines);
-        medicineSelect.addEventListener('click', function(e) {
-            e.preventDefault();
-            const isVisible = medicineDropdown.style.display === 'block';
-            medicineDropdown.style.display = isVisible ? 'none' : 'block';
-            if (!isVisible) setTimeout(() => searchInput.focus(), 100);
-        });
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            const filtered = medicines.filter(med => {
-                const name = (med.name || med.medicineName || '').toLowerCase();
-                const code = (med.code || med.medicineCode || '').toLowerCase();
-                const manufacturer = (med.manufacturer || '').toLowerCase();
-                return name.includes(query) || code.includes(query) || manufacturer.includes(query);
-            });
-            showMedicines(filtered);
-        });
-        searchInput.addEventListener('click', e => e.stopPropagation());
-        document.addEventListener('click', e => {
-            if (!e.target.closest('.medicine-search')) {
-                medicineDropdown.style.display = 'none';
-                searchInput.value = '';
-                showMedicines(medicines);
-            }
-        });
-
-        function displayStockList(stocks) {
-            // FEFO (First-Expired, First-Out) 원칙에 따라 만료일 순으로 정렬
-            stocks.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
-            stockListContainer.innerHTML = '';
-            if (stocks.length === 0) {
-                stockListContainer.innerHTML = '<div class="text-muted text-center p-3">사용 가능한 재고가 없습니다.</div>';
-                return;
-            }
-            stocks.forEach(stock => {
-                const item = document.createElement('div');
-                item.className = 'stock-item';
-                let expiryClass = '';
-                let expiryText = '';
-                if (stock.daysUntilExpiry <= 0) {
-                    expiryClass = 'expiry-danger';
-                    expiryText = '만료됨';
-                } else if (stock.daysUntilExpiry <= 30) {
-                    expiryClass = 'expiry-warning';
-                    expiryText = `${stock.daysUntilExpiry}일 남음`;
-                } else {
-                    expiryText = `${stock.daysUntilExpiry}일 남음`;
-                }
-                item.innerHTML = `
-                    <div class="stock-details">
-                        <div class="fw-semibold">로트번호: ${stock.lotNumber}</div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">위치: ${stock.location || '정보 없음'}</span>
-                            <span class="text-muted">만료일: ${stock.expiryDate}</span>
-                        </div>
-                        <div class="${expiryClass}">${expiryText}</div>
-                    </div>
-                    <div class="stock-quantity">${stock.quantity}개</div>
-                `;
-                stockListContainer.appendChild(item);
-            });
-        }
-    }
-
-    // 폼 제출 처리
-    function initForm() {
-        const form = document.getElementById('outboundForm');
-        if (!form) return;
-
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const medicineIdInput = document.getElementById('medicineId');
-            const quantityInput = document.getElementById('quantity');
-            const totalStockInput = document.getElementById('totalStock');
-
-            if (!medicineIdInput.value) {
-                alert('의약품을 선택해주세요.');
-                return;
-            }
-            if (!quantityInput.value || quantityInput.value <= 0) {
-                alert('출고 수량을 입력해주세요.');
-                return;
-            }
-
-            const totalStock = parseInt(totalStockInput.value.replace(/[^0-9]/g, ''));
-            if (parseInt(quantityInput.value) > totalStock) {
-                if (!confirm(`재고가 부족합니다. 현재 가용 재고: ${totalStock}개.\n그래도 출고를 진행하시겠습니까?`)) {
-                    return;
-                }
-            }
-            if (!confirm(`${quantityInput.value}개를 출고하시겠습니까?`)) {
-                return;
-            }
-
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-
-            // StockTransactionRequest DTO에 맞게 데이터 구성
-            const requestData = {
-                medicineId: parseInt(data.medicineId),
-                quantity: parseInt(data.quantity),
-                transactionType: 'OUTBOUND',
-                transactionDate: data.transactionDate || new Date().toISOString().slice(0, 16),
-                reason: data.reason || null,
-                referenceNumber: data.referenceNumber || null,
-                department: data.department || null,
-                requesterName: data.requesterName || null,
-                approverName: data.approverName || null,
-                remarks: data.remarks || null
-            };
-
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>처리 중...';
-
+        // 의약품 데이터 로드 (inbound.html과 동일한 로직)
+        async function loadMedicines() {
             try {
-                const response = await fetch('/api/transactions/outbound', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestData)
-                });
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    alert(result.message || '출고 처리가 성공적으로 완료되었습니다!');
-                    form.reset();
-                    document.getElementById('medicineSelect').textContent = '등록된 의약품을 선택하세요...';
-                    document.getElementById('medicineId').value = '';
-                    document.getElementById('totalStock').value = '';
-                    document.getElementById('stockInfo').style.display = 'none';
-                    if (confirm('출고가 완료되었습니다. 입출고 내역을 확인하시겠습니까?')) {
-                        window.location.href = '/transactions';
+                let response = await fetch('/api/medicines/all');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data && Array.isArray(result.data)) {
+                        return result.data;
                     }
-                } else {
-                    const errorMessage = result.message || '출고 처리 중 오류가 발생했습니다.';
-                    alert('출고 실패: ' + errorMessage);
+                }
+                console.warn('전체 목록 API 실패, 페이징 API로 대체 시도');
+                response = await fetch('/api/medicines?size=1000');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data && result.data.content) {
+                        return result.data.content;
+                    }
+                    if (result.content && Array.isArray(result.content)) {
+                        return result.content;
+                    }
                 }
             } catch (error) {
-                console.error('네트워크 오류:', error);
-                alert('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                console.error('의약품 목록 로드 중 오류:', error);
             }
-        });
-    }
+            return [];
+        }
 
-    // 사이드바 토글
-    function initSidebar() {
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.getElementById('sidebar');
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
+        // 재고 정보 로드 (medicineId에 해당하는 재고 목록을 API에서 가져옴)
+        async function loadStockInfo(medicineId) {
+            try {
+                const response = await fetch(`/api/medicines/${medicineId}/stocks?includeExpired=false`);
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    return result.data;
+                } else {
+                    console.error("재고 정보 로드 실패:", result.message);
+                    return [];
+                }
+            } catch (error) {
+                console.error("재고 정보 API 호출 중 오류:", error);
+                return [];
+            }
+        }
+
+        // 의약품 드롭다운 초기화
+        async function initMedicineDropdown() {
+            const medicineSelect = document.getElementById('medicineSelect');
+            const medicineDropdown = document.getElementById('medicineDropdown');
+            const searchInput = document.getElementById('searchInput');
+            const medicineOptions = document.getElementById('medicineOptions');
+            const medicineIdInput = document.getElementById('medicineId');
+            const totalStockInput = document.getElementById('totalStock');
+            const stockInfoCard = document.getElementById('stockInfo');
+            const stockListContainer = document.getElementById('stockList');
+
+            const medicines = await loadMedicines();
+
+            function showMedicines(medicinesToShow) {
+                medicineOptions.innerHTML = '';
+                if (medicinesToShow.length === 0) {
+                    const noResultItem = document.createElement('div');
+                    noResultItem.className = 'medicine-item text-muted';
+                    noResultItem.innerHTML = '<div class="medicine-name">검색 결과가 없습니다</div>';
+                    medicineOptions.appendChild(noResultItem);
+                    return;
+                }
+
+                medicinesToShow.forEach(med => {
+                    const item = document.createElement('div');
+                    item.className = 'medicine-item';
+                    const name = med.name || med.medicineName || 'Unknown Medicine';
+                    const code = med.code || med.medicineCode || med.id || 'N/A';
+                    const manufacturer = med.manufacturer || '제조사 미상';
+
+                    item.innerHTML = `<div class="medicine-name">${name}</div><div class="medicine-details">${code} | ${manufacturer}</div>`;
+
+                    item.addEventListener('click', async function() {
+                        medicineSelect.textContent = `${name} (${code})`;
+                        medicineIdInput.value = med.id;
+                        medicineDropdown.style.display = 'none';
+                        searchInput.value = '';
+
+                        const stocks = await loadStockInfo(med.id);
+                        const totalQuantity = stocks.reduce((sum, stock) => sum + stock.quantity, 0);
+                        totalStockInput.value = `${totalQuantity}개`;
+                        displayStockList(stocks);
+                        stockInfoCard.style.display = 'block';
+                    });
+                    medicineOptions.appendChild(item);
+                });
+            }
+            showMedicines(medicines);
+            medicineSelect.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isVisible = medicineDropdown.style.display === 'block';
+                medicineDropdown.style.display = isVisible ? 'none' : 'block';
+                if (!isVisible) setTimeout(() => searchInput.focus(), 100);
+            });
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const filtered = medicines.filter(med => {
+                    const name = (med.name || med.medicineName || '').toLowerCase();
+                    const code = (med.code || med.medicineCode || '').toLowerCase();
+                    const manufacturer = (med.manufacturer || '').toLowerCase();
+                    return name.includes(query) || code.includes(query) || manufacturer.includes(query);
+                });
+                showMedicines(filtered);
+            });
+            searchInput.addEventListener('click', e => e.stopPropagation());
+            document.addEventListener('click', e => {
+                if (!e.target.closest('.medicine-search')) {
+                    medicineDropdown.style.display = 'none';
+                    searchInput.value = '';
+                    showMedicines(medicines);
+                }
+            });
+
+            function displayStockList(stocks) {
+                // FEFO (First-Expired, First-Out) 원칙에 따라 만료일 순으로 정렬
+                stocks.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+                stockListContainer.innerHTML = '';
+                if (stocks.length === 0) {
+                    stockListContainer.innerHTML = '<div class="text-muted text-center p-3">사용 가능한 재고가 없습니다.</div>';
+                    return;
+                }
+                stocks.forEach(stock => {
+                    const item = document.createElement('div');
+                    item.className = 'stock-item';
+                    let expiryClass = '';
+                    let expiryText = '';
+                    if (stock.daysUntilExpiry <= 0) {
+                        expiryClass = 'expiry-danger';
+                        expiryText = '만료됨';
+                    } else if (stock.daysUntilExpiry <= 30) {
+                        expiryClass = 'expiry-warning';
+                        expiryText = `${stock.daysUntilExpiry}일 남음`;
+                    } else {
+                        expiryText = `${stock.daysUntilExpiry}일 남음`;
+                    }
+                    item.innerHTML = `
+                        <div class="stock-details">
+                            <div class="fw-semibold">로트번호: ${stock.lotNumber}</div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">위치: ${stock.location || '정보 없음'}</span>
+                                <span class="text-muted">만료일: ${stock.expiryDate}</span>
+                            </div>
+                            <div class="${expiryClass}">${expiryText}</div>
+                        </div>
+                        <div class="stock-quantity">${stock.quantity}개</div>
+                    `;
+                    stockListContainer.appendChild(item);
+                });
+            }
+        }
+
+        // 폼 제출 처리
+        function initForm() {
+            const form = document.getElementById('outboundForm');
+            if (!form) return;
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const medicineIdInput = document.getElementById('medicineId');
+                const quantityInput = document.getElementById('quantity');
+                const totalStockInput = document.getElementById('totalStock');
+
+                if (!medicineIdInput.value) {
+                    showAlert('의약품을 선택해주세요.', 'danger');
+                    return;
+                }
+                if (!quantityInput.value || quantityInput.value <= 0) {
+                    showAlert('출고 수량을 입력해주세요.', 'danger');
+                    return;
+                }
+
+                const totalStock = parseInt(totalStockInput.value.replace(/[^0-9]/g, ''));
+                if (parseInt(quantityInput.value) > totalStock) {
+                    if (!confirm(`재고가 부족합니다. 현재 가용 재고: ${totalStock}개.\n그래도 출고를 진행하시겠습니까?`)) {
+                        return;
+                    }
+                }
+                if (!confirm(`${quantityInput.value}개를 출고하시겠습니까?`)) {
+                    return;
+                }
+
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                // StockTransactionRequest DTO에 맞게 데이터 구성
+                const requestData = {
+                    medicineId: parseInt(data.medicineId),
+                    quantity: parseInt(data.quantity),
+                    transactionType: 'OUTBOUND',
+                    transactionDate: data.transactionDate || new Date().toISOString().slice(0, 16),
+                    reason: data.reason || null,
+                    referenceNumber: data.referenceNumber || null,
+                    department: data.department || null,
+                    requesterName: data.requesterName || null,
+                    approverName: data.approverName || null,
+                    remarks: data.remarks || null
+                };
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>처리 중...';
+
+                try {
+                    const response = await ApiClient.post('/api/transactions/outbound', requestData);
+
+                    if (response.success) {
+                        showAlert(response.message || '출고 처리가 성공적으로 완료되었습니다!', 'success');
+                        form.reset();
+                        document.getElementById('medicineSelect').textContent = '등록된 의약품을 선택하세요...';
+                        document.getElementById('medicineId').value = '';
+                        document.getElementById('totalStock').value = '';
+                        document.getElementById('stockInfo').style.display = 'none';
+                        if (confirm('출고가 완료되었습니다. 입출고 내역을 확인하시겠습니까?')) {
+                            window.location.href = '/transactions';
+                        }
+                    } else {
+                        const errorMessage = response.message || '출고 처리 중 오류가 발생했습니다.';
+                        showAlert('출고 실패: ' + errorMessage, 'danger');
+                    }
+                } catch (error) {
+                    console.error('네트워크 오류:', error);
+                    showAlert('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.', 'danger');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             });
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-            initMedicineDropdown();
-            initForm();
-            initSidebar();
-        }, 100);
-    });
-</script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                initMedicineDropdown();
+                initForm();
+            }, 100);
+        });
+    </script>
+</th:block>
+
 </body>
 </html>
