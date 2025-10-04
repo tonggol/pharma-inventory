@@ -1,19 +1,19 @@
 package com.pharma.inventory.entity;
 
 /**
- * 재고 거래 사유
+ * 在庫取引事由
  */
 public enum TransactionReason {
-    PURCHASE("구매"),
-    SALES("판매"),
-    PRESCRIPTION("처방"),
-    INVENTORY_CHECK("재고실사"),
-    EXPIRED("유효기간만료"),
-    DAMAGED("파손"),
-    LOST("분실"),
-    SAMPLE("샘플"),
-    DONATION("기부"),
-    OTHER("기타");
+    PURCHASE("購入"),
+    SALES("販売"),
+    PRESCRIPTION("処方"),
+    INVENTORY_CHECK("棚卸"),
+    EXPIRED("使用期限切れ"),
+    DAMAGED("破損"),
+    LOST("紛失"),
+    SAMPLE("サンプル"),
+    DONATION("寄付"),
+    OTHER("その他");
     
     private final String description;
     

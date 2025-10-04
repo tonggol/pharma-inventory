@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>시스템 설정 - 의약품 재고관리 시스템</title>
+    <title>システム設定 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 설정 페이지 특화 스타일 */
+        /* 設定ページ特化スタイル */
         .settings-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -53,7 +53,7 @@
             margin: 0;
         }
 
-        /* 설정 네비게이션 */
+        /* 設定ナビゲーション */
         .settings-nav {
             background: white;
             border-radius: 16px;
@@ -100,7 +100,7 @@
             box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
         }
 
-        /* 설정 콘텐츠 */
+        /* 設定コンテンツ */
         .settings-content {
             background: white;
             border-radius: 16px;
@@ -153,7 +153,7 @@
             font-size: 0.95rem;
         }
 
-        /* 설정 항목 */
+        /* 設定項目 */
         .setting-item {
             display: flex;
             justify-content: space-between;
@@ -192,7 +192,7 @@
             gap: 1rem;
         }
 
-        /* 토글 스위치 */
+        /* トグルスイッチ */
         .toggle-switch {
             position: relative;
             width: 60px;
@@ -224,7 +224,7 @@
             transform: translateX(28px);
         }
 
-        /* 입력 필드 그룹 */
+        /* 入力フィールドグループ */
         .input-group {
             display: flex;
             align-items: center;
@@ -239,7 +239,7 @@
             white-space: nowrap;
         }
 
-        /* 선택 그룹 */
+        /* 選択グループ */
         .selection-group {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -284,7 +284,7 @@
             color: #64748b;
         }
 
-        /* 테이블 설정 */
+        /* テーブル設定 */
         .table-settings {
             border: 1px solid var(--border-color);
             border-radius: 12px;
@@ -315,7 +315,7 @@
             background: #f8fafc;
         }
 
-        /* 알림 설정 */
+        /* 通知設定 */
         .notification-item {
             display: flex;
             align-items: center;
@@ -357,7 +357,7 @@
             font-size: 0.9rem;
         }
 
-        /* 백업 설정 */
+        /* バックアップ設定 */
         .backup-status {
             background: #f8fafc;
             border: 1px solid var(--border-color);
@@ -388,7 +388,7 @@
             color: var(--dark-color);
         }
 
-        /* 로그 뷰어 */
+        /* ログビューア */
         .log-viewer {
             background: #1f2937;
             color: #f9fafb;
@@ -420,7 +420,7 @@
         .log-level.error { color: #ef4444; }
         .log-level.success { color: #34d399; }
 
-        /* 액션 버튼 */
+        /* アクションボタン */
         .action-buttons {
             background: #f8fafc;
             padding: 2rem;
@@ -430,7 +430,7 @@
             justify-content: flex-end;
         }
 
-        /* 상태 인디케이터 */
+        /* ステータスインジケーター */
         .status-indicator {
             display: inline-flex;
             align-items: center;
@@ -466,7 +466,7 @@
         .status-dot.offline { background: #6b7280; }
         .status-dot.error { background: #ef4444; }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 768px) {
             .nav-tabs {
                 flex-direction: column;
@@ -503,7 +503,7 @@
             }
         }
 
-        /* 애니메이션 */
+        /* アニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -532,101 +532,101 @@
 
 <div layout:fragment="content">
     <div class="settings-container">
-        <!-- 설정 헤더 -->
+        <!-- 設定ヘッダー -->
         <div class="settings-header fade-in">
             <div class="settings-title-icon">
                 <i class="fas fa-cog"></i>
             </div>
             <div style="flex: 1;">
-                <h1 class="settings-title">시스템 설정</h1>
-                <p class="settings-subtitle">의약품 재고관리 시스템의 전반적인 설정을 관리할 수 있습니다.</p>
+                <h1 class="settings-title">システム設定</h1>
+                <p class="settings-subtitle">医薬品在庫管理システムの全体的な設定を管理できます。</p>
             </div>
         </div>
 
-        <!-- 설정 네비게이션 -->
+        <!-- 設定ナビゲーション -->
         <div class="settings-nav slide-up">
             <div class="nav-tabs">
                 <button class="nav-tab active" onclick="showTab('general')">
                     <i class="fas fa-sliders-h"></i>
-                    일반 설정
+                    一般設定
                 </button>
                 <button class="nav-tab" onclick="showTab('notifications')">
                     <i class="fas fa-bell"></i>
-                    알림 설정
+                    通知設定
                 </button>
                 <button class="nav-tab" onclick="showTab('security')">
                     <i class="fas fa-shield-alt"></i>
-                    보안 설정
+                    セキュリティ設定
                 </button>
                 <button class="nav-tab" onclick="showTab('backup')">
                     <i class="fas fa-database"></i>
-                    백업/복원
+                    バックアップ/復元
                 </button>
                 <button class="nav-tab" onclick="showTab('system')">
                     <i class="fas fa-server"></i>
-                    시스템 상태
+                    システム状態
                 </button>
             </div>
         </div>
 
-        <!-- 설정 콘텐츠 -->
+        <!-- 設定コンテンツ -->
         <div class="settings-content slide-up">
-            <!-- 일반 설정 -->
+            <!-- 一般設定 -->
             <div id="general" class="tab-pane active">
                 <div class="settings-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-globe"></i>
                         </div>
-                        기본 설정
+                        基本設定
                     </h3>
-                    <p class="section-description">시스템의 기본 동작 방식을 설정합니다.</p>
+                    <p class="section-description">システムの基本的な動作方法を設定します。</p>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">시스템 언어</div>
-                            <div class="setting-description">사용자 인터페이스 언어를 선택하세요.</div>
+                            <div class="setting-label">システム言語</div>
+                            <div class="setting-description">ユーザーインターフェースの言語を選択してください。</div>
                         </div>
                         <div class="setting-control">
                             <select class="form-select" id="systemLanguage">
-                                <option value="ko" selected>한국어</option>
+                                <option value="ko">韓国語</option>
                                 <option value="en">English</option>
-                                <option value="ja">日本語</option>
+                                <option value="ja" selected>日本語</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">시간대</div>
-                            <div class="setting-description">시스템에서 사용할 시간대를 설정하세요.</div>
+                            <div class="setting-label">タイムゾーン</div>
+                            <div class="setting-description">システムで使用するタイムゾーンを設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <select class="form-select" id="timezone">
-                                <option value="Asia/Seoul" selected>서울 (GMT+9)</option>
+                                <option value="Asia/Tokyo" selected>東京 (GMT+9)</option>
                                 <option value="UTC">UTC (GMT+0)</option>
-                                <option value="America/New_York">뉴욕 (GMT-5)</option>
+                                <option value="America/New_York">ニューヨーク (GMT-5)</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">기본 페이지 크기</div>
-                            <div class="setting-description">목록에서 한 페이지에 표시할 항목 수를 설정하세요.</div>
+                            <div class="setting-label">デフォルトのページサイズ</div>
+                            <div class="setting-description">リストで1ページに表示する項目数を設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
                                 <input type="number" class="form-control" id="pageSize" value="20" min="10" max="100">
-                                <span class="input-group-text">개</span>
+                                <span class="input-group-text">件</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">자동 로그아웃</div>
-                            <div class="setting-description">지정된 시간 동안 비활성 상태일 때 자동으로 로그아웃합니다.</div>
+                            <div class="setting-label">自動ログアウト</div>
+                            <div class="setting-description">指定された時間、非アクティブ状態の場合に自動的にログアウトします。</div>
                         </div>
                         <div class="setting-control">
                             <div class="toggle-switch" id="autoLogout" onclick="toggleSwitch(this)"></div>
@@ -639,14 +639,14 @@
                         <div class="section-icon">
                             <i class="fas fa-pills"></i>
                         </div>
-                        재고 관리 설정
+                        在庫管理設定
                     </h3>
-                    <p class="section-description">의약품 재고 관리와 관련된 설정을 조정합니다.</p>
+                    <p class="section-description">医薬品の在庫管理に関連する設定を調整します。</p>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">최소 재고 알림 기준</div>
-                            <div class="setting-description">재고가 이 비율 이하로 떨어지면 알림을 표시합니다.</div>
+                            <div class="setting-label">最小在庫通知基準</div>
+                            <div class="setting-description">在庫がこの割合以下になると通知を表示します。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
@@ -658,21 +658,21 @@
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">유효기간 임박 알림</div>
-                            <div class="setting-description">유효기간이 임박한 의약품에 대한 알림 기간을 설정하세요.</div>
+                            <div class="setting-label">有効期限間近の通知</div>
+                            <div class="setting-description">有効期限が間近な医薬品の通知期間を設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
                                 <input type="number" class="form-control" id="expiryWarningDays" value="30" min="7" max="90">
-                                <span class="input-group-text">일 전</span>
+                                <span class="input-group-text">日前</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">자동 재고 조정</div>
-                            <div class="setting-description">시스템이 자동으로 재고를 조정하도록 허용합니다.</div>
+                            <div class="setting-label">自動在庫調整</div>
+                            <div class="setting-description">システムが自動的に在庫を調整することを許可します。</div>
                         </div>
                         <div class="setting-control">
                             <div class="toggle-switch" id="autoStockAdjustment" onclick="toggleSwitch(this)"></div>
@@ -685,14 +685,14 @@
                         <div class="section-icon">
                             <i class="fas fa-palette"></i>
                         </div>
-                        인터페이스 설정
+                        インターフェース設定
                     </h3>
-                    <p class="section-description">사용자 인터페이스의 모양과 느낌을 사용자 정의합니다.</p>
+                    <p class="section-description">ユーザーインターフェースの外観をカスタマイズします。</p>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">테마 선택</div>
-                            <div class="setting-description">선호하는 테마를 선택하세요.</div>
+                            <div class="setting-label">テーマ選択</div>
+                            <div class="setting-description">お好みのテーマを選択してください。</div>
                         </div>
                     </div>
                     <div class="selection-group">
@@ -700,45 +700,45 @@
                             <div class="selection-icon">
                                 <i class="fas fa-sun"></i>
                             </div>
-                            <div class="selection-label">라이트 모드</div>
-                            <div class="selection-description">밝은 배경의 기본 테마</div>
+                            <div class="selection-label">ライトモード</div>
+                            <div class="selection-description">明るい背景の基本テーマ</div>
                         </div>
                         <div class="selection-item" data-theme="dark">
                             <div class="selection-icon">
                                 <i class="fas fa-moon"></i>
                             </div>
-                            <div class="selection-label">다크 모드</div>
-                            <div class="selection-description">어두운 배경의 테마</div>
+                            <div class="selection-label">ダークモード</div>
+                            <div class="selection-description">暗い背景のテーマ</div>
                         </div>
                         <div class="selection-item" data-theme="auto">
                             <div class="selection-icon">
                                 <i class="fas fa-adjust"></i>
                             </div>
-                            <div class="selection-label">자동 전환</div>
-                            <div class="selection-description">시스템 설정에 따라 자동 전환</div>
+                            <div class="selection-label">自動切り替え</div>
+                            <div class="selection-description">システム設定に応じて自動切り替え</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 알림 설정 -->
+            <!-- 通知設定 -->
             <div id="notifications" class="tab-pane">
                 <div class="settings-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-bell"></i>
                         </div>
-                        알림 유형
+                        通知タイプ
                     </h3>
-                    <p class="section-description">받고 싶은 알림 유형을 선택하세요.</p>
+                    <p class="section-description">受信したい通知タイプを選択してください。</p>
 
                     <div class="notification-item">
                         <div class="notification-icon warning">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="notification-info">
-                            <div class="notification-title">재고 부족 알림</div>
-                            <div class="notification-desc">의약품 재고가 최소 기준 이하로 떨어질 때</div>
+                            <div class="notification-title">在庫不足通知</div>
+                            <div class="notification-desc">医薬品の在庫が最小基準以下になった場合</div>
                         </div>
                         <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
                     </div>
@@ -748,8 +748,8 @@
                             <i class="fas fa-calendar-times"></i>
                         </div>
                         <div class="notification-info">
-                            <div class="notification-title">유효기간 만료 알림</div>
-                            <div class="notification-desc">의약품 유효기간이 임박했을 때</div>
+                            <div class="notification-title">有効期限切れ通知</div>
+                            <div class="notification-desc">医薬品の有効期限が間近になった場合</div>
                         </div>
                         <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
                     </div>
@@ -759,8 +759,8 @@
                             <i class="fas fa-truck"></i>
                         </div>
                         <div class="notification-info">
-                            <div class="notification-title">입고/출고 알림</div>
-                            <div class="notification-desc">새로운 입고나 출고 거래가 발생했을 때</div>
+                            <div class="notification-title">入出庫通知</div>
+                            <div class="notification-desc">新規の入出庫取引が発生した場合</div>
                         </div>
                         <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
                     </div>
@@ -770,8 +770,8 @@
                             <i class="fas fa-user-plus"></i>
                         </div>
                         <div class="notification-info">
-                            <div class="notification-title">사용자 활동 알림</div>
-                            <div class="notification-desc">새로운 사용자 가입이나 중요한 활동이 있을 때</div>
+                            <div class="notification-title">ユーザー活動通知</div>
+                            <div class="notification-desc">新規ユーザー登録や重要な活動があった場合</div>
                         </div>
                         <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
                     </div>
@@ -782,14 +782,14 @@
                         <div class="section-icon">
                             <i class="fas fa-envelope"></i>
                         </div>
-                        이메일 알림 설정
+                        メール通知設定
                     </h3>
-                    <p class="section-description">이메일로 받을 알림을 설정합니다.</p>
+                    <p class="section-description">メールで受信する通知を設定します。</p>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">이메일 알림 활성화</div>
-                            <div class="setting-description">중요한 알림을 이메일로 받습니다.</div>
+                            <div class="setting-label">メール通知を有効にする</div>
+                            <div class="setting-description">重要な通知をメールで受信します。</div>
                         </div>
                         <div class="setting-control">
                             <div class="toggle-switch active" id="emailNotifications" onclick="toggleSwitch(this)"></div>
@@ -798,62 +798,62 @@
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">알림 수신 이메일</div>
-                            <div class="setting-description">알림을 받을 이메일 주소를 입력하세요.</div>
+                            <div class="setting-label">通知受信メール</div>
+                            <div class="setting-description">通知を受信するメールアドレスを入力してください。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
                                 <input type="email" class="form-control" id="notificationEmail" value="admin@hospital.com">
-                                <button class="btn btn-outline-secondary" onclick="testEmail()">테스트</button>
+                                <button class="btn btn-outline-secondary" onclick="testEmail()">テスト</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">알림 빈도</div>
-                            <div class="setting-description">이메일 알림을 받을 빈도를 설정하세요.</div>
+                            <div class="setting-label">通知頻度</div>
+                            <div class="setting-description">メール通知を受信する頻度を設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <select class="form-select" id="notificationFrequency">
-                                <option value="immediate">즉시</option>
-                                <option value="hourly">시간별</option>
-                                <option value="daily" selected>일별</option>
-                                <option value="weekly">주별</option>
+                                <option value="immediate">即時</option>
+                                <option value="hourly">1時間ごと</option>
+                                <option value="daily" selected>毎日</option>
+                                <option value="weekly">毎週</option>
                             </select>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 보안 설정 -->
+            <!-- セキュリティ設定 -->
             <div id="security" class="tab-pane">
                 <div class="settings-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-key"></i>
                         </div>
-                        패스워드 정책
+                        パスワードポリシー
                     </h3>
-                    <p class="section-description">사용자 패스워드에 대한 보안 정책을 설정합니다.</p>
+                    <p class="section-description">ユーザーパスワードのセキュリティポリシーを設定します。</p>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">최소 패스워드 길이</div>
-                            <div class="setting-description">패스워드의 최소 문자 수를 설정하세요.</div>
+                            <div class="setting-label">最小パスワード長</div>
+                            <div class="setting-description">パスワードの最小文字数を設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
                                 <input type="number" class="form-control" id="minPasswordLength" value="8" min="6" max="20">
-                                <span class="input-group-text">자</span>
+                                <span class="input-group-text">文字</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">복잡한 패스워드 요구</div>
-                            <div class="setting-description">대문자, 소문자, 숫자, 특수문자를 포함하도록 요구합니다.</div>
+                            <div class="setting-label">複雑なパスワードを要求</div>
+                            <div class="setting-description">大文字、小文字、数字、特殊文字を含むように要求します。</div>
                         </div>
                         <div class="setting-control">
                             <div class="toggle-switch active" id="complexPassword" onclick="toggleSwitch(this)"></div>
@@ -862,13 +862,13 @@
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">패스워드 만료 기간</div>
-                            <div class="setting-description">패스워드를 변경해야 하는 주기를 설정하세요.</div>
+                            <div class="setting-label">パスワードの有効期限</div>
+                            <div class="setting-description">パスワードを変更する必要がある周期を設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
                                 <input type="number" class="form-control" id="passwordExpiry" value="90" min="30" max="365">
-                                <span class="input-group-text">일</span>
+                                <span class="input-group-text">日</span>
                             </div>
                         </div>
                     </div>
@@ -879,14 +879,14 @@
                         <div class="section-icon">
                             <i class="fas fa-shield-alt"></i>
                         </div>
-                        접근 제어
+                        アクセス制御
                     </h3>
-                    <p class="section-description">시스템 접근과 권한을 관리합니다.</p>
+                    <p class="section-description">システムへのアクセスと権限を管理します。</p>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">이중 인증 (2FA)</div>
-                            <div class="setting-description">추가 보안을 위해 이중 인증을 활성화합니다.</div>
+                            <div class="setting-label">二要素認証 (2FA)</div>
+                            <div class="setting-description">追加のセキュリティのために二要素認証を有効にします。</div>
                         </div>
                         <div class="setting-control">
                             <div class="toggle-switch" id="twoFactorAuth" onclick="toggleSwitch(this)"></div>
@@ -895,64 +895,64 @@
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">로그인 시도 제한</div>
-                            <div class="setting-description">연속 로그인 실패 시 계정을 일시적으로 잠금 처리합니다.</div>
+                            <div class="setting-label">ログイン試行回数制限</div>
+                            <div class="setting-description">連続してログインに失敗した場合、アカウントを一時的にロックします。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
                                 <input type="number" class="form-control" id="maxLoginAttempts" value="5" min="3" max="10">
-                                <span class="input-group-text">회</span>
+                                <span class="input-group-text">回</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">세션 타임아웃</div>
-                            <div class="setting-description">비활성 상태에서 자동 로그아웃되는 시간을 설정하세요.</div>
+                            <div class="setting-label">セッションタイムアウト</div>
+                            <div class="setting-description">非アクティブ状態で自動的にログアウトされる時間を設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
                                 <input type="number" class="form-control" id="sessionTimeout" value="30" min="15" max="120">
-                                <span class="input-group-text">분</span>
+                                <span class="input-group-text">分</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 백업/복원 -->
+            <!-- バックアップ/復元 -->
             <div id="backup" class="tab-pane">
                 <div class="settings-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-download"></i>
                         </div>
-                        백업 상태
+                        バックアップ状態
                     </h3>
-                    <p class="section-description">현재 백업 상태와 최근 백업 정보를 확인합니다.</p>
+                    <p class="section-description">現在のバックアップ状態と最近のバックアップ情報を確認します。</p>
 
                     <div class="backup-status">
                         <div class="backup-info">
                             <div class="backup-detail">
-                                <div class="backup-label">마지막 백업</div>
+                                <div class="backup-label">最終バックアップ</div>
                                 <div class="backup-value" id="lastBackupTime">2024-03-15 02:00</div>
                             </div>
                             <div class="backup-detail">
-                                <div class="backup-label">백업 크기</div>
+                                <div class="backup-label">バックアップサイズ</div>
                                 <div class="backup-value" id="backupSize">1.2 GB</div>
                             </div>
                             <div class="backup-detail">
-                                <div class="backup-label">백업 상태</div>
+                                <div class="backup-label">バックアップ状態</div>
                                 <div class="backup-value">
                                     <span class="status-indicator online">
                                         <span class="status-dot online"></span>
-                                        정상
+                                        正常
                                     </span>
                                 </div>
                             </div>
                             <div class="backup-detail">
-                                <div class="backup-label">다음 백업</div>
+                                <div class="backup-label">次回バックアップ</div>
                                 <div class="backup-value" id="nextBackupTime">2024-03-16 02:00</div>
                             </div>
                         </div>
@@ -960,8 +960,8 @@
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">자동 백업</div>
-                            <div class="setting-description">정기적으로 자동 백업을 수행합니다.</div>
+                            <div class="setting-label">自動バックアップ</div>
+                            <div class="setting-description">定期的に自動バックアップを実行します。</div>
                         </div>
                         <div class="setting-control">
                             <div class="toggle-switch active" id="autoBackup" onclick="toggleSwitch(this)"></div>
@@ -970,27 +970,27 @@
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">백업 빈도</div>
-                            <div class="setting-description">자동 백업을 수행할 주기를 설정하세요.</div>
+                            <div class="setting-label">バックアップ頻度</div>
+                            <div class="setting-description">自動バックアップを実行する周期を設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <select class="form-select" id="backupFrequency">
-                                <option value="daily" selected>매일</option>
-                                <option value="weekly">매주</option>
-                                <option value="monthly">매월</option>
+                                <option value="daily" selected>毎日</option>
+                                <option value="weekly">毎週</option>
+                                <option value="monthly">毎月</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <div class="setting-info">
-                            <div class="setting-label">백업 보관 기간</div>
-                            <div class="setting-description">백업 파일을 보관할 기간을 설정하세요.</div>
+                            <div class="setting-label">バックアップ保持期間</div>
+                            <div class="setting-description">バックアップファイルを保持する期間を設定してください。</div>
                         </div>
                         <div class="setting-control">
                             <div class="input-group">
                                 <input type="number" class="form-control" id="backupRetention" value="30" min="7" max="365">
-                                <span class="input-group-text">일</span>
+                                <span class="input-group-text">日</span>
                             </div>
                         </div>
                     </div>
@@ -1001,22 +1001,22 @@
                         <div class="section-icon">
                             <i class="fas fa-tools"></i>
                         </div>
-                        백업/복원 작업
+                        バックアップ/復元作業
                     </h3>
-                    <p class="section-description">수동으로 백업을 생성하거나 기존 백업을 복원합니다.</p>
+                    <p class="section-description">手動でバックアップを作成したり、既存のバックアップを復元したりします。</p>
 
                     <div class="d-flex gap-3 mb-3">
                         <button class="btn btn-primary" onclick="createBackup()">
                             <i class="fas fa-download me-2"></i>
-                            백업 생성
+                            バックアップ作成
                         </button>
                         <button class="btn btn-outline-secondary" onclick="downloadBackup()">
                             <i class="fas fa-file-download me-2"></i>
-                            백업 다운로드
+                            バックアップダウンロード
                         </button>
                         <button class="btn btn-warning" onclick="restoreBackup()">
                             <i class="fas fa-upload me-2"></i>
-                            백업 복원
+                            バックアップ復元
                         </button>
                     </div>
 
@@ -1024,32 +1024,32 @@
                         <table>
                             <thead>
                             <tr>
-                                <th>백업 일시</th>
-                                <th>파일 크기</th>
-                                <th>타입</th>
-                                <th>상태</th>
-                                <th>작업</th>
+                                <th>バックアップ日時</th>
+                                <th>ファイルサイズ</th>
+                                <th>タイプ</th>
+                                <th>ステータス</th>
+                                <th>操作</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
                                 <td>2024-03-15 02:00:00</td>
                                 <td>1.2 GB</td>
-                                <td>자동</td>
-                                <td><span class="status-indicator online"><span class="status-dot online"></span>성공</span></td>
+                                <td>自動</td>
+                                <td><span class="status-indicator online"><span class="status-dot online"></span>成功</span></td>
                                 <td>
-                                    <button class="btn btn-outline-secondary btn-sm me-2">다운로드</button>
-                                    <button class="btn btn-outline-danger btn-sm">삭제</button>
+                                    <button class="btn btn-outline-secondary btn-sm me-2">ダウンロード</button>
+                                    <button class="btn btn-outline-danger btn-sm">削除</button>
                                 </td>
                             </tr>
                             <tr>
                                 <td>2024-03-14 02:00:00</td>
                                 <td>1.1 GB</td>
-                                <td>자동</td>
-                                <td><span class="status-indicator online"><span class="status-dot online"></span>성공</span></td>
+                                <td>自動</td>
+                                <td><span class="status-indicator online"><span class="status-dot online"></span>成功</span></td>
                                 <td>
-                                    <button class="btn btn-outline-secondary btn-sm me-2">다운로드</button>
-                                    <button class="btn btn-outline-danger btn-sm">삭제</button>
+                                    <button class="btn btn-outline-secondary btn-sm me-2">ダウンロード</button>
+                                    <button class="btn btn-outline-danger btn-sm">削除</button>
                                 </td>
                             </tr>
                             </tbody>
@@ -1058,37 +1058,37 @@
                 </div>
             </div>
 
-            <!-- 시스템 상태 -->
+            <!-- システム状態 -->
             <div id="system" class="tab-pane">
                 <div class="settings-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-tachometer-alt"></i>
                         </div>
-                        시스템 성능
+                        システムパフォーマンス
                     </h3>
-                    <p class="section-description">현재 시스템의 성능과 리소스 사용량을 모니터링합니다.</p>
+                    <p class="section-description">現在のシステムのパフォーマンスとリソース使用量を監視します。</p>
 
                     <div class="backup-status">
                         <div class="backup-info">
                             <div class="backup-detail">
-                                <div class="backup-label">CPU 사용률</div>
+                                <div class="backup-label">CPU使用率</div>
                                 <div class="backup-value text-success">15%</div>
                             </div>
                             <div class="backup-detail">
-                                <div class="backup-label">메모리 사용률</div>
+                                <div class="backup-label">メモリ使用率</div>
                                 <div class="backup-value text-warning">68%</div>
                             </div>
                             <div class="backup-detail">
-                                <div class="backup-label">디스크 사용률</div>
+                                <div class="backup-label">ディスク使用率</div>
                                 <div class="backup-value text-success">42%</div>
                             </div>
                             <div class="backup-detail">
-                                <div class="backup-label">네트워크 상태</div>
+                                <div class="backup-label">ネットワーク状態</div>
                                 <div class="backup-value">
                                     <span class="status-indicator online">
                                         <span class="status-dot online"></span>
-                                        정상
+                                        正常
                                     </span>
                                 </div>
                             </div>
@@ -1101,19 +1101,19 @@
                         <div class="section-icon">
                             <i class="fas fa-list-alt"></i>
                         </div>
-                        시스템 로그
+                        システムログ
                     </h3>
-                    <p class="section-description">최근 시스템 활동과 오류 로그를 확인합니다.</p>
+                    <p class="section-description">最近のシステム活動とエラーログを確認します。</p>
 
                     <div class="d-flex gap-2 mb-3">
                         <button class="btn btn-outline-secondary btn-sm" onclick="refreshLogs()">
-                            <i class="fas fa-sync-alt me-1"></i>새로고침
+                            <i class="fas fa-sync-alt me-1"></i>更新
                         </button>
                         <button class="btn btn-outline-secondary btn-sm" onclick="clearLogs()">
-                            <i class="fas fa-trash me-1"></i>로그 삭제
+                            <i class="fas fa-trash me-1"></i>ログ削除
                         </button>
                         <button class="btn btn-outline-secondary btn-sm" onclick="downloadLogs()">
-                            <i class="fas fa-download me-1"></i>로그 다운로드
+                            <i class="fas fa-download me-1"></i>ログダウンロード
                         </button>
                     </div>
 
@@ -1121,27 +1121,27 @@
                         <div class="log-entry">
                             <span class="log-time">2024-03-15 14:30:25</span>
                             <span class="log-level info">[INFO]</span>
-                            사용자 '관리자'가 로그인했습니다.
+                            ユーザー「管理者」がログインしました。
                         </div>
                         <div class="log-entry">
                             <span class="log-time">2024-03-15 14:25:10</span>
                             <span class="log-level success">[SUCCESS]</span>
-                            자동 백업이 성공적으로 완료되었습니다.
+                            自動バックアップが正常に完了しました。
                         </div>
                         <div class="log-entry">
                             <span class="log-time">2024-03-15 14:20:05</span>
                             <span class="log-level warning">[WARNING]</span>
-                            의약품 'MED001'의 재고가 부족합니다. (현재: 5개, 최소: 10개)
+                            医薬品「MED001」の在庫が不足しています。(現在: 5個, 最小: 10個)
                         </div>
                         <div class="log-entry">
                             <span class="log-time">2024-03-15 14:15:30</span>
                             <span class="log-level info">[INFO]</span>
-                            새로운 입고 거래가 등록되었습니다. (거래ID: TXN-20240315-001)
+                            新規入庫取引が登録されました。(取引ID: TXN-20240315-001)
                         </div>
                         <div class="log-entry">
                             <span class="log-time">2024-03-15 14:10:15</span>
                             <span class="log-level error">[ERROR]</span>
-                            이메일 발송 실패: SMTP 서버 연결 오류
+                            メール送信失敗: SMTPサーバー接続エラー
                         </div>
                     </div>
                 </div>
@@ -1151,44 +1151,44 @@
                         <div class="section-icon">
                             <i class="fas fa-info-circle"></i>
                         </div>
-                        시스템 정보
+                        システム情報
                     </h3>
-                    <p class="section-description">현재 시스템의 버전과 구성 정보입니다.</p>
+                    <p class="section-description">現在のシステムのバージョンと構成情報です。</p>
 
                     <div class="table-settings">
                         <table>
                             <tbody>
                             <tr>
-                                <td><strong>시스템 버전</strong></td>
-                                <td>의약품 재고관리 시스템 v2.1.0</td>
+                                <td><strong>システムバージョン</strong></td>
+                                <td>医薬品在庫管理システム v2.1.0</td>
                             </tr>
                             <tr>
-                                <td><strong>빌드 번호</strong></td>
+                                <td><strong>ビルド番号</strong></td>
                                 <td>20240315.1425</td>
                             </tr>
                             <tr>
-                                <td><strong>Java 버전</strong></td>
+                                <td><strong>Javaバージョン</strong></td>
                                 <td>OpenJDK 17.0.8</td>
                             </tr>
                             <tr>
-                                <td><strong>데이터베이스</strong></td>
+                                <td><strong>データベース</strong></td>
                                 <td>PostgreSQL 15.4</td>
                             </tr>
                             <tr>
-                                <td><strong>운영체제</strong></td>
+                                <td><strong>オペレーティングシステム</strong></td>
                                 <td>Ubuntu 22.04.3 LTS</td>
                             </tr>
                             <tr>
-                                <td><strong>총 메모리</strong></td>
+                                <td><strong>総メモリ</strong></td>
                                 <td>16 GB</td>
                             </tr>
                             <tr>
-                                <td><strong>사용 가능 디스크</strong></td>
+                                <td><strong>利用可能ディスク</strong></td>
                                 <td>1.2 TB / 2.0 TB</td>
                             </tr>
                             <tr>
-                                <td><strong>시스템 가동 시간</strong></td>
-                                <td>15일 8시간 32분</td>
+                                <td><strong>システム稼働時間</strong></td>
+                                <td>15日 8時間 32分</td>
                             </tr>
                             </tbody>
                         </table>
@@ -1196,15 +1196,15 @@
                 </div>
             </div>
 
-            <!-- 액션 버튼 -->
+            <!-- アクションボタン -->
             <div class="action-buttons">
                 <button class="btn btn-outline-secondary" onclick="resetToDefaults()">
                     <i class="fas fa-undo"></i>
-                    기본값으로 복원
+                    デフォルトに戻す
                 </button>
                 <button class="btn btn-success" onclick="saveSettings()">
                     <i class="fas fa-save"></i>
-                    설정 저장
+                    設定を保存
                 </button>
             </div>
         </div>
@@ -1213,7 +1213,7 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         let currentTab = 'general';
         let hasUnsavedChanges = false;
 
@@ -1223,9 +1223,9 @@
             loadSettings();
         });
 
-        // 설정 초기화
+        // 設定初期化
         function initializeSettings() {
-            // 테마 선택 이벤트
+            // テーマ選択イベント
             document.querySelectorAll('.selection-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const group = this.parentElement;
@@ -1235,7 +1235,7 @@
                 });
             });
 
-            // 입력 필드 변경 감지
+            // 入力フィールド変更検知
             document.querySelectorAll('input, select').forEach(element => {
                 element.addEventListener('change', function() {
                     hasUnsavedChanges = true;
@@ -1243,9 +1243,9 @@
             });
         }
 
-        // 이벤트 리스너 설정
+        // イベントリスナー設定
         function setupEventListeners() {
-            // 페이지 떠나기 전 경고
+            // ページを離れる前の警告
             window.addEventListener('beforeunload', function(e) {
                 if (hasUnsavedChanges) {
                     e.preventDefault();
@@ -1254,9 +1254,9 @@
             });
         }
 
-        // 탭 전환
+        // タブ切り替え
         function showTab(tabName) {
-            // 모든 탭 비활성화
+            // すべてのタブを非アクティブ化
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1264,26 +1264,26 @@
                 pane.classList.remove('active');
             });
 
-            // 선택된 탭 활성화
+            // 選択したタブをアクティブ化
             document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
             document.getElementById(tabName).classList.add('active');
 
             currentTab = tabName;
         }
 
-        // 토글 스위치
+        // トグルスイッチ
         function toggleSwitch(element) {
             element.classList.toggle('active');
             hasUnsavedChanges = true;
         }
 
-        // 설정 로드
+        // 設定ロード
         async function loadSettings() {
             try {
-                // 실제 구현에서는 API 호출
+                // 実際の구현ではAPI呼び出し
                 const settings = {
-                    systemLanguage: 'ko',
-                    timezone: 'Asia/Seoul',
+                    systemLanguage: 'ja',
+                    timezone: 'Asia/Tokyo',
                     pageSize: 20,
                     autoLogout: false,
                     lowStockThreshold: 20,
@@ -1304,15 +1304,15 @@
                     backupRetention: 30
                 };
 
-                // 설정값 적용
+                // 設定値適用
                 applySettings(settings);
             } catch (error) {
-                console.error('설정 로드 오류:', error);
-                showAlert('설정을 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('設定のロードエラー:', error);
+                showAlert('設定の読み込み中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 설정값 적용
+        // 設定値適用
         function applySettings(settings) {
             Object.keys(settings).forEach(key => {
                 const element = document.getElementById(key);
@@ -1325,7 +1325,7 @@
                 }
             });
 
-            // 토글 스위치 상태 적용
+            // トグルスイッチの状態適用
             document.querySelectorAll('.toggle-switch').forEach(toggle => {
                 const id = toggle.id;
                 if (settings[id] !== undefined) {
@@ -1337,7 +1337,7 @@
                 }
             });
 
-            // 테마 선택 적용
+            // テーマ選択適用
             if (settings.theme) {
                 document.querySelectorAll('.selection-item').forEach(item => {
                     item.classList.remove('selected');
@@ -1348,27 +1348,27 @@
             }
         }
 
-        // 설정 저장
+        // 設定保存
         async function saveSettings() {
             try {
                 const settings = collectSettings();
 
-                // 실제 구현에서는 API 호출
+                // 実際の구현ではAPI呼び出し
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 hasUnsavedChanges = false;
-                showAlert('설정이 성공적으로 저장되었습니다.', 'success');
+                showAlert('設定が正常に保存されました。', 'success');
             } catch (error) {
-                console.error('설정 저장 오류:', error);
-                showAlert('설정 저장 중 오류가 발생했습니다.', 'danger');
+                console.error('設定の保存エラー:', error);
+                showAlert('設定の保存中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 설정값 수집
+        // 設定値収集
         function collectSettings() {
             const settings = {};
 
-            // 입력 필드 값 수집
+            // 入力フィールド値収集
             document.querySelectorAll('input[id], select[id]').forEach(element => {
                 const id = element.id;
                 if (id) {
@@ -1380,12 +1380,12 @@
                 }
             });
 
-            // 토글 스위치 상태 수집
+            // トグルスイッチの状態収集
             document.querySelectorAll('.toggle-switch[id]').forEach(toggle => {
                 settings[toggle.id] = toggle.classList.contains('active');
             });
 
-            // 테마 선택 수집
+            // テーマ選択収集
             const selectedTheme = document.querySelector('.selection-item.selected');
             if (selectedTheme) {
                 settings.theme = selectedTheme.dataset.theme;
@@ -1394,12 +1394,12 @@
             return settings;
         }
 
-        // 기본값으로 복원
+        // デフォルトに戻す
         function resetToDefaults() {
-            if (confirm('모든 설정을 기본값으로 복원하시겠습니까?')) {
+            if (confirm('すべての設定をデフォルトに戻しますか？')) {
                 const defaultSettings = {
-                    systemLanguage: 'ko',
-                    timezone: 'Asia/Seoul',
+                    systemLanguage: 'ja',
+                    timezone: 'Asia/Tokyo',
                     pageSize: 20,
                     autoLogout: false,
                     lowStockThreshold: 20,
@@ -1422,40 +1422,40 @@
 
                 applySettings(defaultSettings);
                 hasUnsavedChanges = true;
-                showAlert('기본 설정이 적용되었습니다. 저장 버튼을 눌러 저장하세요.', 'info');
+                showAlert('デフォルト設定が適用されました。保存ボタンを押して保存してください。', 'info');
             }
         }
 
-        // 이메일 테스트
+        // メールテスト
         async function testEmail() {
             const email = document.getElementById('notificationEmail').value;
             if (!email) {
-                showAlert('이메일 주소를 입력하세요.', 'warning');
+                showAlert('メールアドレスを入力してください。', 'warning');
                 return;
             }
 
             try {
-                // 실제 구현에서는 API 호출
+                // 実際の구현ではAPI呼び出し
                 await new Promise(resolve => setTimeout(resolve, 2000));
-                showAlert('테스트 이메일이 발송되었습니다.', 'success');
+                showAlert('テストメールが送信されました。', 'success');
             } catch (error) {
-                console.error('이메일 테스트 오류:', error);
-                showAlert('이메일 발송 중 오류가 발생했습니다.', 'danger');
+                console.error('メールテストエラー:', error);
+                showAlert('メールの送信中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 백업 관련 함수들
+        // バックアップ関連関数
         async function createBackup() {
-            if (confirm('새로운 백업을 생성하시겠습니까?')) {
+            if (confirm('新しいバックアップを作成しますか？')) {
                 try {
-                    showAlert('백업을 생성하고 있습니다...', 'info');
-                    // 실제 구현에서는 API 호출
+                    showAlert('バックアップを作成しています...', 'info');
+                    // 実際の구현ではAPI呼び出し
                     await new Promise(resolve => setTimeout(resolve, 3000));
-                    showAlert('백업이 성공적으로 생성되었습니다.', 'success');
+                    showAlert('バックアップが正常に作成されました。', 'success');
                     refreshBackupStatus();
                 } catch (error) {
-                    console.error('백업 생성 오류:', error);
-                    showAlert('백업 생성 중 오류가 발생했습니다.', 'danger');
+                    console.error('バックアップ作成エラー:', error);
+                    showAlert('バックアップの作成中にエラーが発生しました。', 'danger');
                 }
             }
         }
@@ -1475,29 +1475,29 @@
             input.accept = '.sql,.zip';
             input.onchange = function(e) {
                 const file = e.target.files[0];
-                if (file && confirm('백업을 복원하시겠습니까? 현재 데이터가 덮어씌워질 수 있습니다.')) {
-                    // 실제 구현에서는 파일 업로드 및 복원 API 호출
-                    showAlert('백업 복원이 시작되었습니다.', 'info');
+                if (file && confirm('バックアップを復元しますか？現在のデータが上書きされる可能性があります。')) {
+                    // 実際の구현ではファイルアップロードと復元API呼び出し
+                    showAlert('バックアップの復元が開始されました。', 'info');
                 }
             };
             input.click();
         }
 
         function refreshBackupStatus() {
-            // 백업 상태 새로고침
-            showAlert('백업 상태를 새로고침했습니다.', 'info');
+            // バックアップ状態の更新
+            showAlert('バックアップ状態を更新しました。', 'info');
         }
 
-        // 로그 관련 함수들
+        // ログ関連関数
         function refreshLogs() {
-            showAlert('로그를 새로고침했습니다.', 'info');
+            showAlert('ログを更新しました。', 'info');
         }
 
         function clearLogs() {
-            if (confirm('모든 로그를 삭제하시겠습니까?')) {
+            if (confirm('すべてのログを削除しますか？')) {
                 document.getElementById('systemLogs').innerHTML = '<div class="log-entry"><span class="log-time">' +
-                    new Date().toLocaleString('ko-KR') + '</span><span class="log-level info">[INFO]</span>로그가 삭제되었습니다.</div>';
-                showAlert('로그가 삭제되었습니다.', 'success');
+                    new Date().toLocaleString('ja-JP') + '</span><span class="log-level info">[INFO]</span>ログが削除されました。</div>';
+                showAlert('ログが削除されました。', 'success');
             }
         }
 
@@ -1512,9 +1512,9 @@
             document.body.removeChild(link);
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl + S: 설정 저장
+            // Ctrl + S: 設定保存
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 saveSettings();

@@ -3,39 +3,42 @@ package com.pharma.inventory.entity;
 import java.util.Arrays;
 
 /**
- * 의약품 카테고리
+ * 医薬品カテゴリ
  */
 public enum MedicineCategory {
-    // From DataInitializer
-    PAINKILLER("해열진통제"),
-    ANTIBIOTIC("항생제"),
-    DIGESTIVE("소화기계약물"),
-    IV_SOLUTION("수액제"),
-    HORMONE("호르몬제"),
-    VITAMIN("비타민제"),
-    TOPICAL("외용제"),
-    ANTIHISTAMINE("항히스타민제"),
-
-    // Original
-    PRESCRIPTION("전문의약품"),
-    OTC("일반의약품"),
-    NARCOTIC("마약류"),
-    PSYCHOTROPIC("향정신성의약품"),
-    BIOLOGICAL("생물학적제제"),
-    VACCINE("백신"),
-    BLOOD("혈액제제"),
-    HERBAL("한약제제"),
-    RADIOPHARMACEUTICAL("방사성의약품"),
-    OTHER("기타");
+    PAINKILLER("解熱鎮痛剤", "fa-pills"),
+    ANTIBIOTIC("抗生物質", "fa-capsules"),
+    DIGESTIVE("消化器系薬物", "fa-tablets"),
+    IV_SOLUTION("輸液剤", "fa-syringe"),
+    HORMONE("ホルモン剤", "fa-dna"),
+    VITAMIN("ビタミン剤", "fa-leaf"),
+    TOPICAL("外用剤", "fa-band-aid"),
+    ANTIHISTAMINE("抗ヒスタミン剤", "fa-allergies"),
+    PRESCRIPTION("処方箋医薬品", "fa-prescription"),
+    OTC("一般用医薬品", "fa-pills"),
+    NARCOTIC("麻薬類", "fa-exclamation-triangle"),
+    PSYCHOTROPIC("向精神薬", "fa-brain"),
+    BIOLOGICAL("生物学的製剤", "fa-dna"),
+    VACCINE("ワクチン", "fa-syringe"),
+    BLOOD("血液製剤", "fa-tint"),
+    HERBAL("漢方製剤", "fa-leaf"),
+    RADIOPHARMACEUTICAL("放射性医薬品", "fa-atom"),
+    OTHER("その他", "fa-tag");
 
     private final String description;
+    private final String icon;
 
-    MedicineCategory(String description) {
+    MedicineCategory(String description, String icon) {
         this.description = description;
+        this.icon = icon;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    public String getIcon() {
+        return icon;
     }
 
     public static MedicineCategory fromDescription(String description) {

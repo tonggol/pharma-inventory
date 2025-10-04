@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title th:text="${stock.medicine.name + ' (' + stock.lotNumber + ') - 재고 상세정보'}">재고 상세정보 - 의약품 재고관리 시스템</title>
+    <title th:text="${stock.medicine.name + ' (' + stock.lotNumber + ') - 在庫詳細情報'}">在庫詳細情報 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 재고 상세 페이지 특화 스타일 */
+        /* 在庫詳細ページ特化スタイル */
         .detail-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -212,7 +212,7 @@
             color: white;
         }
 
-        /* 그리드 레이아웃 */
+        /* グリッドレイアウト */
         .detail-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -232,7 +232,7 @@
             gap: 2rem;
         }
 
-        /* 카드 스타일 */
+        /* カードスタイル */
         .detail-card {
             background: white;
             border-radius: 16px;
@@ -276,7 +276,7 @@
             padding: 2rem;
         }
 
-        /* 재고 정보 그리드 */
+        /* 在庫情報グリッド */
         .stock-info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -317,7 +317,7 @@
             color: var(--danger-color);
         }
 
-        /* 거래 내역 테이블 */
+        /* 取引履歴テーブル */
         .transactions-table {
             width: 100%;
             border-collapse: collapse;
@@ -348,7 +348,7 @@
             background: rgba(44, 90, 160, 0.05);
         }
 
-        /* 거래 타입 배지 */
+        /* 取引タイプバッジ */
         .transaction-type {
             padding: 0.4rem 0.8rem;
             border-radius: 20px;
@@ -377,7 +377,7 @@
             color: #dc2626;
         }
 
-        /* 알림 카드 */
+        /* 通知カード */
         .alert-card {
             border-left: 4px solid;
             border-radius: 8px;
@@ -424,7 +424,7 @@
             opacity: 0.9;
         }
 
-        /* 빈 상태 */
+        /* 空の状態 */
         .empty-state {
             text-align: center;
             padding: 3rem;
@@ -437,7 +437,7 @@
             color: #cbd5e1;
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 1024px) {
             .detail-grid {
                 grid-template-columns: 1fr;
@@ -477,7 +477,7 @@
             }
         }
 
-        /* 페이드 인 애니메이션 */
+        /* フェードインアニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -491,7 +491,7 @@
 
 <div layout:fragment="content">
     <div class="detail-container">
-        <!-- 재고 헤더 -->
+        <!-- 在庫ヘッダー -->
         <div class="detail-header fade-in">
             <div class="stock-header">
                 <div class="stock-image" id="stockImage">
@@ -499,29 +499,29 @@
                 </div>
 
                 <div class="stock-info">
-                    <h1 class="stock-title" th:text="${stock.medicine.name}">아스피린정 100mg</h1>
+                    <h1 class="stock-title" th:text="${stock.medicine.name}">アスピリン錠 100mg</h1>
                     <p class="stock-subtitle">
-                        로트번호: <span class="lot-number" th:text="${stock.lotNumber}">LOT2024001</span>
+                        ロット番号: <span class="lot-number" th:text="${stock.lotNumber}">LOT2024001</span>
                     </p>
 
                     <div class="stock-meta">
                         <div class="meta-item">
-                            <span class="meta-label">의약품 코드:</span>
+                            <span class="meta-label">医薬品コード:</span>
                             <span class="meta-value" th:text="${stock.medicine.code}">MED001</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">제조사:</span>
-                            <span class="meta-value" th:text="${stock.medicine.manufacturer}">한국제약</span>
+                            <span class="meta-label">製造元:</span>
+                            <span class="meta-value" th:text="${stock.medicine.manufacturer}">韓国製薬</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">카테고리:</span>
-                            <span class="meta-value" th:text="${stock.medicine.category}">해열진통제</span>
+                            <span class="meta-label">カテゴリ:</span>
+                            <span class="meta-value" th:text="${stock.medicine.category}">解熱鎮痛剤</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">현재 상태:</span>
+                            <span class="meta-label">現在のステータス:</span>
                             <span class="status-badge" th:classappend="${stock.status.toLowerCase()}" th:text="${stock.statusDescription}">
                                 <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
-                                사용 가능
+                                利用可能
                             </span>
                         </div>
                     </div>
@@ -532,115 +532,115 @@
                        class="btn btn-primary"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-edit"></i>
-                        수정
+                        修正
                     </a>
                     <a href="/transactions/new"
                        th:href="@{/transactions/new(stockId=${stock.id}, type=outbound)}"
                        class="btn btn-warning"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-minus"></i>
-                        출고
+                        出庫
                     </a>
                     <a th:href="@{/stocks}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i>
-                        목록으로
+                        一覧へ
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 메인 그리드 -->
+        <!-- メイングリッド -->
         <div class="detail-grid">
-            <!-- 메인 컨텐츠 -->
+            <!-- メインコンテンツ -->
             <div class="main-content">
-                <!-- 재고 상세 정보 -->
+                <!-- 在庫詳細情報 -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-info-circle"></i>
                             </div>
-                            재고 상세 정보
+                            在庫詳細情報
                         </h3>
                     </div>
                     <div class="card-content">
                         <div class="stock-info-grid">
                             <div class="info-item">
-                                <div class="info-label">현재 수량</div>
-                                <div class="info-value large" th:text="${stock.quantity + ' ' + stock.medicine.unit}">500 정</div>
+                                <div class="info-label">現在数量</div>
+                                <div class="info-value large" th:text="${stock.quantity + ' ' + stock.medicine.unit}">500 錠</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">입고 수량</div>
-                                <div class="info-value" th:text="${stock.originalQuantity + ' ' + stock.medicine.unit}">500 정</div>
+                                <div class="info-label">入庫数量</div>
+                                <div class="info-value" th:text="${stock.originalQuantity + ' ' + stock.medicine.unit}">500 錠</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">사용량</div>
-                                <div class="info-value" th:text="${(stock.originalQuantity - stock.quantity) + ' ' + stock.medicine.unit}">0 정</div>
+                                <div class="info-label">使用量</div>
+                                <div class="info-value" th:text="${(stock.originalQuantity - stock.quantity) + ' ' + stock.medicine.unit}">0 錠</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">유효기간</div>
+                                <div class="info-label">使用期限</div>
                                 <div class="info-value"
                                      th:classappend="${stock.daysUntilExpiry <= 0 ? 'danger' : stock.daysUntilExpiry <= 30 ? 'warning' : ''}"
                                      th:text="${#temporals.format(stock.expiryDate, 'yyyy-MM-dd')}">2025-12-31</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">남은 기간</div>
+                                <div class="info-label">残り期間</div>
                                 <div class="info-value"
                                      th:classappend="${stock.daysUntilExpiry <= 0 ? 'danger' : stock.daysUntilExpiry <= 30 ? 'warning' : ''}"
-                                     th:text="${stock.daysUntilExpiry > 0 ? stock.daysUntilExpiry + '일' : '만료됨'}">365일</div>
+                                     th:text="${stock.daysUntilExpiry > 0 ? stock.daysUntilExpiry + '日' : '期限切れ'}">365日</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">입고일</div>
+                                <div class="info-label">入庫日</div>
                                 <div class="info-value" th:text="${#temporals.format(stock.receivedDate, 'yyyy-MM-dd')}">2024-01-15</div>
                             </div>
                             <div class="info-item" th:if="${stock.manufactureDate}">
-                                <div class="info-label">제조일</div>
+                                <div class="info-label">製造日</div>
                                 <div class="info-value" th:text="${#temporals.format(stock.manufactureDate, 'yyyy-MM-dd')}">2024-01-01</div>
                             </div>
                             <div class="info-item" th:if="${stock.supplierName}">
-                                <div class="info-label">공급업체</div>
-                                <div class="info-value" th:text="${stock.supplierName}">한국의약품유통</div>
+                                <div class="info-label">仕入先</div>
+                                <div class="info-value" th:text="${stock.supplierName}">韓国医薬品流通</div>
                             </div>
                             <div class="info-item" th:if="${stock.purchasePrice}">
-                                <div class="info-label">구매 단가</div>
+                                <div class="info-label">仕入単価</div>
                                 <div class="info-value" th:text="${#numbers.formatCurrency(stock.purchasePrice)}">₩1,200</div>
                             </div>
                             <div class="info-item" th:if="${stock.location}">
-                                <div class="info-label">보관 위치</div>
-                                <div class="info-value" th:text="${stock.location}">A동-1층-냉장고1</div>
+                                <div class="info-label">保管場所</div>
+                                <div class="info-value" th:text="${stock.location}">A棟-1階-冷蔵庫1</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">등록일</div>
+                                <div class="info-label">登録日</div>
                                 <div class="info-value" th:text="${#temporals.format(stock.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-15 09:30</div>
                             </div>
                             <div class="info-item" th:if="${stock.updatedAt != stock.createdAt}">
-                                <div class="info-label">최종 수정일</div>
+                                <div class="info-label">最終更新日</div>
                                 <div class="info-value" th:text="${#temporals.format(stock.updatedAt, 'yyyy-MM-dd HH:mm')}">2024-01-20 14:30</div>
                             </div>
                         </div>
 
-                        <!-- 비고 -->
+                        <!-- 備考 -->
                         <div th:if="${stock.remarks}" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">비고</h5>
+                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">備考</h5>
                             <p style="color: #64748b; line-height: 1.6; margin: 0;" th:text="${stock.remarks}">
-                                냉장 보관 필수. 직사광선 피해 보관.
+                                要冷蔵。直射日光を避けて保管。
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- 거래 내역 -->
+                <!-- 取引履歴 -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-exchange-alt"></i>
                             </div>
-                            이 재고의 거래 내역
+                            この在庫の取引履歴
                         </h3>
                         <a th:href="@{/transactions(stockId=${stock.id})}" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-external-link-alt"></i>
-                            전체 보기
+                            すべて表示
                         </a>
                     </div>
                     <div class="card-content" style="padding: 0;">
@@ -648,71 +648,71 @@
                             <table class="transactions-table" id="transactionsTable">
                                 <thead>
                                 <tr>
-                                    <th>날짜</th>
-                                    <th>유형</th>
-                                    <th>수량</th>
-                                    <th>담당자</th>
-                                    <th>비고</th>
+                                    <th>日付</th>
+                                    <th>タイプ</th>
+                                    <th>数量</th>
+                                    <th>担当者</th>
+                                    <th>備考</th>
                                 </tr>
                                 </thead>
                                 <tbody id="transactionsTableBody">
-                                <!-- 동적으로 로드됨 -->
+                                <!-- 動的にロード -->
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- 빈 상태 -->
+                        <!-- 空の状態 -->
                         <div class="empty-state" id="emptyTransactionState" style="display: none;">
                             <div class="empty-state-icon">
                                 <i class="fas fa-history"></i>
                             </div>
-                            <h4>거래 내역이 없습니다</h4>
-                            <p>아직 이 재고에 대한 거래가 발생하지 않았습니다.</p>
+                            <h4>取引履歴がありません</h4>
+                            <p>この在庫に関する取引はまだ発生していません。</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 사이드바 -->
+            <!-- サイドバー -->
             <div class="sidebar-content">
-                <!-- 알림 및 경고 -->
+                <!-- 通知・警告 -->
                 <div class="detail-card fade-in" id="alertsCard">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-bell"></i>
                             </div>
-                            알림
+                            通知
                         </h3>
                     </div>
                     <div class="card-content" id="alertsContent">
-                        <!-- 동적으로 로드됨 -->
+                        <!-- 動的にロード -->
                     </div>
                 </div>
 
-                <!-- 연관 재고 -->
+                <!-- 関連在庫 -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-boxes"></i>
                             </div>
-                            같은 의약품의 다른 재고
+                            同じ医薬品の他の在庫
                         </h3>
                     </div>
                     <div class="card-content" id="relatedStocks">
-                        <!-- 동적으로 로드됨 -->
+                        <!-- 動的にロード -->
                     </div>
                 </div>
 
-                <!-- 빠른 작업 -->
+                <!-- クイック操作 -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-bolt"></i>
                             </div>
-                            빠른 작업
+                            クイック操作
                         </h3>
                     </div>
                     <div class="card-content">
@@ -722,24 +722,24 @@
                                class="btn btn-warning"
                                sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                                 <i class="fas fa-minus"></i>
-                                재고 출고
+                                在庫出庫
                             </a>
 
                             <a th:href="@{/stocks/{id}/edit(id=${stock.id})}"
                                class="btn btn-primary"
                                sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                                 <i class="fas fa-edit"></i>
-                                재고 정보 수정
+                                在庫情報修正
                             </a>
 
                             <button class="btn btn-outline-secondary" onclick="printStockLabel()">
                                 <i class="fas fa-print"></i>
-                                라벨 인쇄
+                                ラベル印刷
                             </button>
 
                             <a th:href="@{/medicines/{id}(id=${stock.medicine.id})}" class="btn btn-outline-secondary">
                                 <i class="fas fa-pills"></i>
-                                의약품 정보 보기
+                                医薬品情報を表示
                             </a>
                         </div>
                     </div>
@@ -751,7 +751,7 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         const stockId = /*[[${stock.id}]]*/ 1;
         const medicineId = /*[[${stock.medicine.id}]]*/ 1;
 
@@ -762,13 +762,13 @@
             updateAlerts();
         });
 
-        // 페이지 초기화
+        // ページ初期化
         function initializePage() {
-            // 재고 이미지 로드 (향후 구현)
+            // 在庫画像のロード (将来的に実装)
             // loadStockImage();
         }
 
-        // 거래 내역 데이터 로드
+        // 取引履歴データのロード
         async function loadTransactionData() {
             try {
                 const response = await ApiClient.get(`/api/stocks/${stockId}/transactions?limit=10`);
@@ -779,12 +779,12 @@
                     showEmptyTransactionState();
                 }
             } catch (error) {
-                console.error('거래 내역 로드 오류:', error);
+                console.error('取引履歴のロードエラー:', error);
                 showEmptyTransactionState();
             }
         }
 
-        // 거래 내역 테이블 렌더링
+        // 取引履歴テーブルのレンダリング
         function renderTransactionsTable(transactions) {
             const tbody = document.getElementById('transactionsTableBody');
             const emptyState = document.getElementById('emptyTransactionState');
@@ -810,7 +810,7 @@
             `).join('');
         }
 
-        // 연관 재고 로드
+        // 関連在庫のロード
         async function loadRelatedStocks() {
             try {
                 const response = await ApiClient.get(`/api/medicines/${medicineId}/stocks?excludeId=${stockId}&limit=5`);
@@ -819,14 +819,14 @@
                     renderRelatedStocks(response.data);
                 }
             } catch (error) {
-                console.error('연관 재고 로드 오류:', error);
+                console.error('関連在庫のロードエラー:', error);
                 document.getElementById('relatedStocks').innerHTML = `
-                    <p style="color: #64748b; text-align: center;">연관 재고를 불러올 수 없습니다.</p>
+                    <p style="color: #64748b; text-align: center;">関連在庫を読み込めませんでした。</p>
                 `;
             }
         }
 
-        // 연관 재고 렌더링
+        // 関連在庫のレンダリング
         function renderRelatedStocks(stocks) {
             const container = document.getElementById('relatedStocks');
 
@@ -834,7 +834,7 @@
                 container.innerHTML = `
                     <p style="color: #64748b; text-align: center;">
                         <i class="fas fa-info-circle me-2"></i>
-                        같은 의약품의 다른 재고가 없습니다.
+                        同じ医薬品の他の在庫はありません。
                     </p>
                 `;
                 return;
@@ -848,62 +848,62 @@
                         <span class="status-badge ${stock.status.toLowerCase()}">${stock.statusDescription}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-weight: 600;">${formatNumber(stock.quantity)}개</span>
+                        <span style="font-weight: 600;">${formatNumber(stock.quantity)}個</span>
                         <span style="font-size: 0.85rem; color: #64748b;">
                             ${formatDate(stock.expiryDate)}
-                            ${stock.daysUntilExpiry <= 30 ? ` (${stock.daysUntilExpiry}일 남음)` : ''}
+                            ${stock.daysUntilExpiry <= 30 ? ` (あと${stock.daysUntilExpiry}日)` : ''}
                         </span>
                     </div>
                 </div>
             `).join('');
         }
 
-        // 알림 업데이트
+        // 通知の更新
         function updateAlerts() {
             const alertsContent = document.getElementById('alertsContent');
             const alerts = [];
 
-            // 재고 수량 기반 알림 (실제 구현에서는 서버에서 전달)
+            // 在庫数量に基づく通知 (実際の구현에서는 서버에서 전달)
             const currentStock = /*[[${stock.quantity}]]*/ 500;
             const minStock = /*[[${stock.medicine.minStockQuantity}]]*/ 10;
             const daysUntilExpiry = /*[[${stock.daysUntilExpiry}]]*/ 365;
 
-            // 재고 부족 알림
+            // 在庫不足通知
             if (currentStock <= minStock) {
                 alerts.push({
                     type: currentStock === 0 ? 'danger' : 'warning',
                     icon: 'fas fa-exclamation-triangle',
-                    title: currentStock === 0 ? '재고 없음' : '재고 부족',
+                    title: currentStock === 0 ? '在庫切れ' : '在庫不足',
                     message: currentStock === 0
-                        ? '현재 재고가 없습니다. 즉시 보충이 필요합니다.'
-                        : `현재 재고(${currentStock})가 최소 재고량(${minStock}) 이하입니다.`
+                        ? '現在在庫がありません。直ちに補充が必要です。'
+                        : `現在の在庫(${currentStock})が最小在庫量(${minStock})以下です。`
                 });
             }
 
-            // 유효기간 임박 알림
+            // 使用期限間近通知
             if (daysUntilExpiry <= 0) {
                 alerts.push({
                     type: 'danger',
                     icon: 'fas fa-times-circle',
-                    title: '유효기간 만료',
-                    message: '이 재고는 유효기간이 만료되었습니다. 폐기 처리가 필요합니다.'
+                    title: '使用期限切れ',
+                    message: 'この在庫は使用期限が切れています。廃棄処理が必要です。'
                 });
             } else if (daysUntilExpiry <= 30) {
                 alerts.push({
                     type: 'warning',
                     icon: 'fas fa-calendar-times',
-                    title: '유효기간 임박',
-                    message: `${daysUntilExpiry}일 후 유효기간이 만료됩니다.`
+                    title: '使用期限間近',
+                    message: `あと${daysUntilExpiry}日で使用期限が切れます。`
                 });
             }
 
-            // 정상 상태 메시지
+            // 正常状態メッセージ
             if (alerts.length === 0) {
                 alerts.push({
                     type: 'info',
                     icon: 'fas fa-check-circle',
-                    title: '재고 상태 양호',
-                    message: '현재 재고 상태가 정상입니다.'
+                    title: '在庫状況良好',
+                    message: '現在の在庫状況は正常です。'
                 });
             }
 
@@ -918,16 +918,17 @@
             `).join('');
         }
 
-        // 빈 상태 표시
+        // 空の状態表示
         function showEmptyTransactionState() {
             document.getElementById('transactionsTableBody').innerHTML = '';
             document.getElementById('emptyTransactionState').style.display = 'block';
         }
 
-        // 유틸리티 함수들
+        // ユーティリティ関数
         function formatDateTime(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString('ko-KR', {
+            return date.toLocaleDateString('ja-JP', {
+                year: 'numeric',
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
@@ -935,31 +936,31 @@
             });
         }
 
-        // 이벤트 핸들러들
+        // イベントハンドラ
         function viewTransaction(transactionId) {
             window.location.href = `/transactions/${transactionId}`;
         }
 
         function printStockLabel() {
-            // 실제 구현에서는 라벨 인쇄 API 호출
-            showAlert('재고 라벨 인쇄 기능은 준비 중입니다.', 'info');
+            // 実際の구현ではラベル印刷APIを呼び出す
+            showAlert('在庫ラベルの印刷機能は準備中です。', 'info');
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // F5: 새로고침
+            // F5: 更新
             if (e.key === 'F5') {
                 e.preventDefault();
                 location.reload();
             }
 
-            // Ctrl + E: 편집
+            // Ctrl + E: 編集
             if (e.ctrlKey && e.key === 'e') {
                 e.preventDefault();
                 window.location.href = `/stocks/${stockId}/edit`;
             }
 
-            // Ctrl + O: 출고
+            // Ctrl + O: 出庫
             if (e.ctrlKey && e.key === 'o') {
                 e.preventDefault();
                 window.location.href = `/transactions/new?stockId=${stockId}&type=outbound`;

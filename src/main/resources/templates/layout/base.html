@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle != null ? pageTitle + ' - 의약품 재고관리 시스템' : '의약품 재고관리 시스템'}">의약품 재고관리 시스템</title>
+    <title th:text="${pageTitle != null ? pageTitle + ' - 医薬品在庫管理システム' : '医薬品在庫管理システム'}">医薬品在庫管理システム</title>
 
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,7 +12,7 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- 커스텀 CSS -->
+    <!-- カスタムCSS -->
     <style>
         :root {
             --primary-color: #2c5aa0;
@@ -40,7 +40,7 @@
             line-height: 1.6;
         }
 
-        /* 헤더 스타일 */
+        /* ヘッダースタイル */
         .main-header {
             background: linear-gradient(135deg, var(--primary-color), #1e40af);
             color: white;
@@ -96,7 +96,7 @@
             font-weight: 600;
         }
 
-        /* 사이드바 스타일 */
+        /* サイドバースタイル */
         .sidebar {
             background: white;
             width: var(--sidebar-width);
@@ -155,7 +155,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* 메인 컨텐츠 */
+        /* メインコンテンツ */
         .main-content {
             margin-left: var(--sidebar-width);
             margin-top: var(--header-height);
@@ -163,7 +163,7 @@
             min-height: calc(100vh - var(--header-height));
         }
 
-        /* 카드 스타일 (BoxHero 스타일) */
+        /* カードスタイル */
         .stat-card {
             background: white;
             border-radius: 12px;
@@ -220,7 +220,7 @@
         .positive { color: var(--success-color); }
         .negative { color: var(--danger-color); }
 
-        /* 테이블 스타일 */
+        /* テーブルスタイル */
         .data-table {
             background: white;
             border-radius: 12px;
@@ -246,7 +246,7 @@
             vertical-align: middle;
         }
 
-        /* 버튼 스타일 */
+        /* ボタンスタイル */
         .btn {
             border-radius: 8px;
             font-weight: 500;
@@ -280,14 +280,14 @@
             border-color: var(--danger-color);
         }
 
-        /* 배지 스타일 */
+        /* バッジスタイル */
         .badge {
             border-radius: 6px;
             font-weight: 500;
             padding: 0.4em 0.8em;
         }
 
-        /* 알림 스타일 */
+        /* 通知スタイル */
         .alert {
             border-radius: 8px;
             border: none;
@@ -309,7 +309,7 @@
             color: #dc2626;
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -329,7 +329,7 @@
             }
         }
 
-        /* 로딩 스피너 */
+        /* ローディングスピナー */
         .spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid var(--primary-color);
@@ -344,7 +344,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 페이드인 애니메이션 */
+        /* フェードインアニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -355,11 +355,11 @@
         }
     </style>
 
-    <!-- 페이지별 CSS -->
+    <!-- ページ別CSS -->
     <th:block layout:fragment="css"></th:block>
 </head>
 <body>
-<!-- 헤더 -->
+<!-- ヘッダー -->
 <header class="main-header">
     <div class="header-content">
         <div class="logo-section">
@@ -374,153 +374,153 @@
 
         <div class="user-section" sec:authorize="isAuthenticated()">
             <div class="user-info">
-                <div class="fw-semibold" th:text="${#authentication.principal.fullName ?: #authentication.principal.username}">사용자명</div>
-                <small class="opacity-75" th:text="${#authentication.principal.authorities}">역할</small>
+                <div class="fw-semibold" th:text="${#authentication.principal.fullName ?: #authentication.principal.username}">ユーザー名</div>
+                <small class="opacity-75" th:text="${#authentication.principal.authorities}">役割</small>
             </div>
             <div class="dropdown">
                 <div class="user-avatar dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                     <span th:text="${#strings.substring(#authentication.principal.fullName ?: #authentication.principal.username, 0, 1)?.toUpperCase()}">U</span>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="/users/profile"><i class="fas fa-user me-2"></i>프로필</a></li>
-                    <li><a class="dropdown-item" href="/auth/change-password"><i class="fas fa-key me-2"></i>비밀번호 변경</a></li>
+                    <li><a class="dropdown-item" href="/users/profile"><i class="fas fa-user me-2"></i>プロフィール</a></li>
+                    <li><a class="dropdown-item" href="/auth/change-password"><i class="fas fa-key me-2"></i>パスワード変更</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
+                    <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>ログアウト</a></li>
                 </ul>
             </div>
         </div>
 
-        <!-- 비로그인 사용자 -->
+        <!-- 非ログインユーザー -->
         <div class="user-section" sec:authorize="!isAuthenticated()">
-            <a href="/auth/login" class="btn btn-outline-light btn-sm">로그인</a>
+            <a href="/auth/login" class="btn btn-outline-light btn-sm">ログイン</a>
         </div>
     </div>
 </header>
 
-<!-- 사이드바 -->
+<!-- サイドバー -->
 <nav class="sidebar" id="sidebar" sec:authorize="isAuthenticated()">
     <div class="sidebar-menu">
-        <!-- 대시보드 -->
+        <!-- ダッシュボード -->
         <div class="menu-section">
             <a href="/dashboard" class="menu-item" th:classappend="${currentPage == 'dashboard' ? 'active' : ''}">
                 <i class="fas fa-chart-pie"></i>
-                대시보드
+                ダッシュボード
             </a>
         </div>
 
-        <!-- 재고 관리 -->
+        <!-- 在庫管理 -->
         <div class="menu-section">
-            <div class="menu-section-title">재고 관리</div>
+            <div class="menu-section-title">在庫管理</div>
             <a href="/medicines" class="menu-item" th:classappend="${currentPage == 'medicines' ? 'active' : ''}">
                 <i class="fas fa-pills"></i>
-                의약품 관리
+                医薬品管理
             </a>
             <a href="/stocks" class="menu-item" th:classappend="${currentPage == 'stocks' ? 'active' : ''}">
                 <i class="fas fa-boxes"></i>
-                재고 현황
+                在庫状況
             </a>
             <a href="/transactions" class="menu-item" th:classappend="${currentPage == 'transactions' ? 'active' : ''}">
                 <i class="fas fa-exchange-alt"></i>
-                입출고 관리
+                入出庫管理
             </a>
         </div>
 
-        <!-- 빠른 작업 -->
+        <!-- クイック操作 -->
         <div class="menu-section">
-            <div class="menu-section-title">빠른 작업</div>
+            <div class="menu-section-title">クイック操作</div>
             <a href="/stocks/inbound" class="menu-item">
                 <i class="fas fa-plus-circle text-success"></i>
-                재고 입고
+                在庫入庫
             </a>
             <a href="/stocks/outbound" class="menu-item">
                 <i class="fas fa-minus-circle text-warning"></i>
-                재고 출고
+                在庫出庫
             </a>
         </div>
 
-        <!-- 보고서 -->
+        <!-- レポート -->
         <div class="menu-section">
-            <div class="menu-section-title">보고서</div>
+            <div class="menu-section-title">レポート</div>
             <a href="/reports/stock" class="menu-item">
                 <i class="fas fa-chart-bar"></i>
-                재고 보고서
+                在庫レポート
             </a>
             <a href="/reports/expiry" class="menu-item">
                 <i class="fas fa-calendar-times"></i>
-                유효기간 보고서
+                有効期限レポート
             </a>
         </div>
 
-        <!-- 시스템 관리 -->
+        <!-- システム管理 -->
         <div class="menu-section" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
-            <div class="menu-section-title">시스템 관리</div>
+            <div class="menu-section-title">システム管理</div>
             <a href="/users" class="menu-item" th:classappend="${currentPage == 'users' ? 'active' : ''}">
                 <i class="fas fa-users"></i>
-                사용자 관리
+                ユーザー管理
             </a>
             <a href="/system/settings" class="menu-item">
                 <i class="fas fa-cog"></i>
-                시스템 설정
+                システム設定
             </a>
         </div>
     </div>
 </nav>
 
-<!-- 시스템 도구 (ADMIN만 접근 가능) -->
+<!-- システムツール (ADMINのみアクセス可能) -->
 <div class="menu-section" sec:authorize="hasRole('ADMIN')">
-    <div class="menu-section-title">시스템 도구</div>
+    <div class="menu-section-title">システムツール</div>
     <a href="/system/backup" class="menu-item">
         <i class="fas fa-database"></i>
-        백업 관리
+        バックアップ管理
     </a>
     <a href="/system/monitor" class="menu-item">
         <i class="fas fa-chart-line"></i>
-        시스템 모니터
+        システムモニター
     </a>
     <a href="/system/logs" class="menu-item">
         <i class="fas fa-file-alt"></i>
-        시스템 로그
+        システムログ
     </a>
 </div>
 
-<!-- 메인 컨텐츠 -->
+<!-- メインコンテンツ -->
 <main class="main-content">
-    <!-- 페이지 헤더 -->
+    <!-- ページヘッダー -->
     <div class="d-flex justify-content-between align-items-center mb-4" th:if="${pageTitle}">
         <div>
-            <h1 class="h3 mb-1" th:text="${pageTitle}">페이지 제목</h1>
-            <p class="text-muted mb-0" th:text="${pageDescription ?: ''}" th:if="${pageDescription}">페이지 설명</p>
+            <h1 class="h3 mb-1" th:text="${pageTitle}">ページタイトル</h1>
+            <p class="text-muted mb-0" th:text="${pageDescription ?: ''}" th:if="${pageDescription}">ページ説明</p>
         </div>
         <div th:if="${headerActions}" th:utext="${headerActions}">
-            <!-- 헤더 액션 버튼들 -->
+            <!-- ヘッダーアクションボタン -->
         </div>
     </div>
 
-    <!-- 알림 메시지 -->
+    <!-- 通知メッセージ -->
     <div th:if="${message}" class="alert alert-info alert-dismissible fade show" role="alert">
         <i class="fas fa-info-circle me-2"></i>
-        <span th:text="${message}">메시지</span>
+        <span th:text="${message}">メッセージ</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
     <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-circle me-2"></i>
-        <span th:text="${error}">에러 메시지</span>
+        <span th:text="${error}">エラーメッセージ</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- 페이지 컨텐츠 -->
+    <!-- ページコンテンツ -->
     <div layout:fragment="content" class="fade-in">
-        <!-- 개별 페이지 컨텐츠가 여기에 들어갑니다 -->
+        <!-- 個別のページコンテンツがここに挿入されます -->
     </div>
 </main>
 
 <!-- Bootstrap 5.3 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- 공통 JavaScript -->
+<!--共通 JavaScript -->
 <script>
-    // 사이드바 토글 (모바일)
+    // サイドバーのトグル (モバイル)
     document.addEventListener('DOMContentLoaded', function() {
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
@@ -531,7 +531,7 @@
             });
         }
 
-        // 외부 클릭시 사이드바 닫기 (모바일)
+        // 外部クリックでサイドバーを閉じる (モバイル)
         document.addEventListener('click', function(e) {
             if (window.innerWidth <= 768) {
                 if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
@@ -541,7 +541,7 @@
         });
     });
 
-    // API 호출 헬퍼 함수
+    // API呼び出しヘルパー関数
     class ApiClient {
         static async get(url) {
             const response = await fetch(url, {
@@ -598,14 +598,14 @@
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || '요청 처리 중 오류가 발생했습니다.');
+                throw new Error(data.message || 'リクエストの処理中にエラーが発生しました。');
             }
 
             return data;
         }
     }
 
-    // 알림 표시 함수
+    // 通知表示関数
     function showAlert(message, type = 'info') {
         const alertDiv = document.createElement('div');
         alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
@@ -624,22 +624,29 @@
         }, 5000);
     }
 
-    // 숫자 포맷팅
+    // 数値フォーマット
     function formatNumber(num) {
-        return new Intl.NumberFormat('ko-KR').format(num);
+        return new Intl.NumberFormat('ja-JP').format(num);
     }
 
-    // 날짜 포맷팅
+    // 日付フォーマット
     function formatDate(dateString) {
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).format(date);
+        if (!dateString) return '';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return dateString;
+            }
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}年${month}月${day}日`;
+        } catch (e) {
+            return dateString;
+        }
     }
 
-    // 상대 시간 표시
+    // 相対時間表示
     function timeAgo(dateString) {
         const date = new Date(dateString);
         const now = new Date();
@@ -657,15 +664,23 @@
         for (const [unit, secondsInUnit] of Object.entries(intervals)) {
             const interval = Math.floor(seconds / secondsInUnit);
             if (interval >= 1) {
-                return `${interval}${unit === 'year' ? '년' : unit === 'month' ? '개월' : unit === 'week' ? '주' : unit === 'day' ? '일' : unit === 'hour' ? '시간' : '분'} 전`;
+                const unitJa = {
+                    year: '年',
+                    month: 'ヶ月',
+                    week: '週間',
+                    day: '日',
+                    hour: '時間',
+                    minute: '分'
+                };
+                return `${interval}${unitJa[unit]}前`;
             }
         }
 
-        return '방금 전';
+        return 'たった今';
     }
 </script>
 
-<!-- 페이지별 JavaScript -->
+<!-- ページ別JavaScript -->
 <th:block layout:fragment="javascript"></th:block>
 </body>
 </html>

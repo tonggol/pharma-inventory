@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title th:text="${transaction.transactionType + ' - ' + transaction.medicine.name + ' (' + transaction.lotNumber + ')'}">거래 상세 정보 - 의약품 재고관리 시스템</title>
+    <title th:text="${transaction.transactionType + ' - ' + transaction.medicine.name + ' (' + transaction.lotNumber + ')'}">取引詳細情報 - 医薬品在庫管理システム</title>
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/tables.css">
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 거래 상세 페이지 특화 스타일 */
+        /* 取引詳細ページ特化スタイル */
         .detail-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -117,7 +117,7 @@
             align-items: center;
         }
 
-        /* 그리드 레이아웃 */
+        /* グリッドレイアウト */
         .detail-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -137,7 +137,7 @@
             gap: 2rem;
         }
 
-        /* 거래 정보 그리드 */
+        /* 取引情報グリッド */
         .transaction-info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -182,7 +182,7 @@
             color: var(--danger-color);
         }
 
-        /* 관련 정보 카드 */
+        /* 関連情報カード */
         .related-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -224,7 +224,7 @@
             margin-top: 0.5rem;
         }
 
-        /* 타임라인 스타일 */
+        /* タイムラインスタイル */
         .timeline {
             position: relative;
             padding-left: 2rem;
@@ -287,7 +287,7 @@
             font-size: 0.9rem;
         }
 
-        /* 승인 정보 */
+        /* 承認情報 */
         .approval-info {
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid var(--success-color);
@@ -322,7 +322,7 @@
             color: #64748b;
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 1024px) {
             .detail-grid {
                 grid-template-columns: 1fr;
@@ -370,7 +370,7 @@
 
 <div layout:fragment="content">
     <div class="detail-container">
-        <!-- 거래 헤더 -->
+        <!-- 取引ヘッダー -->
         <div class="detail-header fade-in">
             <div class="transaction-header">
                 <div class="transaction-icon" th:classappend="${transaction.transactionType.toLowerCase()}">
@@ -380,25 +380,25 @@
                 </div>
 
                 <div class="transaction-info">
-                    <h1 class="transaction-title" th:text="${transaction.transactionTypeDescription}">재고 입고</h1>
-                    <p class="transaction-subtitle" th:text="${transaction.medicine.name + ' (' + transaction.lotNumber + ')'}">아스피린정 100mg (LOT2024001)</p>
+                    <h1 class="transaction-title" th:text="${transaction.transactionTypeDescription}">在庫入庫</h1>
+                    <p class="transaction-subtitle" th:text="${transaction.medicine.name + ' (' + transaction.lotNumber + ')'}">アスピリン錠 100mg (LOT2024001)</p>
 
                     <div class="transaction-meta">
                         <div class="meta-item">
-                            <span class="meta-label">거래 ID:</span>
+                            <span class="meta-label">取引ID:</span>
                             <span class="transaction-id" th:text="${transaction.id}">TXN001</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">거래 일시:</span>
+                            <span class="meta-label">取引日時:</span>
                             <span class="meta-value" th:text="${#temporals.format(transaction.transactionDate, 'yyyy-MM-dd HH:mm')}">2024-01-15 09:30</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">담당자:</span>
-                            <span class="meta-value" th:text="${transaction.createdByUsername}">김약사</span>
+                            <span class="meta-label">担当者:</span>
+                            <span class="meta-value" th:text="${transaction.createdByUsername}">キム薬剤師</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">상태:</span>
-                            <span class="status-badge" th:classappend="${transaction.status.toLowerCase()}" th:text="${transaction.statusDescription}">완료</span>
+                            <span class="meta-label">ステータス:</span>
+                            <span class="status-badge" th:classappend="${transaction.status.toLowerCase()}" th:text="${transaction.statusDescription}">完了</span>
                         </div>
                     </div>
                 </div>
@@ -409,111 +409,111 @@
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')"
                        th:if="${transaction.status == 'PENDING'}">
                         <i class="fas fa-edit"></i>
-                        수정
+                        修正
                     </a>
                     <button class="btn btn-outline-secondary" onclick="printTransaction()">
                         <i class="fas fa-print"></i>
-                        인쇄
+                        印刷
                     </button>
                     <a th:href="@{/transactions}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i>
-                        목록으로
+                        一覧へ
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 메인 그리드 -->
+        <!-- メイングリッド -->
         <div class="detail-grid">
-            <!-- 메인 컨텐츠 -->
+            <!-- メインコンテンツ -->
             <div class="main-content">
-                <!-- 거래 상세 정보 -->
+                <!-- 取引詳細情報 -->
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-info-circle"></i>
                             </div>
-                            거래 상세 정보
+                            取引詳細情報
                         </h3>
                     </div>
                     <div class="card-content">
                         <div class="transaction-info-grid">
                             <div class="info-item">
-                                <div class="info-label">거래 수량</div>
+                                <div class="info-label">取引数量</div>
                                 <div class="info-value large"
                                      th:classappend="${transaction.transactionType == 'INBOUND' ? 'success' :
                                                      transaction.transactionType == 'OUTBOUND' ? 'warning' : 'danger'}"
-                                     th:text="${(transaction.transactionType == 'OUTBOUND' ? '-' : '+') + transaction.quantity + ' ' + transaction.medicine.unit}">+500 정</div>
+                                     th:text="${(transaction.transactionType == 'OUTBOUND' ? '-' : '+') + transaction.quantity + ' ' + transaction.medicine.unit}">+500 錠</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">단가</div>
-                                <div class="info-value" th:text="${transaction.unitPrice != null ? #numbers.formatCurrency(transaction.unitPrice) : '-'}">₩1,200</div>
+                                <div class="info-label">単価</div>
+                                <div class="info-value" th:text="${transaction.unitPrice != null ? #numbers.formatCurrency(transaction.unitPrice) : '-'}">¥1,200</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">총 금액</div>
-                                <div class="info-value" th:text="${transaction.totalAmount != null ? #numbers.formatCurrency(transaction.totalAmount) : '-'}">₩600,000</div>
+                                <div class="info-label">合計金額</div>
+                                <div class="info-value" th:text="${transaction.totalAmount != null ? #numbers.formatCurrency(transaction.totalAmount) : '-'}">¥600,000</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">거래 전 재고</div>
-                                <div class="info-value" th:text="${transaction.stockBefore + ' ' + transaction.medicine.unit}">150 정</div>
+                                <div class="info-label">取引前在庫</div>
+                                <div class="info-value" th:text="${transaction.stockBefore + ' ' + transaction.medicine.unit}">150 錠</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">거래 후 재고</div>
-                                <div class="info-value" th:text="${transaction.stockAfter + ' ' + transaction.medicine.unit}">650 정</div>
+                                <div class="info-label">取引後在庫</div>
+                                <div class="info-value" th:text="${transaction.stockAfter + ' ' + transaction.medicine.unit}">650 錠</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">거래 위치</div>
-                                <div class="info-value" th:text="${transaction.location ?: '-'}">A동-1층-냉장고1</div>
+                                <div class="info-label">取引場所</div>
+                                <div class="info-value" th:text="${transaction.location ?: '-'}">A棟-1階-冷蔵庫1</div>
                             </div>
                         </div>
 
-                        <!-- 거래 사유 -->
+                        <!-- 取引事由 -->
                         <div th:if="${transaction.reason}" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">거래 사유</h5>
+                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">取引事由</h5>
                             <p style="color: #64748b; line-height: 1.6; margin: 0;" th:text="${transaction.reason}">
-                                정기 재고 보충
+                                定期在庫補充
                             </p>
                         </div>
 
-                        <!-- 추가 비고 -->
+                        <!-- 追加備考 -->
                         <div th:if="${transaction.remarks}" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">추가 비고</h5>
+                            <h5 style="margin-bottom: 1rem; color: var(--dark-color);">追加備考</h5>
                             <p style="color: #64748b; line-height: 1.6; margin: 0;" th:text="${transaction.remarks}">
-                                유효기간 확인 완료. 정상 입고 처리됨.
+                                使用期限確認済み。正常入庫処理完了。
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- 승인 및 처리 이력 -->
+                <!-- 承認及び処理履歴 -->
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-history"></i>
                             </div>
-                            처리 이력
+                            処理履歴
                         </h3>
                     </div>
                     <div class="card-content">
                         <div class="timeline" id="transactionTimeline">
-                            <!-- 동적으로 로드됨 -->
+                            <!-- 動的にロード -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 사이드바 -->
+            <!-- サイドバー -->
             <div class="sidebar-content">
-                <!-- 관련 정보 -->
+                <!-- 関連情報 -->
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-link"></i>
                             </div>
-                            관련 정보
+                            関連情報
                         </h3>
                     </div>
                     <div class="card-content">
@@ -521,32 +521,32 @@
                             <a th:href="@{/medicines/{id}(id=${transaction.medicine.id})}" class="related-card">
                                 <div class="related-card-title">
                                     <i class="fas fa-pills"></i>
-                                    의약품 정보
+                                    医薬品情報
                                 </div>
-                                <div class="related-card-content" th:text="${transaction.medicine.name}">아스피린정 100mg</div>
+                                <div class="related-card-content" th:text="${transaction.medicine.name}">アスピリン錠 100mg</div>
                                 <div class="related-card-value" th:text="${transaction.medicine.code}">MED001</div>
                             </a>
 
                             <a th:href="@{/stocks/{id}(id=${transaction.stockId})}" class="related-card">
                                 <div class="related-card-title">
                                     <i class="fas fa-box"></i>
-                                    재고 정보
+                                    在庫情報
                                 </div>
-                                <div class="related-card-content">로트번호</div>
+                                <div class="related-card-content">ロット番号</div>
                                 <div class="related-card-value" th:text="${transaction.lotNumber}">LOT2024001</div>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- 승인 정보 -->
+                <!-- 承認情報 -->
                 <div class="card fade-in" th:if="${transaction.requiresApproval}">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-check-circle"></i>
                             </div>
-                            승인 정보
+                            承認情報
                         </h3>
                     </div>
                     <div class="card-content">
@@ -554,37 +554,37 @@
                             <div class="approval-header">
                                 <i class="fas" th:classappend="${transaction.approvalStatus == 'APPROVED' ? 'fa-check-circle' :
                                                                transaction.approvalStatus == 'PENDING' ? 'fa-clock' : 'fa-times-circle'}"></i>
-                                <span class="approval-status" th:text="${transaction.approvalStatusDescription}">승인 완료</span>
+                                <span class="approval-status" th:text="${transaction.approvalStatusDescription}">承認完了</span>
                             </div>
                             <div class="approval-details">
-                                <div th:if="${transaction.approvedBy}">승인자: <span th:text="${transaction.approvedBy}">관리자</span></div>
-                                <div th:if="${transaction.approvedAt}">승인일시: <span th:text="${#temporals.format(transaction.approvedAt, 'yyyy-MM-dd HH:mm')}">2024-01-15 10:00</span></div>
-                                <div th:if="${transaction.approvalComments}">승인 의견: <span th:text="${transaction.approvalComments}">정상 처리</span></div>
+                                <div th:if="${transaction.approvedBy}">承認者: <span th:text="${transaction.approvedBy}">管理者</span></div>
+                                <div th:if="${transaction.approvedAt}">承認日時: <span th:text="${#temporals.format(transaction.approvedAt, 'yyyy-MM-dd HH:mm')}">2024-01-15 10:00</span></div>
+                                <div th:if="${transaction.approvalComments}">承認コメント: <span th:text="${transaction.approvalComments}">正常処理</span></div>
                             </div>
                         </div>
 
-                        <!-- 승인 액션 버튼 (대기 중인 경우) -->
+                        <!-- 承認アクションボタン (待機中の場合) -->
                         <div th:if="${transaction.approvalStatus == 'PENDING'}" class="mt-3 d-flex gap-2" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
                             <button class="btn btn-success btn-sm" onclick="approveTransaction()">
                                 <i class="fas fa-check"></i>
-                                승인
+                                承認
                             </button>
                             <button class="btn btn-danger btn-sm" onclick="rejectTransaction()">
                                 <i class="fas fa-times"></i>
-                                거부
+                                拒否
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 빠른 작업 -->
+                <!-- クイック操作 -->
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-bolt"></i>
                             </div>
-                            빠른 작업
+                            クイック操作
                         </h3>
                     </div>
                     <div class="card-content">
@@ -593,23 +593,23 @@
                                class="btn btn-primary"
                                sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                                 <i class="fas fa-plus"></i>
-                                새 거래 등록
+                                新規取引登録
                             </a>
 
                             <a th:href="@{/transactions(medicineId=${transaction.medicine.id})}"
                                class="btn btn-outline-secondary">
                                 <i class="fas fa-list"></i>
-                                관련 거래 목록
+                                関連取引一覧
                             </a>
 
                             <button class="btn btn-outline-secondary" onclick="copyTransaction()">
                                 <i class="fas fa-copy"></i>
-                                거래 복사
+                                取引コピー
                             </button>
 
                             <button class="btn btn-outline-secondary" onclick="exportTransaction()">
                                 <i class="fas fa-download"></i>
-                                데이터 내보내기
+                                データエクスポート
                             </button>
                         </div>
                     </div>
@@ -621,14 +621,14 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         const transactionId = /*[[${transaction.id}]]*/ 1;
 
         document.addEventListener('DOMContentLoaded', function() {
             loadTransactionTimeline();
         });
 
-        // 거래 타임라인 로드
+        // 取引タイムラインのロード
         async function loadTransactionTimeline() {
             try {
                 const response = await ApiClient.get(`/api/transactions/${transactionId}/timeline`);
@@ -637,13 +637,13 @@
                     renderTimeline(response.data);
                 }
             } catch (error) {
-                console.error('타임라인 로드 오류:', error);
-                // 기본 타임라인 표시
+                console.error('タイムラインのロードエラー:', error);
+                // デフォルトのタイムラインを表示
                 renderDefaultTimeline();
             }
         }
 
-        // 타임라인 렌더링
+        // タイムラインのレンダリング
         function renderTimeline(timelineData) {
             const container = document.getElementById('transactionTimeline');
 
@@ -660,21 +660,21 @@
                             <div class="timeline-time">${formatDateTime(item.timestamp)}</div>
                         </div>
                         <div class="timeline-description">${item.description}</div>
-                        ${item.user ? `<div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem;">처리자: ${item.user}</div>` : ''}
+                        ${item.user ? `<div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem;">処理者: ${item.user}</div>` : ''}
                     </div>
                 </div>
             `).join('');
         }
 
-        // 기본 타임라인 표시
+        // デフォルトのタイムラインを表示
         function renderDefaultTimeline() {
             const container = document.getElementById('transactionTimeline');
             const transaction = /*[[${transaction}]]*/ {};
 
             const defaultItems = [
                 {
-                    title: '거래 등록',
-                    description: '거래가 시스템에 등록되었습니다.',
+                    title: '取引登録',
+                    description: '取引がシステムに登録されました。',
                     timestamp: transaction.createdAt,
                     user: transaction.createdByUsername
                 }
@@ -682,8 +682,8 @@
 
             if (transaction.status === 'COMPLETED') {
                 defaultItems.push({
-                    title: '거래 완료',
-                    description: '거래가 성공적으로 완료되었습니다.',
+                    title: '取引完了',
+                    description: '取引が正常に完了しました。',
                     timestamp: transaction.updatedAt,
                     user: transaction.updatedByUsername
                 });
@@ -692,9 +692,9 @@
             renderTimeline(defaultItems);
         }
 
-        // 거래 승인
+        // 取引承認
         async function approveTransaction() {
-            const comments = prompt('승인 의견을 입력하세요 (선택사항):');
+            const comments = prompt('承認コメントを入力してください (任意):');
 
             try {
                 const response = await ApiClient.post(`/api/transactions/${transactionId}/approve`, {
@@ -702,17 +702,17 @@
                 });
 
                 if (response.success) {
-                    showAlert('거래가 승인되었습니다.', 'success');
+                    showAlert('取引が承認されました。', 'success');
                     setTimeout(() => location.reload(), 1500);
                 }
             } catch (error) {
-                showAlert(error.message || '승인 처리 중 오류가 발생했습니다.', 'danger');
+                showAlert(error.message || '承認処理中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 거래 거부
+        // 取引拒否
         async function rejectTransaction() {
-            const reason = prompt('거부 사유를 입력하세요:');
+            const reason = prompt('拒否事由を入力してください:');
             if (!reason) return;
 
             try {
@@ -721,15 +721,15 @@
                 });
 
                 if (response.success) {
-                    showAlert('거래가 거부되었습니다.', 'warning');
+                    showAlert('取引が拒否されました。', 'warning');
                     setTimeout(() => location.reload(), 1500);
                 }
             } catch (error) {
-                showAlert(error.message || '거부 처리 중 오류가 발생했습니다.', 'danger');
+                showAlert(error.message || '拒否処理中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 거래 복사
+        // 取引コピー
         function copyTransaction() {
             const transaction = /*[[${transaction}]]*/ {};
             const params = new URLSearchParams({
@@ -742,21 +742,21 @@
             window.location.href = `/transactions/new?${params.toString()}`;
         }
 
-        // 거래 인쇄
+        // 取引印刷
         function printTransaction() {
             window.print();
         }
 
-        // 데이터 내보내기
+        // データエクスポート
         function exportTransaction() {
             const params = new URLSearchParams({ transactionId: transactionId });
             window.open(`/api/transactions/export?${params.toString()}`, '_blank');
         }
 
-        // 유틸리티 함수
+        // ユーティリティ関数
         function formatDateTime(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString('ko-KR', {
+            return date.toLocaleDateString('ja-JP', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
@@ -765,21 +765,21 @@
             });
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // F5: 새로고침
+            // F5: 更新
             if (e.key === 'F5') {
                 e.preventDefault();
                 location.reload();
             }
 
-            // Ctrl + P: 인쇄
+            // Ctrl + P: 印刷
             if (e.ctrlKey && e.key === 'p') {
                 e.preventDefault();
                 printTransaction();
             }
 
-            // Ctrl + E: 편집 (수정 가능한 경우)
+            // Ctrl + E: 編集 (修正可能な場合)
             if (e.ctrlKey && e.key === 'e') {
                 e.preventDefault();
                 const editButton = document.querySelector('a[href*="/edit"]');

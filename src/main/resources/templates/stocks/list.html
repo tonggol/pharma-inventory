@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>재고 현황 - 의약품 재고관리 시스템</title>
+    <title>在庫状況 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 재고 목록 특화 스타일 */
+        /* 在庫リスト特化スタイル */
         .stocks-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -53,7 +53,7 @@
             margin: 0;
         }
 
-        /* 통계 카드 */
+        /* 統計カード */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -117,7 +117,7 @@
             font-weight: 500;
         }
 
-        /* 검색 및 필터 */
+        /* 検索・フィルター */
         .search-filter-card {
             background: white;
             border-radius: 16px;
@@ -233,7 +233,7 @@
             color: var(--primary-color);
         }
 
-        /* 재고 목록 */
+        /* 在庫リスト */
         .stocks-list-card {
             background: white;
             border-radius: 16px;
@@ -307,7 +307,7 @@
             color: white;
         }
 
-        /* 테이블 뷰 */
+        /* テーブルビュー */
         .table-view {
             overflow-x: auto;
         }
@@ -350,7 +350,7 @@
             background: rgba(44, 90, 160, 0.1);
         }
 
-        /* 카드 뷰 */
+        /* カードビュー */
         .card-view {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -464,7 +464,7 @@
             color: var(--danger-color);
         }
 
-        /* 상태 배지 */
+        /* ステータスバッジ */
         .status-badge {
             padding: 0.4rem 0.8rem;
             border-radius: 20px;
@@ -498,7 +498,7 @@
             color: #374151;
         }
 
-        /* 일괄 작업 */
+        /* 一括操作 */
         .bulk-actions {
             background: #f8fafc;
             padding: 1rem 2rem;
@@ -522,7 +522,7 @@
             gap: 1rem;
         }
 
-        /* 페이지네이션 */
+        /* ページネーション */
         .pagination-container {
             padding: 2rem;
             border-top: 1px solid var(--border-color);
@@ -579,7 +579,7 @@
             cursor: not-allowed;
         }
 
-        /* 빈 상태 */
+        /* 空の状態 */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -604,7 +604,7 @@
             margin-bottom: 2rem;
         }
 
-        /* 로딩 상태 */
+        /* ローディング状態 */
         .loading-overlay {
             position: absolute;
             top: 0;
@@ -632,7 +632,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 1024px) {
             .search-form {
                 grid-template-columns: 1fr;
@@ -709,7 +709,7 @@
             }
         }
 
-        /* 페이드 인 애니메이션 */
+        /* フェードインアニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -730,16 +730,16 @@
                         <div class="page-title-icon">
                             <i class="fas fa-warehouse"></i>
                         </div>
-                        재고 현황
+                        在庫状況
                     </h1>
-                    <p class="page-subtitle">전체 의약품 재고 현황을 조회하고 관리할 수 있습니다.</p>
+                    <p class="page-subtitle">全医薬品の在庫状況を照会し、管理することができます。</p>
                 </div>
                 <div>
                     <a href="/stocks/inbound"
                        class="btn btn-success"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-plus"></i>
-                        재고 입고
+                        在庫入庫
                     </a>
                 </div>
             </div>
@@ -751,71 +751,71 @@
         <div class="search-filter-card fade-in">
             <form class="search-form" id="searchForm">
                 <div class="form-group">
-                    <label class="form-label" for="keyword">통합 검색</label>
+                    <label class="form-label" for="keyword">統合検索</label>
                     <input type="text"
                            class="form-control"
                            id="keyword"
                            name="keyword"
-                           placeholder="의약품명, 코드, 로트번호로 검색">
+                           placeholder="医薬品名、コード、ロット番号で検索">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="medicineId">의약품</label>
+                    <label class="form-label" for="medicineId">医薬品</label>
                     <select class="form-select" id="medicineId" name="medicineId">
-                        <option value="">전체 의약품</option>
+                        <option value="">すべての医薬品</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="status">재고 상태</label>
+                    <label class="form-label" for="status">在庫ステータス</label>
                     <select class="form-select" id="status" name="status">
-                        <option value="">전체 상태</option>
-                        <option value="AVAILABLE">사용 가능</option>
-                        <option value="RESERVED">예약됨</option>
-                        <option value="QUARANTINE">격리</option>
-                        <option value="EXPIRED">만료</option>
-                        <option value="DISPOSED">폐기</option>
+                        <option value="">すべてのステータス</option>
+                        <option value="AVAILABLE">利用可能</option>
+                        <option value="RESERVED">予約済み</option>
+                        <option value="QUARANTINE">隔離</option>
+                        <option value="EXPIRED">期限切れ</option>
+                        <option value="DISPOSED">廃棄</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="location">보관 위치</label>
+                    <label class="form-label" for="location">保管場所</label>
                     <input type="text"
                            class="form-control"
                            id="location"
                            name="location"
-                           placeholder="보관 위치">
+                           placeholder="保管場所">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="expiryFilter">유효기간</label>
+                    <label class="form-label" for="expiryFilter">使用期限</label>
                     <select class="form-select" id="expiryFilter" name="expiryFilter">
-                        <option value="">전체</option>
-                        <option value="expired">만료됨</option>
-                        <option value="expiring_soon">30일 이내 만료</option>
-                        <option value="expiring_week">7일 이내 만료</option>
+                        <option value="">すべて</option>
+                        <option value="expired">期限切れ</option>
+                        <option value="expiring_soon">30日以内に期限切れ</option>
+                        <option value="expiring_week">7日以内に期限切れ</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="sortBy">정렬</label>
+                    <label class="form-label" for="sortBy">並び替え</label>
                     <select class="form-select" id="sortBy" name="sortBy">
-                        <option value="id">등록순</option>
-                        <option value="medicineName">의약품명</option>
-                        <option value="expiryDate">유효기간</option>
-                        <option value="quantity">수량</option>
-                        <option value="receivedDate">입고일</option>
+                        <option value="id">登録順</option>
+                        <option value="medicineName">医薬品名</option>
+                        <option value="expiryDate">使用期限</option>
+                        <option value="quantity">数量</option>
+                        <option value="receivedDate">入庫日</option>
                     </select>
                 </div>
 
                 <div class="search-actions">
                     <button type="button" class="btn btn-outline-secondary" onclick="resetSearch()">
                         <i class="fas fa-undo"></i>
-                        초기화
+                        リセット
                     </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search"></i>
-                        검색
+                        検索
                     </button>
                 </div>
             </form>
@@ -827,7 +827,7 @@
                     <div class="list-title-icon">
                         <i class="fas fa-list"></i>
                     </div>
-                    재고 목록
+                    在庫一覧
                     <span class="badge bg-primary" id="totalCount">0</span>
                 </h2>
 
@@ -835,18 +835,18 @@
                     <div class="view-toggle">
                         <button class="view-toggle-btn active" data-view="table" onclick="switchView('table')">
                             <i class="fas fa-table"></i>
-                            테이블
+                            テーブル
                         </button>
                         <button class="view-toggle-btn" data-view="card" onclick="switchView('card')">
                             <i class="fas fa-th-large"></i>
-                            카드
+                            カード
                         </button>
                     </div>
 
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-download"></i>
-                            내보내기
+                            エクスポート
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#" onclick="exportData('excel')">
@@ -863,7 +863,7 @@
 
                     <button class="btn btn-outline-secondary" onclick="refreshData()">
                         <i class="fas fa-sync-alt"></i>
-                        새로고침
+                        更新
                     </button>
                 </div>
             </div>
@@ -877,14 +877,14 @@
                                 <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                             </div>
                         </th>
-                        <th>의약품</th>
-                        <th>로트번호</th>
-                        <th>수량</th>
-                        <th>유효기간</th>
-                        <th>입고일</th>
-                        <th>보관위치</th>
-                        <th>상태</th>
-                        <th>작업</th>
+                        <th>医薬品</th>
+                        <th>ロット番号</th>
+                        <th>数量</th>
+                        <th>使用期限</th>
+                        <th>入庫日</th>
+                        <th>保管場所</th>
+                        <th>ステータス</th>
+                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody id="stocksTableBody">
@@ -899,32 +899,32 @@
                 <div class="empty-state-icon">
                     <i class="fas fa-box-open"></i>
                 </div>
-                <h3 class="empty-state-title">재고가 없습니다</h3>
-                <p class="empty-state-description">검색 조건에 맞는 재고가 없거나 아직 재고가 등록되지 않았습니다.</p>
+                <h3 class="empty-state-title">在庫がありません</h3>
+                <p class="empty-state-description">検索条件に合う在庫がないか、まだ在庫が登録されていません。</p>
                 <a href="/stocks/inbound"
                    class="btn btn-success"
                    sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                     <i class="fas fa-plus"></i>
-                    첫 재고 등록하기
+                    最初の在庫を登録する
                 </a>
             </div>
 
             <div class="bulk-actions" id="bulkActions">
                 <div class="bulk-info">
-                    <span id="selectedCount">0</span>개 항목이 선택됨
+                    <span id="selectedCount">0</span>件の項目が選択されています
                 </div>
                 <div class="bulk-buttons">
                     <button class="btn btn-outline-secondary" onclick="bulkUpdateLocation()">
                         <i class="fas fa-map-marker-alt"></i>
-                        위치 변경
+                        場所変更
                     </button>
                     <button class="btn btn-outline-warning" onclick="bulkUpdateStatus()">
                         <i class="fas fa-edit"></i>
-                        상태 변경
+                        ステータス変更
                     </button>
                     <button class="btn btn-outline-danger" onclick="bulkDispose()" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
                         <i class="fas fa-trash"></i>
-                        일괄 폐기
+                        一括廃棄
                     </button>
                 </div>
             </div>
@@ -947,7 +947,7 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         let currentView = 'table';
         let currentPage = 0;
         let pageSize = 20;
@@ -962,27 +962,27 @@
             setupEventListeners();
         });
 
-        // 페이지 초기화
+        // ページ初期化
         function initializePage() {
             loadMedicines();
             loadStatsData();
         }
 
-        // 초기 데이터 로드
+        // 初期データロード
         function loadInitialData() {
             searchStocks();
         }
 
-        // 이벤트 리스너 설정
+        // イベントリスナー設定
         function setupEventListeners() {
-            // 검색 폼 제출
+            // 検索フォーム送信
             document.getElementById('searchForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 currentPage = 0;
                 searchStocks();
             });
 
-            // 실시간 검색 (디바운싱)
+            // リアルタイム検索 (デバウンス)
             let searchTimeout;
             document.getElementById('keyword').addEventListener('input', function() {
                 clearTimeout(searchTimeout);
@@ -992,7 +992,7 @@
                 }, 500);
             });
 
-            // 필터 변경 시 자동 검색
+            // フィルター変更時に自動検索
             const filterElements = ['medicineId', 'status', 'location', 'expiryFilter', 'sortBy'];
             filterElements.forEach(id => {
                 document.getElementById(id).addEventListener('change', function() {
@@ -1002,7 +1002,7 @@
             });
         }
 
-        // 의약품 목록 로드
+        // 医薬品リストのロード
         async function loadMedicines() {
             try {
                 const response = await ApiClient.get('/api/medicines?size=1000&sort=name');
@@ -1017,11 +1017,11 @@
                     });
                 }
             } catch (error) {
-                console.error('의약품 목록 로드 오류:', error);
+                console.error('医薬品リストのロードエラー:', error);
             }
         }
 
-        // 통계 데이터 로드
+        // 統計データのロード
         async function loadStatsData() {
             try {
                 const response = await ApiClient.get('/api/stocks/statistics/status');
@@ -1030,13 +1030,13 @@
                     renderStatsCards(response.data);
                 }
             } catch (error) {
-                console.error('통계 데이터 로드 오류:', error);
-                // 기본값으로 렌더링
+                console.error('統計データのロードエラー:', error);
+                // デフォルト値でレンダリング
                 renderStatsCards({});
             }
         }
 
-        // 통계 카드 렌더링
+        // 統計カードのレンダリング
         function renderStatsCards(statsData) {
             const statsGrid = document.getElementById('statsGrid');
 
@@ -1044,35 +1044,35 @@
                 {
                     key: 'total',
                     icon: 'fas fa-boxes',
-                    label: '전체 재고',
+                    label: '総在庫',
                     value: Object.values(statsData).reduce((sum, stat) => sum + (stat.count || 0), 0) || 0,
                     filter: ''
                 },
                 {
                     key: 'available',
                     icon: 'fas fa-check-circle',
-                    label: '사용 가능',
+                    label: '利用可能',
                     value: statsData.AVAILABLE?.count || 0,
                     filter: 'AVAILABLE'
                 },
                 {
                     key: 'reserved',
                     icon: 'fas fa-clock',
-                    label: '예약됨',
+                    label: '予約済み',
                     value: statsData.RESERVED?.count || 0,
                     filter: 'RESERVED'
                 },
                 {
                     key: 'quarantine',
                     icon: 'fas fa-shield-alt',
-                    label: '격리',
+                    label: '隔離',
                     value: statsData.QUARANTINE?.count || 0,
                     filter: 'QUARANTINE'
                 },
                 {
                     key: 'expired',
                     icon: 'fas fa-exclamation-triangle',
-                    label: '만료/폐기',
+                    label: '期限切れ/廃棄',
                     value: (statsData.EXPIRED?.count || 0) + (statsData.DISPOSED?.count || 0),
                     filter: 'EXPIRED'
                 }
@@ -1091,12 +1091,12 @@
             `).join('');
         }
 
-        // 재고 검색
+        // 在庫検索
         async function searchStocks() {
             showLoading(true);
 
             try {
-                // 검색 파라미터 구성
+                // 検索パラメータの構成
                 const formData = new FormData(document.getElementById('searchForm'));
                 searchParams = {};
 
@@ -1106,7 +1106,7 @@
                     }
                 }
 
-                // 유효기간 필터 처리
+                // 使用期限フィルター処理
                 if (searchParams.expiryFilter) {
                     switch (searchParams.expiryFilter) {
                         case 'expired':
@@ -1122,7 +1122,7 @@
                     delete searchParams.expiryFilter;
                 }
 
-                // API 호출
+                // API呼び出し
                 const queryString = new URLSearchParams({
                     page: currentPage,
                     size: pageSize,
@@ -1142,8 +1142,8 @@
                     clearSelection();
                 }
             } catch (error) {
-                console.error('재고 검색 오류:', error);
-                showAlert('재고 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('在庫検索エラー:', error);
+                showAlert('在庫データの読み込み中にエラーが発生しました。', 'danger');
                 stocksData = [];
                 renderStocksList();
             } finally {
@@ -1151,7 +1151,7 @@
             }
         }
 
-        // 재고 목록 렌더링
+        // 在庫リストのレンダリング
         function renderStocksList() {
             if (stocksData.length === 0) {
                 showEmptyState();
@@ -1167,7 +1167,7 @@
             }
         }
 
-        // 테이블 뷰 렌더링
+        // テーブルビューのレンダリング
         function renderTableView() {
             const tbody = document.getElementById('stocksTableBody');
 
@@ -1197,20 +1197,23 @@
                     <td>
                         <span class="expiry-date ${getExpiryClass(stock.daysUntilExpiry)}">
                             ${formatDate(stock.expiryDate)}
-                            ${stock.daysUntilExpiry <= 30 ? `<br><small>(${stock.daysUntilExpiry}일 남음)</small>` : ''}
+                            ${stock.daysUntilExpiry <= 30 ? `<br><small>(${stock.daysUntilExpiry}日残り)</small>` : ''}
                         </span>
                     </td>
                     <td>${formatDate(stock.receivedDate)}</td>
                     <td>${stock.location || '-'}</td>
                     <td>
-                        <span class="status-badge ${stock.status.toLowerCase()}">${stock.statusDescription}</span>
+                        <span class="status-badge ${stock.status.toLowerCase()}">
+                            <i class="fas ${stock.statusIcon || 'fa-question-circle'} me-1"></i>
+                            ${stock.statusDescription}
+                        </span>
                     </td>
                     <td>
                         <div class="d-flex gap-1">
-                            <button class="btn btn-outline-primary btn-sm" onclick="viewStock(${stock.id})" title="상세보기">
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewStock(${stock.id})" title="詳細表示">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-outline-warning btn-sm" onclick="editStock(${stock.id})" title="수정"
+                            <button class="btn btn-outline-warning btn-sm" onclick="editStock(${stock.id})" title="修正"
                                     ${!hasEditPermission() ? 'disabled' : ''}>
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -1220,7 +1223,7 @@
             `).join('');
         }
 
-        // 카드 뷰 렌더링
+        // カードビューのレンダリング
         function renderCardView() {
             const cardView = document.getElementById('cardView');
 
@@ -1240,39 +1243,42 @@
 
                     <div class="stock-card-body">
                         <div class="stock-detail">
-                            <div class="stock-detail-label">로트번호</div>
+                            <div class="stock-detail-label">ロット番号</div>
                             <div class="stock-detail-value">
                                 <span class="lot-number">${stock.lotNumber}</span>
                             </div>
                         </div>
                         <div class="stock-detail">
-                            <div class="stock-detail-label">수량</div>
+                            <div class="stock-detail-label">数量</div>
                             <div class="stock-detail-value">
                                 <span class="quantity ${getQuantityClass(stock)}">${formatNumber(stock.quantity)}</span>
                             </div>
                         </div>
                         <div class="stock-detail">
-                            <div class="stock-detail-label">유효기간</div>
+                            <div class="stock-detail-label">使用期限</div>
                             <div class="stock-detail-value">
                                 <span class="expiry-date ${getExpiryClass(stock.daysUntilExpiry)}">
                                     ${formatDate(stock.expiryDate)}
                                 </span>
-                                ${stock.daysUntilExpiry <= 30 ? `<div style="font-size: 0.8rem; color: #f59e0b;">${stock.daysUntilExpiry}일 남음</div>` : ''}
+                                ${stock.daysUntilExpiry <= 30 ? `<div style="font-size: 0.8rem; color: #f59e0b;">${stock.daysUntilExpiry}日残り</div>` : ''}
                             </div>
                         </div>
                         <div class="stock-detail">
-                            <div class="stock-detail-label">보관위치</div>
+                            <div class="stock-detail-label">保管場所</div>
                             <div class="stock-detail-value">${stock.location || '-'}</div>
                         </div>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="status-badge ${stock.status.toLowerCase()}">${stock.statusDescription}</span>
+                        <span class="status-badge ${stock.status.toLowerCase()}">
+                            <i class="fas ${stock.statusIcon || 'fa-question-circle'} me-1"></i>
+                            ${stock.statusDescription}
+                        </span>
                         <div class="d-flex gap-1">
-                            <button class="btn btn-outline-primary btn-sm" onclick="viewStock(${stock.id}); event.stopPropagation();" title="상세보기">
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewStock(${stock.id}); event.stopPropagation();" title="詳細表示">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-outline-warning btn-sm" onclick="editStock(${stock.id}); event.stopPropagation();" title="수정"
+                            <button class="btn btn-outline-warning btn-sm" onclick="editStock(${stock.id}); event.stopPropagation();" title="修正"
                                     ${!hasEditPermission() ? 'disabled' : ''}>
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -1282,7 +1288,7 @@
             `).join('');
         }
 
-        // 페이지네이션 렌더링
+        // ページネーションのレンダリング
         function renderPagination(pageData) {
             const pagination = document.getElementById('pagination');
             const totalPages = pageData.totalPages || 0;
@@ -1294,7 +1300,7 @@
 
             let paginationHTML = '';
 
-            // 첫 페이지
+            // 最初のページ
             paginationHTML += `
                 <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="goToPage(0); return false;">
@@ -1303,7 +1309,7 @@
                 </li>
             `;
 
-            // 이전 페이지
+            // 前のページ
             paginationHTML += `
                 <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">
@@ -1312,7 +1318,7 @@
                 </li>
             `;
 
-            // 페이지 번호들
+            // ページ番号
             const startPage = Math.max(0, currentPage - 2);
             const endPage = Math.min(totalPages - 1, currentPage + 2);
 
@@ -1326,7 +1332,7 @@
                 `;
             }
 
-            // 다음 페이지
+            // 次のページ
             paginationHTML += `
                 <li class="page-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">
@@ -1335,7 +1341,7 @@
                 </li>
             `;
 
-            // 마지막 페이지
+            // 最後のページ
             paginationHTML += `
                 <li class="page-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="goToPage(${totalPages - 1}); return false;">
@@ -1346,16 +1352,16 @@
 
             pagination.innerHTML = paginationHTML;
 
-            // 페이지네이션 정보 업데이트
+            // ページネーション情報更新
             const start = currentPage * pageSize + 1;
             const end = Math.min((currentPage + 1) * pageSize, totalElements);
             document.getElementById('paginationInfo').textContent =
-                `총 ${formatNumber(totalElements)}개 중 ${formatNumber(start)}-${formatNumber(end)}개 표시`;
+                `総 ${formatNumber(totalElements)}件中 ${formatNumber(start)}-${formatNumber(end)}件を表示`;
         }
 
-        // 유틸리티 함수들
+        // ユーティリティ関数
         function getQuantityClass(stock) {
-            // 실제 구현에서는 의약품의 최소 재고량과 비교
+            // 実際の医薬品の最小在庫量と比較
             if (stock.quantity <= 10) return 'critical';
             if (stock.quantity <= 30) return 'low';
             return '';
@@ -1368,8 +1374,8 @@
         }
 
         function hasEditPermission() {
-            // 실제 구현에서는 사용자 권한 확인
-            return true; // 임시
+            // 実際のユーザー権限を確認
+            return true; // 仮
         }
 
         function updateTotalCount() {
@@ -1401,11 +1407,11 @@
             overlay.style.display = show ? 'flex' : 'none';
         }
 
-        // 이벤트 핸들러들
+        // イベントハンドラ
         function switchView(view) {
             currentView = view;
 
-            // 토글 버튼 상태 업데이트
+            // トグルボタンの状態更新
             document.querySelectorAll('.view-toggle-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.view === view) {
@@ -1417,7 +1423,7 @@
         }
 
         function filterByStatus(status) {
-            // 통계 카드 활성 상태 업데이트
+            // 統計カードのアクティブ状態更新
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
                 if (card.dataset.filter === status) {
@@ -1425,7 +1431,7 @@
                 }
             });
 
-            // 필터 적용
+            // フィルター適用
             document.getElementById('status').value = status;
             currentPage = 0;
             searchStocks();
@@ -1434,7 +1440,7 @@
         function resetSearch() {
             document.getElementById('searchForm').reset();
 
-            // 통계 카드 활성 상태 초기화
+            // 統計カードのアクティブ状態リセット
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
             });
@@ -1454,7 +1460,7 @@
             searchStocks();
         }
 
-        // 선택 관련 함수들
+        // 選択関連関数
         function toggleSelectAll() {
             const selectAll = document.getElementById('selectAll');
             const checkboxes = document.querySelectorAll('input[type="checkbox"][value]');
@@ -1501,7 +1507,7 @@
         }
 
         function updateRowSelection() {
-            // 테이블 행 선택 상태 업데이트
+            // テーブル行の選択状態更新
             document.querySelectorAll('tbody tr').forEach(row => {
                 const checkbox = row.querySelector('input[type="checkbox"]');
                 if (checkbox && selectedStocks.has(parseInt(checkbox.value))) {
@@ -1511,7 +1517,7 @@
                 }
             });
 
-            // 카드 선택 상태 업데이트
+            // カードの選択状態更新
             document.querySelectorAll('.stock-card').forEach(card => {
                 const checkbox = card.querySelector('input[type="checkbox"]');
                 if (checkbox && selectedStocks.has(parseInt(checkbox.value))) {
@@ -1535,7 +1541,7 @@
                 bulkActions.classList.remove('show');
             }
 
-            // 전체 선택 체크박스 상태 업데이트
+            // 全選択チェックボックスの状態更新
             if (selectedStocks.size === 0) {
                 selectAll.indeterminate = false;
                 selectAll.checked = false;
@@ -1552,14 +1558,14 @@
             selectedStocks.clear();
             updateBulkActions();
 
-            // 모든 체크박스 해제
+            // 全てのチェックボックスを解除
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
-            // 선택 상태 제거
+            // 選択状態を削除
             document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
         }
 
-        // 액션 함수들
+        // アクション関数
         function viewStock(stockId) {
             window.location.href = `/stocks/${stockId}`;
         }
@@ -1574,11 +1580,11 @@
             window.open(`/api/stocks/export?${params.toString()}`, '_blank');
         }
 
-        // 일괄 작업 함수들
+        // 一括操作関数
         async function bulkUpdateLocation() {
             if (selectedStocks.size === 0) return;
 
-            const newLocation = prompt('새로운 보관 위치를 입력하세요:');
+            const newLocation = prompt('新しい保管場所を入力してください:');
             if (!newLocation) return;
 
             try {
@@ -1589,19 +1595,19 @@
                 });
 
                 if (response.success) {
-                    showAlert(`${response.data.updatedCount}개 재고의 위치가 변경되었습니다.`, 'success');
+                    showAlert(`${response.data.updatedCount}件の在庫の場所が変更されました。`, 'success');
                     refreshData();
                     clearSelection();
                 }
             } catch (error) {
-                showAlert('위치 변경 중 오류가 발생했습니다.', 'danger');
+                showAlert('場所の変更中にエラーが発生しました。', 'danger');
             }
         }
 
         async function bulkUpdateStatus() {
             if (selectedStocks.size === 0) return;
 
-            const newStatus = prompt('새로운 상태를 입력하세요 (AVAILABLE, RESERVED, QUARANTINE, EXPIRED):');
+            const newStatus = prompt('新しいステータスを入力してください (AVAILABLE, RESERVED, QUARANTINE, EXPIRED):');
             if (!newStatus) return;
 
             try {
@@ -1612,19 +1618,19 @@
                 });
 
                 if (response.success) {
-                    showAlert(`${response.data.updatedCount}개 재고의 상태가 변경되었습니다.`, 'success');
+                    showAlert(`${response.data.updatedCount}件の在庫のステータスが変更されました。`, 'success');
                     refreshData();
                     clearSelection();
                 }
             } catch (error) {
-                showAlert('상태 변경 중 오류가 발생했습니다.', 'danger');
+                showAlert('ステータスの変更中にエラーが発生しました。', 'danger');
             }
         }
 
         async function bulkDispose() {
             if (selectedStocks.size === 0) return;
 
-            if (!confirm(`선택된 ${selectedStocks.size}개 재고를 폐기 처리하시겠습니까?`)) return;
+            if (!confirm(`選択された${selectedStocks.size}件の在庫を廃棄処理しますか？`)) return;
 
             try {
                 const response = await ApiClient.put('/api/stocks/batch', {
@@ -1633,36 +1639,36 @@
                 });
 
                 if (response.success) {
-                    showAlert(`${response.data.updatedCount}개 재고가 폐기 처리되었습니다.`, 'success');
+                    showAlert(`${response.data.updatedCount}件の在庫が廃棄処理されました。`, 'success');
                     refreshData();
                     clearSelection();
                 }
             } catch (error) {
-                showAlert('폐기 처리 중 오류가 발생했습니다.', 'danger');
+                showAlert('廃棄処理中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl + A: 전체 선택
+            // Ctrl + A: 全選択
             if (e.ctrlKey && e.key === 'a' && e.target.tagName !== 'INPUT') {
                 e.preventDefault();
                 document.getElementById('selectAll').click();
             }
 
-            // F5: 새로고침
+            // F5: 更新
             if (e.key === 'F5') {
                 e.preventDefault();
                 refreshData();
             }
 
-            // Ctrl + F: 검색 필드 포커스
+            // Ctrl + F: 検索フィールドにフォーカス
             if (e.ctrlKey && e.key === 'f') {
                 e.preventDefault();
                 document.getElementById('keyword').focus();
             }
 
-            // Escape: 선택 해제
+            // Escape: 選択解除
             if (e.key === 'Escape') {
                 clearSelection();
             }
@@ -1671,4 +1677,3 @@
 </th:block>
 
 </html>
-}

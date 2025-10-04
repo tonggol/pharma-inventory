@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>의약품 관리 - 의약품 재고관리 시스템</title>
+    <title>医薬品管理 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 의약품 목록 특화 스타일 */
+        /* 医薬品リスト特化スタイル */
         .page-header {
             background: white;
             border-radius: 16px;
@@ -160,7 +160,7 @@
             border-bottom: 1px solid var(--border-color);
             background: #f8fafc;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -344,7 +344,7 @@
             border-top: 1px solid var(--border-color);
             background: #f8fafc;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -419,7 +419,7 @@
             margin-bottom: 2rem;
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 768px) {
             .search-form {
                 grid-template-columns: 1fr;
@@ -465,7 +465,7 @@
             }
         }
 
-        /* 로딩 상태 */
+        /* ローディング状態 */
         .loading {
             opacity: 0.6;
             pointer-events: none;
@@ -501,104 +501,104 @@
 </th:block>
 
 <div layout:fragment="content">
-    <!-- 페이지 헤더 -->
+    <!-- ページヘッダー -->
     <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h1 class="page-title">의약품 관리</h1>
-                <p class="page-subtitle">등록된 의약품을 관리하고 재고 현황을 확인할 수 있습니다.</p>
+                <h1 class="page-title">医薬品管理</h1>
+                <p class="page-subtitle">登録された医薬品を管理し、在庫状況を確認できます。</p>
             </div>
             <div>
                 <a href="/medicines/new" class="btn btn-success" sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                     <i class="fas fa-plus"></i>
-                    새 의약품 등록
+                    新規医薬品登録
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- 검색 필터 -->
+    <!-- 検索フィルター -->
     <div class="search-card">
         <form class="search-form" id="searchForm" th:object="${searchRequest}">
             <div class="form-group">
-                <label class="form-label" for="keyword">통합 검색</label>
+                <label class="form-label" for="keyword">統合検索</label>
                 <input type="text"
                        class="form-control"
                        id="keyword"
                        name="keyword"
                        th:field="*{keyword}"
-                       placeholder="코드, 이름, 제조사로 검색">
+                       placeholder="コード、名称、製造元で検索">
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="category">카테고리</label>
+                <label class="form-label" for="category">カテゴリ</label>
                 <select class="form-select" id="category" name="category" th:field="*{category}">
-                    <option value="">전체 카테고리</option>
-                    <option value="PAINKILLER">해열진통제</option>
-                    <option value="ANTIBIOTIC">항생제</option>
-                    <option value="DIGESTIVE">소화기계약물</option>
-                    <option value="IV_SOLUTION">수액제</option>
-                    <option value="HORMONE">호르몬제</option>
-                    <option value="VITAMIN">비타민제</option>
-                    <option value="TOPICAL">외용제</option>
-                    <option value="ANTIHISTAMINE">항히스타민제</option>
-                    <option value="OTHER">기타</option>
+                    <option value="">すべてのカテゴリ</option>
+                    <option value="PAINKILLER">解熱鎮痛剤</option>
+                    <option value="ANTIBIOTIC">抗生物質</option>
+                    <option value="DIGESTIVE">消化器系薬物</option>
+                    <option value="IV_SOLUTION">輸液剤</option>
+                    <option value="HORMONE">ホルモン剤</option>
+                    <option value="VITAMIN">ビタミン剤</option>
+                    <option value="TOPICAL">外用剤</option>
+                    <option value="ANTIHISTAMINE">抗ヒスタミン剤</option>
+                    <option value="OTHER">その他</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="manufacturer">제조사</label>
+                <label class="form-label" for="manufacturer">製造元</label>
                 <input type="text"
                        class="form-control"
                        id="manufacturer"
                        name="manufacturer"
                        th:field="*{manufacturer}"
-                       placeholder="제조사명">
+                       placeholder="製造元名">
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="isActive">상태</label>
+                <label class="form-label" for="isActive">状態</label>
                 <select class="form-select" id="isActive" name="isActive" th:field="*{isActive}">
-                    <option value="">전체</option>
-                    <option value="true">활성</option>
-                    <option value="false">비활성</option>
+                    <option value="">すべて</option>
+                    <option value="true">有効</option>
+                    <option value="false">無効</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="isBelowMinStock">재고 상태</label>
+                <label class="form-label" for="isBelowMinStock">在庫状況</label>
                 <select class="form-select" id="isBelowMinStock" name="isBelowMinStock" th:field="*{isBelowMinStock}">
-                    <option value="">전체</option>
-                    <option value="true">재고 부족</option>
-                    <option value="false">재고 충분</option>
+                    <option value="">すべて</option>
+                    <option value="true">在庫不足</option>
+                    <option value="false">在庫十分</option>
                 </select>
             </div>
 
             <div class="search-actions">
                 <button type="button" class="btn btn-outline-secondary" onclick="resetSearch()">
                     <i class="fas fa-undo"></i>
-                    초기화
+                    リセット
                 </button>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i>
-                    검색
+                    検索
                 </button>
             </div>
         </form>
     </div>
 
-    <!-- 의약품 목록 -->
+    <!-- 医薬品リスト -->
     <div class="content-card" id="medicinesContainer">
         <div class="content-header">
             <h2 class="content-title">
-                의약품 목록
+                医薬品一覧
                 <span class="badge bg-primary" th:text="${medicines?.totalElements ?: 0}">0</span>
             </h2>
             <div class="content-actions">
                 <div class="dropdown">
                     <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                         <i class="fas fa-download"></i>
-                        내보내기
+                        エクスポート
                     </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/api/medicines/export?format=excel"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
@@ -608,7 +608,7 @@
                 </div>
                 <button class="btn btn-outline-secondary" onclick="location.reload()">
                     <i class="fas fa-sync-alt"></i>
-                    새로고침
+                    更新
                 </button>
             </div>
         </div>
@@ -617,15 +617,15 @@
             <table class="medicines-table" th:if="${medicines != null and #lists.size(medicines.content) > 0}">
                 <thead>
                 <tr>
-                    <th>코드</th>
-                    <th>의약품명</th>
-                    <th>제조사</th>
-                    <th>카테고리</th>
-                    <th>현재 재고</th>
-                    <th>재고 상태</th>
-                    <th>상태</th>
-                    <th>등록일</th>
-                    <th>작업</th>
+                    <th>コード</th>
+                    <th>医薬品名</th>
+                    <th>製造元</th>
+                    <th>カテゴリ</th>
+                    <th>現在在庫</th>
+                    <th>在庫状況</th>
+                    <th>状態</th>
+                    <th>登録日</th>
+                    <th>操作</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -634,33 +634,33 @@
                         <span class="medicine-code" th:text="${medicine.code}">MED001</span>
                     </td>
                     <td>
-                        <div class="medicine-name" th:text="${medicine.name}">아스피린</div>
+                        <div class="medicine-name" th:text="${medicine.name}">アスピリン</div>
                         <div class="medicine-name-en" th:text="${medicine.nameEn}" th:if="${medicine.nameEn}">Aspirin</div>
                     </td>
                     <td>
-                        <span class="manufacturer" th:text="${medicine.manufacturer ?: '-'}">제조사명</span>
+                        <span class="manufacturer" th:text="${medicine.manufacturer ?: '-'}">製造元名</span>
                     </td>
                     <td>
-                        <span class="category-badge" th:text="${medicine.category ?: '미분류'}">해열진통제</span>
+                        <span class="category-badge" th:text="${medicine.category ?: '未分類'}">解熱鎮痛剤</span>
                     </td>
                     <td class="stock-info">
                         <div class="current-stock" th:text="${medicine.currentStock ?: 0}">150</div>
-                        <div class="min-stock">최소: <span th:text="${medicine.minStockQuantity ?: 0}">10</span></div>
+                        <div class="min-stock">最小: <span th:text="${medicine.minStockQuantity ?: 0}">10</span></div>
                     </td>
                     <td>
                             <span class="stock-status"
                                   th:classappend="${(medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) ? 'critical' :
                                                    (medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) * 2 ? 'low' : 'sufficient'}"
-                                  th:text="${(medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) ? '재고부족' :
-                                           (medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) * 2 ? '주의' : '충분'}">
-                                충분
+                                  th:text="${(medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) ? '在庫不足' :
+                                           (medicine.currentStock ?: 0) < (medicine.minStockQuantity ?: 0) * 2 ? '注意' : '十分'}">
+                                十分
                             </span>
                     </td>
                     <td>
                             <span class="status-badge"
                                   th:classappend="${medicine.isActive ? 'active' : 'inactive'}"
-                                  th:text="${medicine.isActive ? '활성' : '비활성'}">
-                                활성
+                                  th:text="${medicine.isActive ? '有効' : '無効'}">
+                                有効
                             </span>
                     </td>
                     <td th:text="${#temporals.format(medicine.createdAt, 'yyyy-MM-dd')}">2024-01-15</td>
@@ -668,13 +668,13 @@
                         <div class="action-buttons">
                             <a th:href="@{/medicines/{id}(id=${medicine.id})}"
                                class="btn btn-outline-primary btn-sm"
-                               title="상세 보기">
+                               title="詳細表示">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a th:href="@{/medicines/{id}/edit(id=${medicine.id})}"
                                class="btn btn-outline-warning btn-sm"
                                sec:authorize="hasAnyRole('ADMIN','MANAGER')"
-                               title="수정">
+                               title="修正">
                                 <i class="fas fa-edit"></i>
                             </a>
                         </div>
@@ -683,25 +683,25 @@
                 </tbody>
             </table>
 
-            <!-- 빈 상태 -->
+            <!-- 空の状態 -->
             <div class="empty-state" th:if="${medicines == null or #lists.size(medicines.content) == 0}">
                 <div class="empty-state-icon">
                     <i class="fas fa-prescription-bottle"></i>
                 </div>
-                <h3 class="empty-state-title">등록된 의약품이 없습니다</h3>
-                <p class="empty-state-description">새로운 의약품을 등록하거나 검색 조건을 변경해 보세요.</p>
+                <h3 class="empty-state-title">登録された医薬品がありません</h3>
+                <p class="empty-state-description">新しい医薬品を登録するか、検索条件を変更してみてください。</p>
                 <a href="/medicines/new" class="btn btn-success">
                     <i class="fas fa-plus"></i>
-                    의약품 등록하기
+                    医薬品を登録する
                 </a>
             </div>
         </div>
 
-        <!-- 페이지네이션 -->
+        <!-- ページネーション -->
         <div class="pagination-container" th:if="${medicines != null and medicines.totalPages > 1}">
             <div class="pagination-info">
-                <span th:text="|총 ${medicines.totalElements}개 중 ${medicines.number * medicines.size + 1}-${medicines.number * medicines.size + #lists.size(medicines.content)}개 표시|">
-                    총 247개 중 1-20개 표시
+                <span th:text="|全 ${medicines.totalElements}件中 ${medicines.number * medicines.size + 1} - ${medicines.number * medicines.size + #lists.size(medicines.content)}件を表示|">
+                    全 247件中 1-20件を表示
                 </span>
             </div>
 
@@ -754,7 +754,7 @@
             </nav>
         </div>
 
-        <!-- 로딩 오버레이 -->
+        <!-- ローディングオーバーレイ -->
         <div class="loading-overlay" id="loadingOverlay" style="display: none;">
             <div class="spinner"></div>
         </div>
@@ -764,14 +764,14 @@
 <th:block layout:fragment="javascript">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 검색 폼 제출 처리
+            // 検索フォーム送信処理
             const searchForm = document.getElementById('searchForm');
             searchForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 performSearch();
             });
 
-            // 엔터 키로 검색
+            // Enterキーで検索
             document.getElementById('keyword').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -779,7 +779,7 @@
                 }
             });
 
-            // 검색 조건 변경 시 자동 검색 (디바운싱)
+            // 検索条件変更時に自動検索 (デバウンス)
             let searchTimeout;
             const searchInputs = ['category', 'isActive', 'isBelowMinStock'];
             searchInputs.forEach(inputId => {
@@ -790,43 +790,43 @@
             });
         });
 
-        // 검색 실행
+        // 検索実行
         async function performSearch() {
             const formData = new FormData(document.getElementById('searchForm'));
             const searchParams = new URLSearchParams();
 
-            // 폼 데이터를 URL 파라미터로 변환
+            // フォームデータをURLパラメータに変換
             for (let [key, value] of formData.entries()) {
                 if (value && value.trim() !== '') {
                     searchParams.append(key, value);
                 }
             }
 
-            // 페이지 번호 초기화
+            // ページ番号初期化
             searchParams.append('page', '0');
             searchParams.append('size', '20');
 
-            // 로딩 상태 표시
+            // ローディング状態表示
             showLoading(true);
 
             try {
-                // 페이지 이동
+                // ページ移動
                 window.location.href = '/medicines?' + searchParams.toString();
             } catch (error) {
-                console.error('검색 오류:', error);
-                showAlert('검색 중 오류가 발생했습니다.', 'danger');
+                console.error('検索エラー:', error);
+                showAlert('検索中にエラーが発生しました。', 'danger');
             } finally {
                 showLoading(false);
             }
         }
 
-        // 검색 초기화
+        // 検索リセット
         function resetSearch() {
             document.getElementById('searchForm').reset();
             window.location.href = '/medicines';
         }
 
-        // 로딩 상태 표시/숨김
+        // ローディング状態表示/非表示
         function showLoading(show) {
             const overlay = document.getElementById('loadingOverlay');
             const container = document.getElementById('medicinesContainer');
@@ -840,24 +840,24 @@
             }
         }
 
-        // 의약품 삭제 (비활성화)
+        // 医薬品削除 (無効化)
         async function deleteMedicine(id, name) {
-            if (!confirm(`"${name}" 의약품을 비활성화하시겠습니까?`)) {
+            if (!confirm(`「${name}」医薬品を無効化しますか？`)) {
                 return;
             }
 
             try {
                 const response = await ApiClient.delete(`/api/medicines/${id}`);
                 if (response.success) {
-                    showAlert('의약품이 비활성화되었습니다.', 'success');
+                    showAlert('医薬品が無効化されました。', 'success');
                     setTimeout(() => location.reload(), 1000);
                 }
             } catch (error) {
-                showAlert(error.message || '의약품 비활성화 중 오류가 발생했습니다.', 'danger');
+                showAlert(error.message || '医薬品の無効化中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 재고 상태에 따른 행 스타일링
+        // 在庫状況に応じて行スタイルを更新
         function updateRowStyles() {
             const rows = document.querySelectorAll('.medicines-table tbody tr');
             rows.forEach(row => {
@@ -872,11 +872,11 @@
             });
         }
 
-        // 페이지 로드 완료 후 실행
+        // ページロード完了後に実行
         window.addEventListener('load', function() {
             updateRowStyles();
 
-            // URL 파라미터에서 메시지 확인
+            // URLパラメータからメッセージを確認
             const urlParams = new URLSearchParams(window.location.search);
             const message = urlParams.get('message');
             const error = urlParams.get('error');
@@ -889,15 +889,15 @@
             }
         });
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl + F: 검색 필드 포커스
+            // Ctrl + F: 検索フィールドにフォーカス
             if (e.ctrlKey && e.key === 'f') {
                 e.preventDefault();
                 document.getElementById('keyword').focus();
             }
 
-            // Ctrl + N: 새 의약품 등록 (권한 있는 경우)
+            // Ctrl + N: 新規医薬品登録 (権限がある場合)
             if (e.ctrlKey && e.key === 'n') {
                 e.preventDefault();
                 const newButton = document.querySelector('a[href="/medicines/new"]');
@@ -907,24 +907,24 @@
             }
         });
 
-        // 테이블 정렬 (향후 확장)
+        // テーブルソート (将来的に拡張)
         function sortTable(column) {
-            // 실제 구현에서는 서버사이드 정렬을 위해 URL 파라미터 추가
+            // 実際の구현ではサーバーサイドソートのためにURLパラメータを追加
             console.log('Sort by:', column);
         }
 
-        // 일괄 작업 (향후 확장)
+        // 一括操作 (将来的に拡張)
         function bulkAction(action) {
             const checkboxes = document.querySelectorAll('input[name="selectedMedicines"]:checked');
             if (checkboxes.length === 0) {
-                showAlert('작업할 의약품을 선택해주세요.', 'warning');
+                showAlert('操作する医薬品を選択してください。', 'warning');
                 return;
             }
 
             const ids = Array.from(checkboxes).map(cb => cb.value);
             console.log('Bulk action:', action, 'IDs:', ids);
 
-            // 실제 구현에서는 API 호출
+            // 実際の구현ではAPI呼び出し
         }
     </script>
 </th:block>

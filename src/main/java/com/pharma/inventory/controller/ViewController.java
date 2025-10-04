@@ -169,8 +169,8 @@ public class ViewController {
             return "redirect:/login";
         }
         model.addAttribute("currentPage", "stocks");
-        model.addAttribute("pageTitle", "재고 입고");
-        model.addAttribute("pageDescription", "새로운 재고를 입고 처리합니다");
+        model.addAttribute("pageTitle", "在庫入庫");
+        model.addAttribute("pageDescription", "新しい在庫の入庫処理を行います。");
         return "stocks/inbound";
     }
 
@@ -180,8 +180,8 @@ public class ViewController {
             return "redirect:/login";
         }
         model.addAttribute("currentPage", "stocks");
-        model.addAttribute("pageTitle", "재고 출고");
-        model.addAttribute("pageDescription", "재고를 출고 처리합니다 (FEFO 방식 적용)");
+        model.addAttribute("pageTitle", "在庫出庫");
+        model.addAttribute("pageDescription", "在庫の出庫処理を行います (FEFO方式適用)。");
         return "stocks/outbound";
     }
 
@@ -350,8 +350,8 @@ public class ViewController {
             return "redirect:/login";
         }
 
-        model.addAttribute("pageTitle", "재고 보고서");
-        model.addAttribute("pageDescription", "의약품 재고 현황과 분석 데이터를 확인할 수 있습니다.");
+        model.addAttribute("pageTitle", "在庫レポート");
+        model.addAttribute("pageDescription", "医薬品の在庫状況と分析データを確認できます。");
         return "reports/stock";
     }
 
@@ -361,8 +361,8 @@ public class ViewController {
             return "redirect:/login";
         }
 
-        model.addAttribute("pageTitle", "유효기간 보고서");
-        model.addAttribute("pageDescription", "의약품 유효기간 현황과 만료 예정 리스트를 확인할 수 있습니다.");
+        model.addAttribute("pageTitle", "有効期限レポート");
+        model.addAttribute("pageDescription", "医薬品の有効期限状況と期限切れ予定リストを確認できます。");
         return "reports/expiry";
     }
 
@@ -381,8 +381,8 @@ public class ViewController {
             return "error/403"; // 403 Forbidden
         }
 
-        model.addAttribute("pageTitle", "시스템 설정");
-        model.addAttribute("pageDescription", "시스템 전반적인 설정을 관리할 수 있습니다.");
+        model.addAttribute("pageTitle", "システム設定");
+        model.addAttribute("pageDescription", "システム全般の設定を管理できます。");
 
         // 시스템 설정 정보 로드 (서비스에서 가져올 예정)
         try {
@@ -391,7 +391,7 @@ public class ViewController {
             // model.addAttribute("systemStatus", systemMonitorService.getSystemStatus());
         } catch (Exception e) {
             // 에러 시 기본값 제공
-            model.addAttribute("error", "시스템 설정 정보를 불러오는 중 오류가 발생했습니다.");
+            model.addAttribute("error", "システム設定情報を 불러오는 중 오류가 발생했습니다.");
         }
 
         return "system/settings";
@@ -409,8 +409,8 @@ public class ViewController {
             return "error/403";
         }
 
-        model.addAttribute("pageTitle", "백업 관리");
-        model.addAttribute("pageDescription", "데이터베이스 백업을 생성하고 관리할 수 있습니다.");
+        model.addAttribute("pageTitle", "バックアップ管理");
+        model.addAttribute("pageDescription", "データベースのバックアップを作成・管理できます。");
 
         return "system/backup";
     }
@@ -427,8 +427,8 @@ public class ViewController {
             return "error/403";
         }
 
-        model.addAttribute("pageTitle", "시스템 로그");
-        model.addAttribute("pageDescription", "시스템 로그를 조회하고 분석할 수 있습니다.");
+        model.addAttribute("pageTitle", "システムログ");
+        model.addAttribute("pageDescription", "システムログを照会・分析できます。");
 
         return "system/logs";
     }
@@ -445,8 +445,8 @@ public class ViewController {
             return "error/403";
         }
 
-        model.addAttribute("pageTitle", "시스템 모니터링");
-        model.addAttribute("pageDescription", "시스템 성능과 상태를 실시간으로 모니터링할 수 있습니다.");
+        model.addAttribute("pageTitle", "システム監視");
+        model.addAttribute("pageDescription", "システムのパフォーマンスと状態をリアルタイムで監視できます。");
 
         return "system/monitor";
     }

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>재고 보고서 - 의약품 재고관리 시스템</title>
+    <title>在庫レポート - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 보고서 특화 스타일 */
+        /* レポート特化スタイル */
         .report-container {
             max-width: 1600px;
             margin: 0 auto;
@@ -72,7 +72,7 @@
             align-items: center;
         }
 
-        /* 필터 섹션 */
+        /* フィルターセクション */
         .filter-section {
             background: white;
             border-radius: 16px;
@@ -141,7 +141,7 @@
             margin-top: 1rem;
         }
 
-        /* 요약 통계 */
+        /* 概要統計 */
         .summary-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -208,7 +208,7 @@
         .stat-card-change.negative { color: var(--danger-color); }
         .stat-card-change.neutral { color: #64748b; }
 
-        /* 차트 섹션 */
+        /* チャートセクション */
         .charts-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -264,7 +264,7 @@
             height: 300px;
         }
 
-        /* 테이블 섹션 */
+        /* テーブルセクション */
         .table-section {
             background: white;
             border-radius: 16px;
@@ -326,7 +326,7 @@
             background: rgba(44, 90, 160, 0.05);
         }
 
-        /* 인쇄 스타일 */
+        /* 印刷スタイル */
         @media print {
             body {
                 background: white !important;
@@ -363,7 +363,7 @@
             }
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 1200px) {
             .charts-section {
                 grid-template-columns: 1fr;
@@ -426,7 +426,7 @@
             }
         }
 
-        /* 애니메이션 */
+        /* アニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -451,7 +451,7 @@
             }
         }
 
-        /* 로딩 상태 */
+        /* ローディング状態 */
         .loading-overlay {
             position: absolute;
             top: 0;
@@ -479,7 +479,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 버튼 스타일 */
+        /* ボタンスタイル */
         .btn {
             border-radius: 12px;
             font-weight: 600;
@@ -536,30 +536,30 @@
 
 <div layout:fragment="content">
     <div class="report-container">
-        <!-- 보고서 헤더 -->
+        <!-- レポートヘッダー -->
         <div class="report-header fade-in">
             <div class="report-title-icon">
                 <i class="fas fa-chart-bar"></i>
             </div>
             <div style="flex: 1;">
-                <h1 class="report-title">재고 보고서</h1>
-                <p class="report-subtitle">의약품 재고 현황과 분석 데이터를 확인할 수 있습니다.</p>
+                <h1 class="report-title">在庫レポート</h1>
+                <p class="report-subtitle">医薬品の在庫状況と分析データを確認できます。</p>
             </div>
 
             <div class="report-meta">
                 <div class="report-info">
-                    <div>생성일시: <span id="reportGeneratedTime">-</span></div>
-                    <div>보고서 범위: <span id="reportPeriod">전체 기간</span></div>
+                    <div>作成日時: <span id="reportGeneratedTime">-</span></div>
+                    <div>レポート範囲: <span id="reportPeriod">全期間</span></div>
                 </div>
                 <div class="report-actions">
                     <button class="btn btn-outline-secondary" onclick="printReport()">
                         <i class="fas fa-print"></i>
-                        인쇄
+                        印刷
                     </button>
                     <div class="dropdown">
                         <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-download"></i>
-                            내보내기
+                            エクスポート
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#" onclick="exportReport('excel')"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
@@ -571,108 +571,108 @@
             </div>
         </div>
 
-        <!-- 필터 섹션 -->
+        <!-- フィルターセクション -->
         <div class="filter-section slide-up">
             <div class="filter-header">
                 <h3 class="filter-title">
                     <i class="fas fa-filter"></i>
-                    필터 옵션
+                    フィルターオプション
                 </h3>
                 <button class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
                     <i class="fas fa-undo"></i>
-                    초기화
+                    リセット
                 </button>
             </div>
 
             <form id="filterForm">
                 <div class="filter-grid">
                     <div class="form-group">
-                        <label class="form-label" for="dateRange">기간</label>
+                        <label class="form-label" for="dateRange">期間</label>
                         <select class="form-select" id="dateRange" name="dateRange">
-                            <option value="all">전체 기간</option>
-                            <option value="today">오늘</option>
-                            <option value="week" selected>최근 7일</option>
-                            <option value="month">최근 30일</option>
-                            <option value="quarter">최근 3개월</option>
-                            <option value="year">최근 1년</option>
-                            <option value="custom">사용자 지정</option>
+                            <option value="all">全期間</option>
+                            <option value="today">今日</option>
+                            <option value="week" selected>過去7日間</option>
+                            <option value="month">過去30日間</option>
+                            <option value="quarter">過去3ヶ月</option>
+                            <option value="year">過去1年間</option>
+                            <option value="custom">カスタム</option>
                         </select>
                     </div>
 
                     <div class="form-group" id="customDateGroup" style="display: none;">
-                        <label class="form-label" for="startDate">시작일</label>
+                        <label class="form-label" for="startDate">開始日</label>
                         <input type="date" class="form-control" id="startDate" name="startDate">
                     </div>
 
                     <div class="form-group" id="customDateEndGroup" style="display: none;">
-                        <label class="form-label" for="endDate">종료일</label>
+                        <label class="form-label" for="endDate">終了日</label>
                         <input type="date" class="form-control" id="endDate" name="endDate">
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="category">카테고리</label>
+                        <label class="form-label" for="category">カテゴリ</label>
                         <select class="form-select" id="category" name="category">
-                            <option value="">전체 카테고리</option>
-                            <option value="PAINKILLER">해열진통제</option>
-                            <option value="ANTIBIOTIC">항생제</option>
-                            <option value="DIGESTIVE">소화기계약물</option>
-                            <option value="IV_SOLUTION">수액제</option>
-                            <option value="HORMONE">호르몬제</option>
-                            <option value="VITAMIN">비타민제</option>
-                            <option value="TOPICAL">외용제</option>
-                            <option value="ANTIHISTAMINE">항히스타민제</option>
-                            <option value="OTHER">기타</option>
+                            <option value="">すべてのカテゴリ</option>
+                            <option value="PAINKILLER">解熱鎮痛剤</option>
+                            <option value="ANTIBIOTIC">抗生物質</option>
+                            <option value="DIGESTIVE">消化器系薬物</option>
+                            <option value="IV_SOLUTION">輸液剤</option>
+                            <option value="HORMONE">ホルモン剤</option>
+                            <option value="VITAMIN">ビタミン剤</option>
+                            <option value="TOPICAL">外用剤</option>
+                            <option value="ANTIHISTAMINE">抗ヒスタミン剤</option>
+                            <option value="OTHER">その他</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="stockStatus">재고 상태</label>
+                        <label class="form-label" for="stockStatus">在庫ステータス</label>
                         <select class="form-select" id="stockStatus" name="stockStatus">
-                            <option value="">전체</option>
-                            <option value="sufficient">충분</option>
-                            <option value="low">부족</option>
-                            <option value="critical">심각</option>
-                            <option value="out">재고 없음</option>
+                            <option value="">すべて</option>
+                            <option value="sufficient">十分</option>
+                            <option value="low">不足</option>
+                            <option value="critical">深刻</option>
+                            <option value="out">在庫切れ</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="location">보관 위치</label>
+                        <label class="form-label" for="location">保管場所</label>
                         <select class="form-select" id="location" name="location">
-                            <option value="">전체 위치</option>
-                            <option value="A구역">A구역</option>
-                            <option value="B구역">B구역</option>
-                            <option value="C구역">C구역</option>
-                            <option value="냉장고">냉장고</option>
-                            <option value="특수보관">특수보관</option>
+                            <option value="">すべての場所</option>
+                            <option value="A区画">A区画</option>
+                            <option value="B区画">B区画</option>
+                            <option value="C区画">C区画</option>
+                            <option value="冷蔵庫">冷蔵庫</option>
+                            <option value="特別保管">特別保管</option>
                         </select>
                     </div>
 
                     <div class="filter-actions">
                         <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
                             <i class="fas fa-undo"></i>
-                            초기화
+                            リセット
                         </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search"></i>
-                            보고서 생성
+                            レポート生成
                         </button>
                     </div>
                 </div>
             </form>
         </div>
 
-        <!-- 요약 통계 -->
+        <!-- 概要統計 -->
         <div class="summary-stats slide-up" id="summaryStats">
             <div class="stat-card">
                 <div class="stat-card-icon total">
                     <i class="fas fa-pills"></i>
                 </div>
                 <div class="stat-card-value" id="totalMedicines">-</div>
-                <div class="stat-card-label">총 의약품 종류</div>
+                <div class="stat-card-label">総医薬品種類</div>
                 <div class="stat-card-change" id="medicinesChange">
                     <i class="fas fa-arrow-up"></i>
-                    +5종 (이번 달)
+                    +5種 (今月)
                 </div>
             </div>
 
@@ -681,10 +681,10 @@
                     <i class="fas fa-boxes"></i>
                 </div>
                 <div class="stat-card-value" id="totalQuantity">-</div>
-                <div class="stat-card-label">총 재고 수량</div>
+                <div class="stat-card-label">総在庫数量</div>
                 <div class="stat-card-change" id="quantityChange">
                     <i class="fas fa-arrow-up"></i>
-                    +1,250개 (이번 주)
+                    +1,250個 (今週)
                 </div>
             </div>
 
@@ -693,10 +693,10 @@
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <div class="stat-card-value" id="lowStockItems">-</div>
-                <div class="stat-card-label">재고 부족</div>
+                <div class="stat-card-label">在庫不足</div>
                 <div class="stat-card-change" id="lowStockChange">
                     <i class="fas fa-arrow-down"></i>
-                    -2개 (개선됨)
+                    -2個 (改善)
                 </div>
             </div>
 
@@ -705,46 +705,46 @@
                     <i class="fas fa-calendar-times"></i>
                 </div>
                 <div class="stat-card-value" id="expiringItems">-</div>
-                <div class="stat-card-label">만료 임박</div>
+                <div class="stat-card-label">期限間近</div>
                 <div class="stat-card-change" id="expiringChange">
                     <i class="fas fa-arrow-up"></i>
-                    +3개 (주의 필요)
+                    +3個 (要注意)
                 </div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-card-icon value">
-                    <i class="fas fa-won-sign"></i>
+                    <i class="fas fa-yen-sign"></i>
                 </div>
                 <div class="stat-card-value" id="totalValue">-</div>
-                <div class="stat-card-label">총 재고 가치</div>
+                <div class="stat-card-label">総在庫価値</div>
                 <div class="stat-card-change" id="valueChange">
                     <i class="fas fa-arrow-up"></i>
-                    +15% (전월 대비)
+                    +15% (前月比)
                 </div>
             </div>
         </div>
 
-        <!-- 차트 섹션 -->
+        <!-- チャートセクション -->
         <div class="charts-section slide-up">
-            <!-- 재고 추이 차트 -->
+            <!-- 在庫推移チャート -->
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">
                         <div class="chart-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        재고 추이
+                        在庫推移
                     </h3>
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-calendar"></i>
-                            30일
+                            30日
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(7)">7일</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(30)">30일</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(90)">90일</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(7)">7日</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(30)">30日</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateStockTrendChart(90)">90日</a></li>
                         </ul>
                     </div>
                 </div>
@@ -755,14 +755,14 @@
                 </div>
             </div>
 
-            <!-- 카테고리별 분포 차트 -->
+            <!-- カテゴリ別分布チャート -->
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">
                         <div class="chart-icon">
                             <i class="fas fa-chart-pie"></i>
                         </div>
-                        카테고리별 분포
+                        カテゴリ別分布
                     </h3>
                     <button class="btn btn-outline-secondary btn-sm" onclick="refreshCategoryChart()">
                         <i class="fas fa-sync-alt"></i>
@@ -776,21 +776,21 @@
             </div>
         </div>
 
-        <!-- 상세 데이터 테이블 -->
+        <!-- 詳細データテーブル -->
         <div class="table-section slide-up">
             <div class="table-header">
                 <h3 class="table-title">
-                    상세 재고 현황
+                    詳細在庫状況
                     <span class="badge bg-primary" id="tableRowCount">0</span>
                 </h3>
                 <div class="table-actions">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="showOnlyProblems" onchange="toggleProblemsOnly()">
-                        <label class="form-check-label" for="showOnlyProblems">문제 재고만 표시</label>
+                        <label class="form-check-label" for="showOnlyProblems">問題のある在庫のみ表示</label>
                     </div>
                     <button class="btn btn-outline-secondary btn-sm" onclick="refreshTable()">
                         <i class="fas fa-sync-alt"></i>
-                        새로고침
+                        更新
                     </button>
                 </div>
             </div>
@@ -801,52 +801,52 @@
                         <thead>
                         <tr>
                             <th onclick="sortTable('code')">
-                                코드 <i class="fas fa-sort"></i>
+                                コード <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('name')">
-                                의약품명 <i class="fas fa-sort"></i>
+                                医薬品名 <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('category')">
-                                카테고리 <i class="fas fa-sort"></i>
+                                カテゴリ <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('currentStock')">
-                                현재 재고 <i class="fas fa-sort"></i>
+                                現在在庫 <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('minStock')">
-                                최소 재고 <i class="fas fa-sort"></i>
+                                最小在庫 <i class="fas fa-sort"></i>
                             </th>
-                            <th>재고 상태</th>
+                            <th>在庫ステータス</th>
                             <th onclick="sortTable('location')">
-                                보관 위치 <i class="fas fa-sort"></i>
+                                保管場所 <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('value')">
-                                재고 가치 <i class="fas fa-sort"></i>
+                                在庫価値 <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('lastUpdated')">
-                                최종 업데이트 <i class="fas fa-sort"></i>
+                                最終更新 <i class="fas fa-sort"></i>
                             </th>
                         </tr>
                         </thead>
                         <tbody id="stockTableBody">
-                        <!-- 동적으로 로드됨 -->
+                        <!-- 動的にロード -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- 로딩 오버레이 -->
+                <!-- ローディングオーバーレイ -->
                 <div class="loading-overlay" id="tableLoadingOverlay" style="display: none;">
                     <div class="spinner"></div>
                 </div>
             </div>
 
-            <!-- 페이지네이션 -->
+            <!-- ページネーション -->
             <div class="pagination-container" id="paginationContainer" style="display: none;">
                 <div class="pagination-info">
-                    <span id="paginationInfo">총 0개 중 0-0개 표시</span>
+                    <span id="paginationInfo">全0件中 0-0件を表示</span>
                 </div>
                 <nav>
                     <ul class="pagination" id="pagination">
-                        <!-- 동적으로 생성됨 -->
+                        <!-- 動的に生成 -->
                     </ul>
                 </nav>
             </div>
@@ -857,7 +857,7 @@
 <th:block layout:fragment="javascript">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
-        // 전역 변수
+        // グローバル変数
         let stockTrendChart = null;
         let categoryChart = null;
         let currentFilters = {};
@@ -873,12 +873,12 @@
             setupEventListeners();
         });
 
-        // 페이지 초기화
+        // ページ初期化
         function initializePage() {
-            // 현재 시간 설정
+            // 現在時刻の設定
             const now = new Date();
             document.getElementById('reportGeneratedTime').textContent =
-                now.toLocaleDateString('ko-KR', {
+                now.toLocaleDateString('ja-JP', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -886,19 +886,19 @@
                     minute: '2-digit'
                 });
 
-            // 기본 필터 설정
+            // デフォルトのフィルター設定
             updateReportPeriod();
         }
 
-        // 이벤트 리스너 설정
+        // イベントリスナー設定
         function setupEventListeners() {
-            // 필터 폼 제출
+            // フィルターフォーム送信
             document.getElementById('filterForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 applyFilters();
             });
 
-            // 날짜 범위 변경
+            // 期間変更
             document.getElementById('dateRange').addEventListener('change', function() {
                 const customGroups = ['customDateGroup', 'customDateEndGroup'];
                 customGroups.forEach(id => {
@@ -908,28 +908,28 @@
                 updateReportPeriod();
             });
 
-            // 기타 필터 변경
+            // その他のフィルター変更
             ['category', 'stockStatus', 'location'].forEach(id => {
                 document.getElementById(id).addEventListener('change', applyFilters);
             });
         }
 
-        // 보고서 기간 업데이트
+        // レポート期間の更新
         function updateReportPeriod() {
             const dateRange = document.getElementById('dateRange').value;
             const periodMap = {
-                'all': '전체 기간',
-                'today': '오늘',
-                'week': '최근 7일',
-                'month': '최근 30일',
-                'quarter': '최근 3개월',
-                'year': '최근 1년',
-                'custom': '사용자 지정 기간'
+                'all': '全期間',
+                'today': '今日',
+                'week': '過去7日間',
+                'month': '過去30日間',
+                'quarter': '過去3ヶ月',
+                'year': '過去1年間',
+                'custom': 'カスタム期間'
             };
-            document.getElementById('reportPeriod').textContent = periodMap[dateRange] || '전체 기간';
+            document.getElementById('reportPeriod').textContent = periodMap[dateRange] || '全期間';
         }
 
-        // 보고서 데이터 로드
+        // レポートデータロード
         async function loadReportData() {
             try {
                 await Promise.all([
@@ -938,15 +938,15 @@
                     loadChartData()
                 ]);
             } catch (error) {
-                console.error('보고서 데이터 로드 오류:', error);
-                showAlert('보고서 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('レポートデータのロードエラー:', error);
+                showAlert('レポートデータの読み込み中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 요약 통계 로드
+        // 概要統計ロード
         async function loadSummaryStats() {
             try {
-                // 실제 구현에서는 API 호출
+                // 実際の구현ではAPI呼び出し
                 const stats = {
                     totalMedicines: 247,
                     totalQuantity: 15420,
@@ -957,11 +957,11 @@
 
                 updateSummaryStats(stats);
             } catch (error) {
-                console.error('요약 통계 로드 오류:', error);
+                console.error('概要統計のロードエラー:', error);
             }
         }
 
-        // 요약 통계 업데이트
+        // 概要統計更新
         function updateSummaryStats(stats) {
             document.getElementById('totalMedicines').textContent = formatNumber(stats.totalMedicines);
             document.getElementById('totalQuantity').textContent = formatNumber(stats.totalQuantity);
@@ -970,27 +970,27 @@
             document.getElementById('totalValue').textContent = formatCurrency(stats.totalValue);
         }
 
-        // 재고 데이터 로드
+        // 在庫データロード
         async function loadStockData(page = 0, filters = {}) {
             showTableLoading(true);
 
             try {
-                // 실제 구현에서는 API 호출
+                // 実際の구현ではAPI呼び出し
                 const mockData = generateMockStockData();
                 renderStockTable(mockData.content);
                 updateTableInfo(mockData);
             } catch (error) {
-                console.error('재고 데이터 로드 오류:', error);
-                showAlert('재고 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('在庫データのロードエラー:', error);
+                showAlert('在庫データの読み込み中にエラーが発生しました。', 'danger');
             } finally {
                 showTableLoading(false);
             }
         }
 
-        // 모의 재고 데이터 생성
+        // モック在庫データ生成
         function generateMockStockData() {
-            const categories = ['해열진통제', '항생제', '소화기계약물', '수액제', '호르몬제'];
-            const locations = ['A구역', 'B구역', 'C구역', '냉장고', '특수보관'];
+            const categories = ['解熱鎮痛剤', '抗生物質', '消化器系薬物', '輸液剤', 'ホルモン剤'];
+            const locations = ['A区画', 'B区画', 'C区画', '冷蔵庫', '特別保管'];
             const medicines = [];
 
             for (let i = 1; i <= 50; i++) {
@@ -1001,7 +1001,7 @@
                 medicines.push({
                     id: i,
                     code: `MED${String(i).padStart(3, '0')}`,
-                    name: `의약품명 ${i}`,
+                    name: `医薬品名 ${i}`,
                     category: categories[Math.floor(Math.random() * categories.length)],
                     currentStock: currentStock,
                     minStock: minStock,
@@ -1021,7 +1021,7 @@
             };
         }
 
-        // 재고 테이블 렌더링
+        // 在庫テーブルレンダリング
         function renderStockTable(stockData) {
             const tbody = document.getElementById('stockTableBody');
 
@@ -1052,16 +1052,16 @@
             `).join('');
         }
 
-        // 테이블 정보 업데이트
+        // テーブル情報更新
         function updateTableInfo(data) {
             document.getElementById('tableRowCount').textContent = data.totalElements;
 
             const start = data.number * data.size + 1;
             const end = Math.min((data.number + 1) * data.size, data.totalElements);
             document.getElementById('paginationInfo').textContent =
-                `총 ${data.totalElements}개 중 ${start}-${end}개 표시`;
+                `全 ${data.totalElements}件中 ${start}-${end}件を表示`;
 
-            // 페이지네이션 표시/숨김
+            // ページネーション表示/非表示
             const paginationContainer = document.getElementById('paginationContainer');
             if (data.totalPages > 1) {
                 paginationContainer.style.display = 'flex';
@@ -1071,12 +1071,12 @@
             }
         }
 
-        // 페이지네이션 렌더링
+        // ページネーションレンダリング
         function renderPagination(data) {
             const pagination = document.getElementById('pagination');
             let html = '';
 
-            // 이전 페이지 버튼
+            // 前のページボタン
             html += `
                 <li class="page-item ${data.number === 0 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="changePage(${data.number - 1})">
@@ -1085,7 +1085,7 @@
                 </li>
             `;
 
-            // 페이지 번호들
+            // ページ番号
             const startPage = Math.max(0, data.number - 2);
             const endPage = Math.min(data.totalPages - 1, data.number + 2);
 
@@ -1097,7 +1097,7 @@
                 `;
             }
 
-            // 다음 페이지 버튼
+            // 次のページボタン
             html += `
                 <li class="page-item ${data.number === data.totalPages - 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="changePage(${data.number + 1})">
@@ -1109,13 +1109,13 @@
             pagination.innerHTML = html;
         }
 
-        // 차트 초기화
+        // チャート初期化
         function initializeCharts() {
             initializeStockTrendChart();
             initializeCategoryChart();
         }
 
-        // 재고 추이 차트 초기화
+        // 在庫推移チャート初期化
         function initializeStockTrendChart() {
             const ctx = document.getElementById('stockTrendChart').getContext('2d');
 
@@ -1124,7 +1124,7 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: '총 재고량',
+                        label: '総在庫量',
                         data: [],
                         borderColor: 'rgb(44, 90, 160)',
                         backgroundColor: 'rgba(44, 90, 160, 0.1)',
@@ -1132,7 +1132,7 @@
                         fill: true,
                         tension: 0.4
                     }, {
-                        label: '재고 부족',
+                        label: '在庫不足',
                         data: [],
                         borderColor: 'rgb(245, 158, 11)',
                         backgroundColor: 'rgba(245, 158, 11, 0.1)',
@@ -1167,7 +1167,7 @@
             loadStockTrendData(30);
         }
 
-        // 카테고리 차트 초기화
+        // カテゴリチャート初期化
         function initializeCategoryChart() {
             const ctx = document.getElementById('categoryChart').getContext('2d');
 
@@ -1204,7 +1204,7 @@
             loadCategoryData();
         }
 
-        // 차트 데이터 로드
+        // チャートデータロード
         async function loadChartData() {
             await Promise.all([
                 loadStockTrendData(30),
@@ -1212,10 +1212,10 @@
             ]);
         }
 
-        // 재고 추이 데이터 로드
+        // 在庫推移データロード
         async function loadStockTrendData(days) {
             try {
-                // 모의 데이터 생성
+                // モックデータ生成
                 const labels = [];
                 const stockData = [];
                 const lowStockData = [];
@@ -1223,7 +1223,7 @@
 
                 for (let i = days - 1; i >= 0; i--) {
                     const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
-                    labels.push(date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }));
+                    labels.push(date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }));
                     stockData.push(Math.floor(Math.random() * 1000) + 14000);
                     lowStockData.push(Math.floor(Math.random() * 15) + 5);
                 }
@@ -1233,48 +1233,48 @@
                 stockTrendChart.data.datasets[1].data = lowStockData;
                 stockTrendChart.update();
             } catch (error) {
-                console.error('재고 추이 데이터 로드 오류:', error);
+                console.error('在庫推移データのロードエラー:', error);
             }
         }
 
-        // 카테고리 데이터 로드
+        // カテゴリデータロード
         async function loadCategoryData() {
             try {
-                // 모의 데이터
-                const categories = ['해열진통제', '항생제', '소화기계약물', '수액제', '호르몬제', '비타민제', '외용제', '기타'];
+                // モックデータ
+                const categories = ['解熱鎮痛剤', '抗生物質', '消化器系薬物', '輸液剤', 'ホルモン剤', 'ビタミン剤', '外用剤', 'その他'];
                 const data = [35, 25, 15, 10, 8, 4, 2, 1];
 
                 categoryChart.data.labels = categories;
                 categoryChart.data.datasets[0].data = data;
                 categoryChart.update();
             } catch (error) {
-                console.error('카테고리 데이터 로드 오류:', error);
+                console.error('カテゴリデータのロードエラー:', error);
             }
         }
 
-        // 유틸리티 함수들
+        // ユーティリティ関数
         function getStatusText(status) {
             const statusMap = {
-                'sufficient': '충분',
-                'low': '부족',
-                'critical': '심각',
-                'out': '없음'
+                'sufficient': '十分',
+                'low': '不足',
+                'critical': '深刻',
+                'out': '在庫切れ'
             };
-            return statusMap[status] || '알 수 없음';
+            return statusMap[status] || '不明';
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('ko-KR', {
+            return new Intl.NumberFormat('ja-JP', {
                 style: 'currency',
-                currency: 'KRW'
+                currency: 'JPY'
             }).format(amount);
         }
 
         function formatDate(date) {
-            return new Date(date).toLocaleDateString('ko-KR');
+            return new Date(date).toLocaleDateString('ja-JP');
         }
 
-        // 이벤트 핸들러들
+        // イベントハンドラ
         function applyFilters() {
             currentPage = 0;
             currentFilters = {
@@ -1326,20 +1326,20 @@
                 sortOrder = 'asc';
             }
 
-            // 정렬 아이콘 업데이트
+            // ソートアイコン更新
             updateSortIcons();
 
-            // 데이터 재로드
+            // データ再ロード
             loadStockData(currentPage, currentFilters);
         }
 
         function updateSortIcons() {
-            // 모든 정렬 아이콘 초기화
+            // すべてのソートアイコンを初期化
             document.querySelectorAll('th i.fas').forEach(icon => {
                 icon.className = 'fas fa-sort';
             });
 
-            // 현재 정렬 열 아이콘 업데이트
+            // 現在のソート列のアイコンを更新
             const currentHeader = document.querySelector(`th[onclick="sortTable('${sortColumn}')"] i`);
             if (currentHeader) {
                 currentHeader.className = `fas fa-sort-${sortOrder === 'asc' ? 'up' : 'down'}`;
@@ -1375,26 +1375,26 @@
 
             const url = `/api/reports/stock/export?${params.toString()}`;
 
-            // 다운로드 링크 생성
+            // ダウンロードリンクを作成
             const link = document.createElement('a');
             link.href = url;
-            link.download = `재고보고서_${new Date().toISOString().split('T')[0]}.${format}`;
+            link.download = `在庫レポート_${new Date().toISOString().split('T')[0]}.${format}`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
-            showAlert(`${format.toUpperCase()} 파일이 다운로드됩니다.`, 'success');
+            showAlert(`${format.toUpperCase()} ファイルがダウンロードされます。`, 'success');
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl + P: 인쇄
+            // Ctrl + P: 印刷
             if (e.ctrlKey && e.key === 'p') {
                 e.preventDefault();
                 printReport();
             }
 
-            // F5: 새로고침
+            // F5: 更新
             if (e.key === 'F5') {
                 e.preventDefault();
                 loadReportData();

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title th:text="${medicine.name + ' - 의약품 상세정보'}">의약품 상세정보 - 의약품 재고관리 시스템</title>
+    <title th:text="${medicine.name + ' - 医薬品詳細情報'}">医薬品詳細情報 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 의약품 상세 페이지 특화 스타일 */
+        /* 医薬品詳細ページ特化スタイル */
         .detail-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -187,7 +187,7 @@
             color: var(--primary-color);
         }
 
-        /* 그리드 레이아웃 */
+        /* グリッドレイアウト */
         .detail-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -207,7 +207,7 @@
             gap: 2rem;
         }
 
-        /* 카드 스타일 */
+        /* カードスタイル */
         .detail-card {
             background: white;
             border-radius: 16px;
@@ -251,7 +251,7 @@
             padding: 2rem;
         }
 
-        /* 재고 현황 카드들 */
+        /* 在庫状況カード */
         .stock-overview {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -316,14 +316,14 @@
         .stock-card-change.positive { color: var(--success-color); }
         .stock-card-change.negative { color: var(--danger-color); }
 
-        /* 차트 컨테이너 */
+        /* チャートコンテナ */
         .chart-container {
             position: relative;
             height: 300px;
             margin: 1rem 0;
         }
 
-        /* 테이블 스타일 */
+        /* テーブルスタイル */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -354,7 +354,7 @@
             background: rgba(44, 90, 160, 0.05);
         }
 
-        /* 로트 정보 */
+        /* ロット情報 */
         .lot-number {
             font-family: 'Courier New', monospace;
             background: rgba(16, 185, 129, 0.1);
@@ -378,7 +378,7 @@
             color: var(--danger-color);
         }
 
-        /* 거래 내역 */
+        /* 取引履歴 */
         .transaction-type {
             padding: 0.4rem 0.8rem;
             border-radius: 20px;
@@ -407,7 +407,7 @@
             color: #dc2626;
         }
 
-        /* 알림 카드 */
+        /* 通知カード */
         .alert-card {
             border-left: 4px solid;
             border-radius: 8px;
@@ -454,7 +454,7 @@
             opacity: 0.9;
         }
 
-        /* 퀵 액션 */
+        /* クイックアクション */
         .quick-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -496,7 +496,7 @@
         .quick-action-icon.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
         .quick-action-icon.primary { background: rgba(59, 130, 246, 0.1); color: var(--primary-color); }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 1024px) {
             .detail-grid {
                 grid-template-columns: 1fr;
@@ -544,7 +544,7 @@
             }
         }
 
-        /* 로딩 및 빈 상태 */
+        /* ローディング・空の状態 */
         .loading-state {
             text-align: center;
             padding: 3rem;
@@ -578,7 +578,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 페이드 인 애니메이션 */
+        /* フェードインアニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -592,7 +592,7 @@
 
 <div layout:fragment="content">
     <div class="detail-container">
-        <!-- 의약품 헤더 -->
+        <!-- 医薬品ヘッダー -->
         <div class="detail-header fade-in">
             <div class="medicine-header">
                 <div class="medicine-image" id="medicineImage">
@@ -600,31 +600,31 @@
                 </div>
 
                 <div class="medicine-info">
-                    <h1 class="medicine-title" th:text="${medicine.name}">아스피린정 100mg</h1>
+                    <h1 class="medicine-title" th:text="${medicine.name}">アスピリン錠 100mg</h1>
                     <p class="medicine-subtitle" th:text="${medicine.nameEn}" th:if="${medicine.nameEn}">Aspirin Tablet 100mg</p>
 
                     <div class="medicine-meta">
                         <div class="meta-item">
-                            <span class="meta-label">코드:</span>
+                            <span class="meta-label">コード:</span>
                             <span class="medicine-code" th:text="${medicine.code}">MED001</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">제조사:</span>
-                            <span class="meta-value" th:text="${medicine.manufacturer}">한국제약</span>
+                            <span class="meta-label">製造元:</span>
+                            <span class="meta-value" th:text="${medicine.manufacturer}">韓国製薬</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">카테고리:</span>
-                            <span class="meta-value" th:text="${medicine.category}">해열진통제</span>
+                            <span class="meta-label">カテゴリ:</span>
+                            <span class="meta-value" th:text="${medicine.category}">解熱鎮痛剤</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">단위:</span>
-                            <span class="meta-value" th:text="${medicine.unit}">정</span>
+                            <span class="meta-label">単位:</span>
+                            <span class="meta-value" th:text="${medicine.unit}">錠</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">상태:</span>
+                            <span class="meta-label">状態:</span>
                             <span class="status-badge" th:classappend="${medicine.isActive ? 'active' : 'inactive'}">
                                 <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
-                                <span th:text="${medicine.isActive ? '활성' : '비활성'}">활성</span>
+                                <span th:text="${medicine.isActive ? '有効' : '無効'}">有効</span>
                             </span>
                         </div>
                     </div>
@@ -635,41 +635,41 @@
                        class="btn btn-primary"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER')">
                         <i class="fas fa-edit"></i>
-                        수정
+                        修正
                     </a>
                     <a href="/stocks/new"
                        th:href="@{/stocks/new(medicineId=${medicine.id})}"
                        class="btn btn-success"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-plus"></i>
-                        재고 추가
+                        在庫追加
                     </a>
                     <a th:href="@{/medicines}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i>
-                        목록으로
+                        一覧へ
                     </a>
                 </div>
             </div>
 
-            <!-- 의약품 설명 -->
+            <!-- 医薬品説明 -->
             <div th:if="${medicine.description}" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
                 <p style="color: #64748b; line-height: 1.6; margin: 0;" th:text="${medicine.description}">
-                    해열, 진통, 소염 효과가 있는 아스피린 제제입니다. 성인의 경우 1회 1정씩 복용하시기 바랍니다.
+                    解熱、鎮痛、消炎効果があるアスピリン製剤です。成人の場合、1回1錠ずつ服用してください。
                 </p>
             </div>
         </div>
 
-        <!-- 재고 현황 개요 -->
+        <!-- 在庫状況概要 -->
         <div class="stock-overview fade-in">
             <div class="stock-card">
                 <div class="stock-card-icon total">
                     <i class="fas fa-boxes"></i>
                 </div>
                 <div class="stock-card-value" id="totalQuantity">-</div>
-                <div class="stock-card-label">총 재고</div>
+                <div class="stock-card-label">総在庫</div>
                 <div class="stock-card-change" id="totalChange">
                     <i class="fas fa-arrow-up"></i>
-                    +15개 (이번 주)
+                    +15個 (今週)
                 </div>
             </div>
 
@@ -678,10 +678,10 @@
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stock-card-value" id="availableQuantity">-</div>
-                <div class="stock-card-label">사용 가능</div>
+                <div class="stock-card-label">利用可能</div>
                 <div class="stock-card-change positive" id="availableChange">
                     <i class="fas fa-arrow-up"></i>
-                    +10개
+                    +10個
                 </div>
             </div>
 
@@ -690,10 +690,10 @@
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="stock-card-value" id="reservedQuantity">-</div>
-                <div class="stock-card-label">예약됨</div>
+                <div class="stock-card-label">予約済み</div>
                 <div class="stock-card-change" id="reservedChange">
                     <i class="fas fa-minus"></i>
-                    변동 없음
+                    変動なし
                 </div>
             </div>
 
@@ -702,36 +702,36 @@
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <div class="stock-card-value" id="expiredQuantity">-</div>
-                <div class="stock-card-label">만료/임박</div>
+                <div class="stock-card-label">期限切れ/間近</div>
                 <div class="stock-card-change negative" id="expiredChange">
                     <i class="fas fa-arrow-down"></i>
-                    5개 증가
+                    5個増加
                 </div>
             </div>
         </div>
 
-        <!-- 메인 그리드 -->
+        <!-- メイングリッド -->
         <div class="detail-grid">
-            <!-- 메인 콘텐츠 -->
+            <!-- メインコンテンツ -->
             <div class="main-content">
-                <!-- 재고 현황 차트 -->
+                <!-- 在庫推移チャート -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-chart-line"></i>
                             </div>
-                            재고 추이 (최근 30일)
+                            在庫推移 (直近30日)
                         </h3>
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-calendar"></i>
-                                30일
+                                30日
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="updateChart(7)">7일</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="updateChart(30)">30일</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="updateChart(90)">90일</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="updateChart(7)">7日</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="updateChart(30)">30日</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="updateChart(90)">90日</a></li>
                             </ul>
                         </div>
                     </div>
@@ -742,20 +742,20 @@
                     </div>
                 </div>
 
-                <!-- 재고 목록 -->
+                <!-- 在庫一覧 -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-warehouse"></i>
                             </div>
-                            재고 목록
+                            在庫一覧
                             <span class="badge bg-primary" id="stockCount">0</span>
                         </h3>
                         <div class="d-flex gap-2">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="includeExpired" onchange="toggleExpiredStocks()">
-                                <label class="form-check-label" for="includeExpired">만료 재고 포함</label>
+                                <label class="form-check-label" for="includeExpired">期限切れ在庫を含む</label>
                             </div>
                             <button class="btn btn-outline-secondary btn-sm" onclick="refreshStocks()">
                                 <i class="fas fa-sync-alt"></i>
@@ -767,51 +767,51 @@
                             <table class="data-table" id="stocksTable">
                                 <thead>
                                 <tr>
-                                    <th>로트번호</th>
-                                    <th>수량</th>
-                                    <th>유효기간</th>
-                                    <th>입고일</th>
-                                    <th>보관위치</th>
-                                    <th>상태</th>
-                                    <th>작업</th>
+                                    <th>ロット番号</th>
+                                    <th>数量</th>
+                                    <th>使用期限</th>
+                                    <th>入庫日</th>
+                                    <th>保管場所</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody id="stocksTableBody">
-                                <!-- 동적으로 로드됨 -->
+                                <!-- 動的にロード -->
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- 빈 상태 -->
+                        <!-- 空の状態 -->
                         <div class="empty-state" id="emptyStockState" style="display: none;">
                             <div class="empty-state-icon">
                                 <i class="fas fa-box-open"></i>
                             </div>
-                            <h4>재고가 없습니다</h4>
-                            <p>이 의약품의 재고가 등록되지 않았습니다.</p>
+                            <h4>在庫がありません</h4>
+                            <p>この医薬品の在庫は登録されていません。</p>
                             <a href="/stocks/new"
                                th:href="@{/stocks/new(medicineId=${medicine.id})}"
                                class="btn btn-success"
                                sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                                 <i class="fas fa-plus"></i>
-                                첫 재고 등록하기
+                                最初の在庫を登録する
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- 최근 거래 내역 -->
+                <!-- 最近の取引履歴 -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-exchange-alt"></i>
                             </div>
-                            최근 거래 내역
+                            最近の取引履歴
                         </h3>
                         <a th:href="@{/transactions(medicineId=${medicine.id})}" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-external-link-alt"></i>
-                            전체 보기
+                            すべて表示
                         </a>
                     </div>
                     <div class="card-content" style="padding: 0;">
@@ -819,56 +819,56 @@
                             <table class="data-table" id="transactionsTable">
                                 <thead>
                                 <tr>
-                                    <th>날짜</th>
-                                    <th>유형</th>
-                                    <th>수량</th>
-                                    <th>담당자</th>
-                                    <th>비고</th>
+                                    <th>日付</th>
+                                    <th>タイプ</th>
+                                    <th>数量</th>
+                                    <th>担当者</th>
+                                    <th>備考</th>
                                 </tr>
                                 </thead>
                                 <tbody id="transactionsTableBody">
-                                <!-- 동적으로 로드됨 -->
+                                <!-- 動的にロード -->
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- 빈 상태 -->
+                        <!-- 空の状態 -->
                         <div class="empty-state" id="emptyTransactionState" style="display: none;">
                             <div class="empty-state-icon">
                                 <i class="fas fa-history"></i>
                             </div>
-                            <h4>거래 내역이 없습니다</h4>
-                            <p>아직 입출고 거래가 발생하지 않았습니다.</p>
+                            <h4>取引履歴がありません</h4>
+                            <p>まだ入出庫取引が発生していません。</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 사이드바 -->
+            <!-- サイドバー -->
             <div class="sidebar-content">
-                <!-- 알림 및 경고 -->
+                <!-- 通知・警告 -->
                 <div class="detail-card fade-in" id="alertsCard">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-bell"></i>
                             </div>
-                            알림
+                            通知
                         </h3>
                     </div>
                     <div class="card-content" id="alertsContent">
-                        <!-- 동적으로 로드됨 -->
+                        <!-- 動的にロード -->
                     </div>
                 </div>
 
-                <!-- 퀵 액션 -->
+                <!-- クイック操作 -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-bolt"></i>
                             </div>
-                            빠른 작업
+                            クイック操作
                         </h3>
                     </div>
                     <div class="card-content">
@@ -881,8 +881,8 @@
                                     <i class="fas fa-plus"></i>
                                 </div>
                                 <div>
-                                    <div style="font-weight: 600;">재고 입고</div>
-                                    <div style="font-size: 0.85rem; color: #64748b;">새 재고 추가</div>
+                                    <div style="font-weight: 600;">在庫入庫</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">新規在庫追加</div>
                                 </div>
                             </a>
 
@@ -894,8 +894,8 @@
                                     <i class="fas fa-minus"></i>
                                 </div>
                                 <div>
-                                    <div style="font-weight: 600;">재고 출고</div>
-                                    <div style="font-size: 0.85rem; color: #64748b;">재고 사용 처리</div>
+                                    <div style="font-weight: 600;">在庫出庫</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">在庫使用処理</div>
                                 </div>
                             </a>
 
@@ -907,8 +907,8 @@
                                     <i class="fas fa-clipboard-check"></i>
                                 </div>
                                 <div>
-                                    <div style="font-weight: 600;">재고 실사</div>
-                                    <div style="font-size: 0.85rem; color: #64748b;">재고 확인 및 조정</div>
+                                    <div style="font-weight: 600;">在庫棚卸</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">在庫確認および調整</div>
                                 </div>
                             </a>
 
@@ -918,40 +918,40 @@
                                     <i class="fas fa-chart-bar"></i>
                                 </div>
                                 <div>
-                                    <div style="font-weight: 600;">상세 리포트</div>
-                                    <div style="font-size: 0.85rem; color: #64748b;">분석 및 통계</div>
+                                    <div style="font-weight: 600;">詳細レポート</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">分析および統計</div>
                                 </div>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- 의약품 정보 -->
+                <!-- 医薬品情報 -->
                 <div class="detail-card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">
                             <div class="card-icon">
                                 <i class="fas fa-info-circle"></i>
                             </div>
-                            상세 정보
+                            詳細情報
                         </h3>
                     </div>
                     <div class="card-content">
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
                             <div style="display: flex; justify-content: space-between;">
-                                <span style="color: #64748b;">최소 재고량</span>
-                                <span style="font-weight: 600;" th:text="${medicine.minStockQuantity + ' ' + medicine.unit}">10 정</span>
+                                <span style="color: #64748b;">最小在庫量</span>
+                                <span style="font-weight: 600;" th:text="${medicine.minStockQuantity + ' ' + medicine.unit}">10 錠</span>
                             </div>
                             <div style="display: flex; justify-content: space-between;" th:if="${medicine.storageCondition}">
-                                <span style="color: #64748b;">보관 조건</span>
-                                <span style="font-weight: 600;" th:text="${medicine.storageCondition}">실온 보관</span>
+                                <span style="color: #64748b;">保管条件</span>
+                                <span style="font-weight: 600;" th:text="${medicine.storageCondition}">室温保管</span>
                             </div>
                             <div style="display: flex; justify-content: space-between;">
-                                <span style="color: #64748b;">등록일</span>
+                                <span style="color: #64748b;">登録日</span>
                                 <span style="font-weight: 600;" th:text="${#temporals.format(medicine.createdAt, 'yyyy-MM-dd')}">2024-01-15</span>
                             </div>
                             <div style="display: flex; justify-content: space-between;">
-                                <span style="color: #64748b;">최종 수정일</span>
+                                <span style="color: #64748b;">最終更新日</span>
                                 <span style="font-weight: 600;" th:text="${#temporals.format(medicine.updatedAt, 'yyyy-MM-dd HH:mm')}">2024-01-20 14:30</span>
                             </div>
                         </div>
@@ -964,7 +964,7 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         const medicineId = /*[[${medicine.id}]]*/ 1;
         let stockChart = null;
         let stockData = [];
@@ -978,16 +978,16 @@
             initializeChart();
         });
 
-        // 페이지 초기화
+        // ページ初期化
         function initializePage() {
-            // 의약품 이미지 로드 (향후 구현)
+            // 医薬品画像のロード (将来的に実装)
             // loadMedicineImage();
 
-            // 실시간 데이터 업데이트 (선택적)
-            // setInterval(refreshData, 30000); // 30초마다 새로고침
+            // リアルタイムデータ更新 (任意)
+            // setInterval(refreshData, 30000); // 30秒ごとに更新
         }
 
-        // 재고 데이터 로드
+        // 在庫データのロード
         async function loadStockData() {
             try {
                 const includeExpired = document.getElementById('includeExpired').checked;
@@ -999,12 +999,12 @@
                     updateStockCount();
                 }
             } catch (error) {
-                console.error('재고 데이터 로드 오류:', error);
-                showAlert('재고 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('在庫データのロードエラー:', error);
+                showAlert('在庫データの読み込み中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 거래 내역 데이터 로드
+        // 取引履歴データのロード
         async function loadTransactionData() {
             try {
                 const response = await ApiClient.get(`/api/transactions/medicine/${medicineId}?days=30`);
@@ -1014,12 +1014,12 @@
                     renderTransactionsTable();
                 }
             } catch (error) {
-                console.error('거래 내역 로드 오류:', error);
-                showAlert('거래 내역을 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('取引履歴のロードエラー:', error);
+                showAlert('取引履歴の読み込み中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 재고 요약 정보 로드
+        // 在庫サマリーのロード
         async function loadStockSummary() {
             try {
                 const response = await ApiClient.get(`/api/medicines/${medicineId}/stock-summary`);
@@ -1030,11 +1030,11 @@
                     updateAlerts(summary);
                 }
             } catch (error) {
-                console.error('재고 요약 로드 오류:', error);
+                console.error('在庫サマリーのロードエラー:', error);
             }
         }
 
-        // 재고 카드 업데이트
+        // 在庫カードの更新
         function updateStockCards(summary) {
             document.getElementById('totalQuantity').textContent = formatNumber(summary.totalQuantity || 0);
             document.getElementById('availableQuantity').textContent = formatNumber(summary.availableQuantity || 0);
@@ -1042,7 +1042,7 @@
             document.getElementById('expiredQuantity').textContent = formatNumber((summary.expiredQuantity || 0) + (summary.expiringQuantity || 0));
         }
 
-        // 재고 테이블 렌더링
+        // 在庫テーブルのレンダリング
         function renderStocksTable() {
             const tbody = document.getElementById('stocksTableBody');
             const emptyState = document.getElementById('emptyStockState');
@@ -1066,7 +1066,7 @@
                     <td>
                         <span class="expiry-date ${getExpiryClass(stock.expiryDate, stock.daysUntilExpiry)}">
                             ${formatDate(stock.expiryDate)}
-                            ${stock.daysUntilExpiry <= 30 ? `<br><small>(${stock.daysUntilExpiry}일 남음)</small>` : ''}
+                            ${stock.daysUntilExpiry <= 30 ? `<br><small>(${stock.daysUntilExpiry}日残り)</small>` : ''}
                         </span>
                     </td>
                     <td>${formatDate(stock.receivedDate)}</td>
@@ -1076,10 +1076,10 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1">
-                            <button class="btn btn-outline-primary btn-sm" onclick="viewStock(${stock.id})" title="상세보기">
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewStock(${stock.id})" title="詳細表示">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-outline-warning btn-sm" onclick="editStock(${stock.id})" title="수정"
+                            <button class="btn btn-outline-warning btn-sm" onclick="editStock(${stock.id})" title="修正"
                                     ${!hasEditPermission() ? 'disabled' : ''}>
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -1089,7 +1089,7 @@
             `).join('');
         }
 
-        // 거래 내역 테이블 렌더링
+        // 取引履歴テーブルのレンダリング
         function renderTransactionsTable() {
             const tbody = document.getElementById('transactionsTableBody');
             const emptyState = document.getElementById('emptyTransactionState');
@@ -1102,7 +1102,7 @@
 
             emptyState.style.display = 'none';
 
-            // 최근 10개만 표시
+            // 最近10件のみ表示
             const recentTransactions = transactionData.slice(0, 10);
 
             tbody.innerHTML = recentTransactions.map(transaction => `
@@ -1124,7 +1124,7 @@
             `).join('');
         }
 
-        // 차트 초기화
+        // チャート初期化
         function initializeChart() {
             const ctx = document.getElementById('stockChart').getContext('2d');
 
@@ -1133,7 +1133,7 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: '재고 수량',
+                        label: '在庫数量',
                         data: [],
                         borderColor: 'rgb(44, 90, 160)',
                         backgroundColor: 'rgba(44, 90, 160, 0.1)',
@@ -1169,19 +1169,19 @@
             loadChartData(30);
         }
 
-        // 차트 데이터 로드
+        // チャートデータロード
         async function loadChartData(days) {
             try {
-                // 실제 구현에서는 API로 데이터를 가져와야 합니다
-                // 현재는 더미 데이터 사용
+                // 実際の구현ではAPIからデータを取得する必要があります
+                // 現在はダミーデータを使用
                 const labels = [];
                 const data = [];
                 const today = new Date();
 
                 for (let i = days - 1; i >= 0; i--) {
                     const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
-                    labels.push(date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }));
-                    // 더미 데이터 (실제로는 API에서 가져옴)
+                    labels.push(date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }));
+                    // ダミーデータ (実際にはAPIから取得)
                     data.push(Math.floor(Math.random() * 50) + 100);
                 }
 
@@ -1189,54 +1189,54 @@
                 stockChart.data.datasets[0].data = data;
                 stockChart.update();
             } catch (error) {
-                console.error('차트 데이터 로드 오류:', error);
+                console.error('チャートデータのロードエラー:', error);
             }
         }
 
-        // 알림 업데이트
+        // 通知の更新
         function updateAlerts(summary) {
             const alertsContent = document.getElementById('alertsContent');
             const alerts = [];
 
-            // 재고 부족 알림
+            // 在庫不足通知
             if (summary.totalQuantity <= summary.minStockQuantity) {
                 alerts.push({
                     type: summary.totalQuantity === 0 ? 'danger' : 'warning',
                     icon: 'fas fa-exclamation-triangle',
-                    title: summary.totalQuantity === 0 ? '재고 없음' : '재고 부족',
+                    title: summary.totalQuantity === 0 ? '在庫なし' : '在庫不足',
                     message: summary.totalQuantity === 0
-                        ? '현재 재고가 없습니다. 즉시 보충이 필요합니다.'
-                        : `현재 재고(${summary.totalQuantity})가 최소 재고량(${summary.minStockQuantity}) 이하입니다.`
+                        ? '現在在庫がありません。直ちに補充が必要です。'
+                        : `現在の在庫(${summary.totalQuantity})が最小在庫量(${summary.minStockQuantity})以下です。`
                 });
             }
 
-            // 만료 임박 알림
+            // 期限間近通知
             if (summary.expiringQuantity > 0) {
                 alerts.push({
                     type: 'warning',
                     icon: 'fas fa-calendar-times',
-                    title: '유효기간 임박',
-                    message: `30일 이내 만료 예정인 재고가 ${summary.expiringQuantity}개 있습니다.`
+                    title: '使用期限間近',
+                    message: `30日以内に期限切れ予定の在庫が${summary.expiringQuantity}個あります。`
                 });
             }
 
-            // 만료된 재고 알림
+            // 期限切れ在庫通知
             if (summary.expiredQuantity > 0) {
                 alerts.push({
                     type: 'danger',
                     icon: 'fas fa-times-circle',
-                    title: '만료된 재고',
-                    message: `만료된 재고가 ${summary.expiredQuantity}개 있습니다. 폐기 처리가 필요합니다.`
+                    title: '期限切れ在庫',
+                    message: `期限切れの在庫が${summary.expiredQuantity}個あります。廃棄処理が必要です。`
                 });
             }
 
-            // 정상 상태 메시지
+            // 正常状態メッセージ
             if (alerts.length === 0) {
                 alerts.push({
                     type: 'info',
                     icon: 'fas fa-check-circle',
-                    title: '재고 상태 양호',
-                    message: '현재 재고 상태가 정상입니다.'
+                    title: '在庫状況良好',
+                    message: '現在の在庫状況は正常です。'
                 });
             }
 
@@ -1251,7 +1251,7 @@
             `).join('');
         }
 
-        // 유틸리티 함수들
+        // ユーティリティ関数
         function getExpiryClass(expiryDate, daysUntilExpiry) {
             if (daysUntilExpiry <= 0) return 'danger';
             if (daysUntilExpiry <= 30) return 'warning';
@@ -1270,8 +1270,8 @@
         }
 
         function hasEditPermission() {
-            // 실제 구현에서는 사용자 권한 확인
-            return true; // 임시
+            // 実際の権限確認を実装
+            return true; // 仮
         }
 
         function updateStockCount() {
@@ -1280,7 +1280,7 @@
 
         function formatDateTime(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString('ko-KR', {
+            return date.toLocaleDateString('ja-JP', {
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
@@ -1288,7 +1288,7 @@
             });
         }
 
-        // 이벤트 핸들러들
+        // イベントハンドラ
         function toggleExpiredStocks() {
             loadStockData();
         }
@@ -1310,28 +1310,28 @@
             window.location.href = `/stocks/${stockId}/edit`;
         }
 
-        // 데이터 새로고침
+        // データ更新
         function refreshData() {
             loadStockData();
             loadTransactionData();
             loadStockSummary();
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // F5: 새로고침
+            // F5: 更新
             if (e.key === 'F5') {
                 e.preventDefault();
                 refreshData();
             }
 
-            // Ctrl + E: 편집
+            // Ctrl + E: 編集
             if (e.ctrlKey && e.key === 'e') {
                 e.preventDefault();
                 window.location.href = `/medicines/${medicineId}/edit`;
             }
 
-            // Ctrl + N: 재고 추가
+            // Ctrl + N: 在庫追加
             if (e.ctrlKey && e.key === 'n') {
                 e.preventDefault();
                 window.location.href = `/stocks/new?medicineId=${medicineId}`;

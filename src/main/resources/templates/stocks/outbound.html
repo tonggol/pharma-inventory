@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>재고 출고 - 의약품 재고관리 시스템</title>
+    <title>在庫出庫 - 医薬品在庫管理システム</title>
 
     <th:block layout:fragment="css">
         <style>
-            /* 폼 스타일 */
+            /* フォームスタイル */
             .form-container {
                 background: white;
                 border-radius: 12px;
@@ -111,7 +111,7 @@
                 color: #64748b;
             }
 
-            /* 재고 정보 카드 */
+            /* 在庫情報カード */
             .stock-info-card {
                 background: #f8fafc;
                 border: 1px solid var(--border-color);
@@ -189,12 +189,8 @@
 <div layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-1" th:text="${pageTitle ?: '재고 출고'}">재고 출고</h1>
-            <p class="text-muted mb-0" th:text="${pageDescription ?: '재고를 출고 처리합니다 (FEFO 방식 적용)'}">재고를 출고 처리합니다 (FEFO 방식 적용)</p>
-        </div>
-        <div>
             <a href="/transactions" class="btn btn-outline-secondary">
-                <i class="fas fa-list me-2"></i>출고 내역
+                <i class="fas fa-list me-2"></i>出庫履歴
             </a>
         </div>
     </div>
@@ -204,25 +200,25 @@
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-search text-info"></i>
-                    의약품 선택
+                    医薬品選択
                 </div>
                 <div class="row">
                     <div class="col-md-8">
                         <div class="mb-3">
                             <label for="medicineSelect" class="form-label">
-                                의약품 <span class="required">*</span>
+                                医薬品 <span class="required">*</span>
                             </label>
                             <div class="medicine-search">
                                 <button type="button" class="form-control text-start" id="medicineSelect"
                                         style="background: white; border: 1px solid #ced4da;">
-                                    등록된 의약품을 선택하세요...
+                                    登録済みの医薬品を選択してください...
                                 </button>
                                 <input type="hidden" id="medicineId" name="medicineId" required>
 
                                 <div class="medicine-dropdown" id="medicineDropdown">
                                     <div class="p-2 border-bottom">
                                         <input type="text" class="form-control form-control-sm"
-                                               id="searchInput" placeholder="검색...">
+                                               id="searchInput" placeholder="検索...">
                                     </div>
                                     <div id="medicineOptions">
                                     </div>
@@ -230,22 +226,22 @@
                             </div>
                             <small class="form-text text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                등록된 의약품만 선택 가능합니다.
+                                登録済みの医薬品のみ選択可能です。
                             </small>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="totalStock" class="form-label">총 재고 수량</label>
+                            <label for="totalStock" class="form-label">総在庫数量</label>
                             <input type="text" class="form-control" id="totalStock" readonly
-                                   placeholder="의약품 선택 후 표시">
+                                   placeholder="医薬品選択後に表示">
                         </div>
                     </div>
                 </div>
 
                 <div id="stockInfo" class="stock-info-card" style="display: none;">
                     <h6 class="mb-3">
-                        <i class="fas fa-boxes me-2"></i>사용 가능한 재고 (만료일 순)
+                        <i class="fas fa-boxes me-2"></i>使用可能な在庫 (使用期限順)
                     </h6>
                     <div id="stockList"></div>
                 </div>
@@ -254,22 +250,22 @@
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-minus-circle text-warning"></i>
-                    출고 정보
+                    出庫情報
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="quantity" class="form-label">
-                                출고 수량 <span class="required">*</span>
+                                出庫数量 <span class="required">*</span>
                             </label>
                             <input type="number" class="form-control" id="quantity" name="quantity"
-                                   min="1" placeholder="출고할 수량" required>
-                            <small class="text-muted">FEFO 방식으로 자동 배정됩니다</small>
+                                   min="1" placeholder="出庫する数量" required>
+                            <small class="text-muted">FEFO方式で自動的に割り当てられます</small>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="transactionDate" class="form-label">출고일시</label>
+                            <label for="transactionDate" class="form-label">出庫日時</label>
                             <input type="datetime-local" class="form-control" id="transactionDate" name="transactionDate">
                         </div>
                     </div>
@@ -277,24 +273,24 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="reason" class="form-label">출고 사유</label>
+                            <label for="reason" class="form-label">出庫事由</label>
                             <select class="form-select" id="reason" name="reason">
-                                <option value="">선택하세요</option>
-                                <option value="PRESCRIPTION">처방</option>
-                                <option value="SALES">판매</option>
-                                <option value="SAMPLE">샘플</option>
-                                <option value="DONATION">기부</option>
-                                <option value="EXPIRED">유효기간만료</option>
-                                <option value="DAMAGED">파손</option>
-                                <option value="OTHER">기타</option>
+                                <option value="">選択してください</option>
+                                <option value="PRESCRIPTION">処方</option>
+                                <option value="SALES">販売</option>
+                                <option value="SAMPLE">サンプル</option>
+                                <option value="DONATION">寄付</option>
+                                <option value="EXPIRED">使用期限切れ</option>
+                                <option value="DAMAGED">破損</option>
+                                <option value="OTHER">その他</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="referenceNumber" class="form-label">참조번호</label>
+                            <label for="referenceNumber" class="form-label">参照番号</label>
                             <input type="text" class="form-control" id="referenceNumber" name="referenceNumber"
-                                   placeholder="처방전번호, 주문번호 등">
+                                   placeholder="処方箋番号、注文番号など">
                         </div>
                     </div>
                 </div>
@@ -303,28 +299,28 @@
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-user text-success"></i>
-                    요청자 정보
+                    依頼者情報
                 </div>
                 <div class="row">
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="department" class="form-label">부서/진료과</label>
+                            <label for="department" class="form-label">部署/診療科</label>
                             <input type="text" class="form-control" id="department" name="department"
-                                   placeholder="부서 또는 진료과">
+                                   placeholder="部署または診療科">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="requesterName" class="form-label">요청자</label>
+                            <label for="requesterName" class="form-label">依頼者</label>
                             <input type="text" class="form-control" id="requesterName" name="requesterName"
-                                   placeholder="요청자 이름">
+                                   placeholder="依頼者名">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label for="approverName" class="form-label">승인자</label>
+                            <label for="approverName" class="form-label">承認者</label>
                             <input type="text" class="form-control" id="approverName" name="approverName"
-                                   placeholder="승인자 이름">
+                                   placeholder="承認者名">
                         </div>
                     </div>
                 </div>
@@ -333,21 +329,21 @@
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-sticky-note text-secondary"></i>
-                    기타 정보
+                    その他情報
                 </div>
                 <div class="mb-3">
-                    <label for="remarks" class="form-label">비고</label>
+                    <label for="remarks" class="form-label">備考</label>
                     <textarea class="form-control" id="remarks" name="remarks" rows="3"
-                              placeholder="특이사항이나 비고를 입력하세요"></textarea>
+                              placeholder="特記事項や備考を入力してください"></textarea>
                 </div>
             </div>
 
             <div class="d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
-                    <i class="fas fa-times me-2"></i>취소
+                    <i class="fas fa-times me-2"></i>キャンセル
                 </button>
                 <button type="submit" class="btn btn-warning">
-                    <i class="fas fa-minus me-2"></i>출고 처리
+                    <i class="fas fa-minus me-2"></i>出庫処理
                 </button>
             </div>
         </form>
@@ -356,14 +352,14 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        console.log('=== 재고 출고 페이지 스크립트 시작 ===');
+        console.log('=== 在庫出庫ページのスクリプト開始 ===');
 
-        // 현재 시간을 기본값으로 설정
+        // 現在時刻をデフォルト値として設定
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('transactionDate').value = now.toISOString().slice(0, 16);
 
-        // 의약품 데이터 로드 (inbound.html과 동일한 로직)
+        // 医薬品データロード (inbound.htmlと同じロジック)
         async function loadMedicines() {
             try {
                 let response = await fetch('/api/medicines/all');
@@ -373,7 +369,7 @@
                         return result.data;
                     }
                 }
-                console.warn('전체 목록 API 실패, 페이징 API로 대체 시도');
+                console.warn('全リストAPI失敗, ページングAPIで代替試行');
                 response = await fetch('/api/medicines?size=1000');
                 if (response.ok) {
                     const result = await response.json();
@@ -385,12 +381,12 @@
                     }
                 }
             } catch (error) {
-                console.error('의약품 목록 로드 중 오류:', error);
+                console.error('医薬品リストのロード中にエラー:', error);
             }
             return [];
         }
 
-        // 재고 정보 로드 (medicineId에 해당하는 재고 목록을 API에서 가져옴)
+        // 在庫情報ロード (medicineIdに該当する在庫リストをAPIから取得)
         async function loadStockInfo(medicineId) {
             try {
                 const response = await fetch(`/api/medicines/${medicineId}/stocks?includeExpired=false`);
@@ -398,16 +394,16 @@
                 if (response.ok && result.success) {
                     return result.data;
                 } else {
-                    console.error("재고 정보 로드 실패:", result.message);
+                    console.error("在庫情報のロードに失敗しました:", result.message);
                     return [];
                 }
             } catch (error) {
-                console.error("재고 정보 API 호출 중 오류:", error);
+                console.error("在庫情報APIの呼び出し中にエラー:", error);
                 return [];
             }
         }
 
-        // 의약품 드롭다운 초기화
+        // 医薬品ドロップダウン初期化
         async function initMedicineDropdown() {
             const medicineSelect = document.getElementById('medicineSelect');
             const medicineDropdown = document.getElementById('medicineDropdown');
@@ -425,7 +421,7 @@
                 if (medicinesToShow.length === 0) {
                     const noResultItem = document.createElement('div');
                     noResultItem.className = 'medicine-item text-muted';
-                    noResultItem.innerHTML = '<div class="medicine-name">검색 결과가 없습니다</div>';
+                    noResultItem.innerHTML = '<div class="medicine-name">検索結果がありません</div>';
                     medicineOptions.appendChild(noResultItem);
                     return;
                 }
@@ -435,7 +431,7 @@
                     item.className = 'medicine-item';
                     const name = med.name || med.medicineName || 'Unknown Medicine';
                     const code = med.code || med.medicineCode || med.id || 'N/A';
-                    const manufacturer = med.manufacturer || '제조사 미상';
+                    const manufacturer = med.manufacturer || '製造元不明';
 
                     item.innerHTML = `<div class="medicine-name">${name}</div><div class="medicine-details">${code} | ${manufacturer}</div>`;
 
@@ -447,7 +443,7 @@
 
                         const stocks = await loadStockInfo(med.id);
                         const totalQuantity = stocks.reduce((sum, stock) => sum + stock.quantity, 0);
-                        totalStockInput.value = `${totalQuantity}개`;
+                        totalStockInput.value = `${totalQuantity}個`;
                         displayStockList(stocks);
                         stockInfoCard.style.display = 'block';
                     });
@@ -481,11 +477,11 @@
             });
 
             function displayStockList(stocks) {
-                // FEFO (First-Expired, First-Out) 원칙에 따라 만료일 순으로 정렬
+                // FEFO (First-Expired, First-Out) 原則に従い使用期限順にソート
                 stocks.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
                 stockListContainer.innerHTML = '';
                 if (stocks.length === 0) {
-                    stockListContainer.innerHTML = '<div class="text-muted text-center p-3">사용 가능한 재고가 없습니다.</div>';
+                    stockListContainer.innerHTML = '<div class="text-muted text-center p-3">使用可能な在庫がありません。</div>';
                     return;
                 }
                 stocks.forEach(stock => {
@@ -495,30 +491,30 @@
                     let expiryText = '';
                     if (stock.daysUntilExpiry <= 0) {
                         expiryClass = 'expiry-danger';
-                        expiryText = '만료됨';
+                        expiryText = '期限切れ';
                     } else if (stock.daysUntilExpiry <= 30) {
                         expiryClass = 'expiry-warning';
-                        expiryText = `${stock.daysUntilExpiry}일 남음`;
+                        expiryText = `${stock.daysUntilExpiry}日残り`;
                     } else {
-                        expiryText = `${stock.daysUntilExpiry}일 남음`;
+                        expiryText = `${stock.daysUntilExpiry}日残り`;
                     }
                     item.innerHTML = `
                         <div class="stock-details">
-                            <div class="fw-semibold">로트번호: ${stock.lotNumber}</div>
+                            <div class="fw-semibold">ロット番号: ${stock.lotNumber}</div>
                             <div class="d-flex justify-content-between">
-                                <span class="text-muted">위치: ${stock.location || '정보 없음'}</span>
-                                <span class="text-muted">만료일: ${stock.expiryDate}</span>
+                                <span class="text-muted">場所: ${stock.location || '情報なし'}</span>
+                                <span class="text-muted">使用期限: ${stock.expiryDate}</span>
                             </div>
                             <div class="${expiryClass}">${expiryText}</div>
                         </div>
-                        <div class="stock-quantity">${stock.quantity}개</div>
+                        <div class="stock-quantity">${stock.quantity}個</div>
                     `;
                     stockListContainer.appendChild(item);
                 });
             }
         }
 
-        // 폼 제출 처리
+        // フォーム提出処理
         function initForm() {
             const form = document.getElementById('outboundForm');
             if (!form) return;
@@ -531,28 +527,28 @@
                 const totalStockInput = document.getElementById('totalStock');
 
                 if (!medicineIdInput.value) {
-                    showAlert('의약품을 선택해주세요.', 'danger');
+                    showAlert('医薬品を選択してください。', 'danger');
                     return;
                 }
                 if (!quantityInput.value || quantityInput.value <= 0) {
-                    showAlert('출고 수량을 입력해주세요.', 'danger');
+                    showAlert('出庫数量を入力してください。', 'danger');
                     return;
                 }
 
                 const totalStock = parseInt(totalStockInput.value.replace(/[^0-9]/g, ''));
                 if (parseInt(quantityInput.value) > totalStock) {
-                    if (!confirm(`재고가 부족합니다. 현재 가용 재고: ${totalStock}개.\n그래도 출고를 진행하시겠습니까?`)) {
+                    if (!confirm(`在庫が不足しています。現在の利用可能在庫: ${totalStock}個。\nそれでも出庫を続行しますか？`)) {
                         return;
                     }
                 }
-                if (!confirm(`${quantityInput.value}개를 출고하시겠습니까?`)) {
+                if (!confirm(`${quantityInput.value}個を出庫しますか？`)) {
                     return;
                 }
 
                 const formData = new FormData(this);
                 const data = Object.fromEntries(formData.entries());
 
-                // StockTransactionRequest DTO에 맞게 데이터 구성
+                // StockTransactionRequest DTOに合わせてデータ構成
                 const requestData = {
                     medicineId: parseInt(data.medicineId),
                     quantity: parseInt(data.quantity),
@@ -569,28 +565,28 @@
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>처리 중...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>処理中...';
 
                 try {
                     const response = await ApiClient.post('/api/transactions/outbound', requestData);
 
                     if (response.success) {
-                        showAlert(response.message || '출고 처리가 성공적으로 완료되었습니다!', 'success');
+                        showAlert(response.message || '出庫処理が正常に完了しました！', 'success');
                         form.reset();
-                        document.getElementById('medicineSelect').textContent = '등록된 의약품을 선택하세요...';
+                        document.getElementById('medicineSelect').textContent = '登録済みの医薬品を選択してください...';
                         document.getElementById('medicineId').value = '';
                         document.getElementById('totalStock').value = '';
                         document.getElementById('stockInfo').style.display = 'none';
-                        if (confirm('출고가 완료되었습니다. 입출고 내역을 확인하시겠습니까?')) {
+                        if (confirm('出庫が完了しました。出庫履歴を確認しますか？')) {
                             window.location.href = '/transactions';
                         }
                     } else {
-                        const errorMessage = response.message || '출고 처리 중 오류가 발생했습니다.';
-                        showAlert('출고 실패: ' + errorMessage, 'danger');
+                        const errorMessage = response.message || '出庫処理中にエラーが発生しました。';
+                        showAlert('出庫失敗: ' + errorMessage, 'danger');
                     }
                 } catch (error) {
-                    console.error('네트워크 오류:', error);
-                    showAlert('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.', 'danger');
+                    console.error('ネットワークエラー:', error);
+                    showAlert('ネットワークエラーが発生しました。インターネット接続を確認して、もう一度お試しください。', 'danger');
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;

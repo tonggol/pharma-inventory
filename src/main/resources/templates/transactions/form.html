@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title th:text="${transaction.id != null ? '거래 내역 수정' : '새 거래 등록'} + ' - 의약품 재고관리 시스템'">거래 등록 - 의약품 재고관리 시스템</title>
+    <title th:text="${transaction.id != null ? '取引履歴修正' : '新規取引登録'} + ' - 医薬品在庫管理システム'">取引登録 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
@@ -14,7 +14,7 @@
 
 <div layout:fragment="content">
     <div class="form-container">
-        <!-- 폼 헤더 -->
+        <!-- フォームヘッダー -->
         <div class="form-header fade-in">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
@@ -22,29 +22,29 @@
                         <i class="fas fa-exchange-alt"></i>
                     </div>
                     <div>
-                        <h1 class="form-title" th:text="${transaction.id != null ? '거래 내역 수정' : '새 거래 등록'}">새 거래 등록</h1>
-                        <p class="form-subtitle" th:text="${transaction.id != null ? '거래 내역을 수정합니다.' : '새로운 재고 거래를 시스템에 등록합니다.'}">새로운 재고 거래를 시스템에 등록합니다.</p>
+                        <h1 class="form-title" th:text="${transaction.id != null ? '取引履歴修正' : '新規取引登録'}">新規取引登録</h1>
+                        <p class="form-subtitle" th:text="${transaction.id != null ? '取引履歴を修正します。' : '新規の在庫取引をシステムに登録します。'}">新規の在庫取引をシステムに登録します。</p>
                     </div>
                 </div>
                 <div>
                     <a href="/transactions" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i>
-                        목록으로
+                        一覧へ
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 알림 메시지 -->
+        <!-- 通知メッセージ -->
         <div th:if="${error}" class="alert-card warning slide-up">
             <i class="fas fa-exclamation-circle alert-icon"></i>
             <div class="alert-content">
-                <div class="alert-title">입력 오류</div>
-                <div class="alert-message" th:text="${error}">에러 메시지</div>
+                <div class="alert-title">入力エラー</div>
+                <div class="alert-message" th:text="${error}">エラーメッセージ</div>
             </div>
         </div>
 
-        <!-- 거래 등록 폼 -->
+        <!-- 取引登録フォーム -->
         <form class="slide-up"
               th:action="${transaction.id != null ? '/api/transactions/' + transaction.id : '/api/transactions'}"
               th:method="${transaction.id != null ? 'PUT' : 'POST'}"
@@ -52,14 +52,14 @@
               id="transactionForm"
               novalidate>
 
-            <!-- 거래 유형 선택 섹션 -->
+            <!-- 取引タイプ選択セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-tag"></i>
                         </div>
-                        거래 유형 선택
+                        取引タイプ選択
                     </h3>
 
                     <div class="transaction-type-selector" id="transactionTypeSelector">
@@ -67,131 +67,131 @@
                             <div class="transaction-type-icon inbound">
                                 <i class="fas fa-arrow-down"></i>
                             </div>
-                            <div class="transaction-type-name">입고</div>
-                            <div class="transaction-type-desc">새 재고 입고</div>
+                            <div class="transaction-type-name">入庫</div>
+                            <div class="transaction-type-desc">新規在庫の入庫</div>
                         </div>
 
                         <div class="transaction-type-option" data-type="OUTBOUND" onclick="selectTransactionType('OUTBOUND')">
                             <div class="transaction-type-icon outbound">
                                 <i class="fas fa-arrow-up"></i>
                             </div>
-                            <div class="transaction-type-name">출고</div>
-                            <div class="transaction-type-desc">재고 사용/출고</div>
+                            <div class="transaction-type-name">出庫</div>
+                            <div class="transaction-type-desc">在庫の使用・出庫</div>
                         </div>
 
                         <div class="transaction-type-option" data-type="ADJUSTMENT" onclick="selectTransactionType('ADJUSTMENT')">
                             <div class="transaction-type-icon adjustment">
                                 <i class="fas fa-edit"></i>
                             </div>
-                            <div class="transaction-type-name">조정</div>
-                            <div class="transaction-type-desc">재고 수량 조정</div>
+                            <div class="transaction-type-name">調整</div>
+                            <div class="transaction-type-desc">在庫数量の調整</div>
                         </div>
 
                         <div class="transaction-type-option" data-type="RETURN" onclick="selectTransactionType('RETURN')">
                             <div class="transaction-type-icon return">
                                 <i class="fas fa-undo"></i>
                             </div>
-                            <div class="transaction-type-name">반품</div>
-                            <div class="transaction-type-desc">반품 처리</div>
+                            <div class="transaction-type-name">返品</div>
+                            <div class="transaction-type-desc">返品処理</div>
                         </div>
 
                         <div class="transaction-type-option" data-type="DISPOSAL" onclick="selectTransactionType('DISPOSAL')">
                             <div class="transaction-type-icon disposal">
                                 <i class="fas fa-trash"></i>
                             </div>
-                            <div class="transaction-type-name">폐기</div>
-                            <div class="transaction-type-desc">폐기 처리</div>
+                            <div class="transaction-type-name">廃棄</div>
+                            <div class="transaction-type-desc">廃棄処理</div>
                         </div>
 
                         <div class="transaction-type-option" data-type="TRANSFER" onclick="selectTransactionType('TRANSFER')">
                             <div class="transaction-type-icon transfer">
                                 <i class="fas fa-exchange-alt"></i>
                             </div>
-                            <div class="transaction-type-name">이동</div>
-                            <div class="transaction-type-desc">위치 이동</div>
+                            <div class="transaction-type-name">移動</div>
+                            <div class="transaction-type-desc">場所の移動</div>
                         </div>
                     </div>
 
-                    <!-- 숨겨진 필드 -->
+                    <!-- 隠しフィールド -->
                     <input type="hidden" id="transactionType" name="transactionType" th:field="*{transactionType}" required>
                     <div class="invalid-feedback">
                         <i class="fas fa-times-circle"></i>
-                        <span id="transactionTypeError">거래 유형을 선택해주세요.</span>
+                        <span id="transactionTypeError">取引タイプを選択してください。</span>
                     </div>
                 </div>
             </div>
 
-            <!-- 재고/의약품 선택 섹션 -->
+            <!-- 在庫・医薬品選択セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-pills"></i>
                         </div>
-                        재고 선택
+                        在庫選択
                     </h3>
 
                     <div class="form-group full-width">
                         <label class="form-label required" for="stockSearch">
                             <i class="fas fa-search"></i>
-                            재고 검색
+                            在庫検索
                         </label>
                         <div class="stock-selector">
                             <div class="stock-search">
                                 <input type="text"
                                        class="form-control"
                                        id="stockSearch"
-                                       placeholder="의약품명, 로트번호로 검색..."
+                                       placeholder="医薬品名、ロット番号で検索..."
                                        autocomplete="off">
                                 <div class="stock-dropdown" id="stockDropdown">
-                                    <!-- 동적으로 로드됨 -->
+                                    <!-- 動的にロード -->
                                 </div>
                             </div>
 
-                            <!-- 선택된 재고 표시 -->
+                            <!-- 選択された在庫表示 -->
                             <div class="selected-stock" id="selectedStock">
                                 <div class="selected-stock-info">
                                     <div class="selected-stock-details">
-                                        <div class="selected-stock-name" id="selectedStockName">선택된 재고</div>
-                                        <div class="selected-stock-meta" id="selectedStockMeta">로트: LOT001 | 수량: 500개 | 만료: 2025-12-31</div>
+                                        <div class="selected-stock-name" id="selectedStockName">選択された在庫</div>
+                                        <div class="selected-stock-meta" id="selectedStockMeta">ロット: LOT001 | 数量: 500個 | 期限: 2025-12-31</div>
                                     </div>
                                     <button type="button" class="change-stock-btn" onclick="changeStock()">
                                         <i class="fas fa-edit"></i>
-                                        변경
+                                        変更
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div class="form-text">
                             <i class="fas fa-info-circle"></i>
-                            의약품명 또는 로트번호를 입력하여 검색하세요.
+                            医薬品名またはロット番号を入力して検索してください。
                         </div>
 
-                        <!-- 숨겨진 필드 -->
+                        <!-- 隠しフィールド -->
                         <input type="hidden" id="stockId" name="stockId" th:field="*{stockId}" required>
                         <div class="invalid-feedback">
                             <i class="fas fa-times-circle"></i>
-                            <span id="stockError">재고를 선택해주세요.</span>
+                            <span id="stockError">在庫を選択してください。</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 거래 정보 섹션 -->
+            <!-- 取引情報セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-info-circle"></i>
                         </div>
-                        거래 정보
+                        取引情報
                     </h3>
 
                     <div class="form-grid two-columns">
                         <div class="form-group">
                             <label for="quantity" class="form-label required">
                                 <i class="fas fa-calculator"></i>
-                                거래 수량
+                                取引数量
                             </label>
                             <div class="quantity-controls">
                                 <button type="button" class="quantity-btn" onclick="adjustQuantity(-1)">
@@ -211,18 +211,18 @@
                                 </button>
                             </div>
                             <div class="available-quantity" id="availableQuantity" style="display: none;">
-                                사용 가능: 0개
+                                利用可能: 0個
                             </div>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                <span id="quantityError">1 이상의 수량을 입력해주세요.</span>
+                                <span id="quantityError">1以上の数量を入力してください。</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="transactionDate" class="form-label required">
                                 <i class="fas fa-calendar"></i>
-                                거래 일시
+                                取引日時
                             </label>
                             <div class="date-input-group">
                                 <input type="datetime-local"
@@ -231,15 +231,15 @@
                                        name="transactionDate"
                                        th:field="*{transactionDate}"
                                        required>
-                                <div class="date-helper">거래 일시</div>
+                                <div class="date-helper">取引日時</div>
                             </div>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                실제 거래가 발생한 날짜와 시간을 입력하세요.
+                                実際の取引が発生した日時を入力してください。
                             </div>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                <span id="transactionDateError">거래 일시를 입력해주세요.</span>
+                                <span id="transactionDateError">取引日時を入力してください。</span>
                             </div>
                         </div>
                     </div>
@@ -248,36 +248,36 @@
                         <div class="form-group">
                             <label for="department" class="form-label">
                                 <i class="fas fa-building"></i>
-                                부서
+                                部署
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="department"
                                    name="department"
                                    th:field="*{department}"
-                                   placeholder="예: 내과, 외과, 약국"
+                                   placeholder="例: 内科、外科、薬局"
                                    maxlength="50">
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                거래를 요청한 부서를 입력하세요.
+                                取引を依頼した部署を入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="requestedBy" class="form-label">
                                 <i class="fas fa-user"></i>
-                                요청자
+                                依頼者
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="requestedBy"
                                    name="requestedBy"
                                    th:field="*{requestedBy}"
-                                   placeholder="예: 김의사, 이약사"
+                                   placeholder="例: キム医師、イ薬剤師"
                                    maxlength="50">
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                거래를 요청한 담당자를 입력하세요.
+                                取引を依頼した担当者を入力してください。
                             </div>
                         </div>
                     </div>
@@ -286,45 +286,45 @@
                         <div class="form-group full-width">
                             <label for="remarks" class="form-label">
                                 <i class="fas fa-sticky-note"></i>
-                                비고
+                                備考
                             </label>
                             <textarea class="form-control"
                                       id="remarks"
                                       name="remarks"
                                       th:field="*{remarks}"
                                       rows="3"
-                                      placeholder="거래 관련 특이사항이나 메모를 입력하세요."
+                                      placeholder="取引に関する特記事項やメモを入力してください。"
                                       maxlength="500"></textarea>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                거래 사유나 특이사항을 기록해주세요. (최대 500자)
+                                取引事由や特記事項を記録してください。(最大500文字)
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 액션 버튼 -->
+            <!-- アクションボタン -->
             <div class="form-card">
                 <div class="form-actions">
                     <a href="/transactions" class="btn btn-outline-secondary">
                         <i class="fas fa-times"></i>
-                        취소
+                        キャンセル
                     </a>
 
                     <button type="button" class="btn btn-outline-secondary" onclick="resetForm()" th:if="${transaction.id == null}">
                         <i class="fas fa-undo"></i>
-                        초기화
+                        リセット
                     </button>
 
                     <button type="button" class="btn btn-outline-danger" onclick="deleteTransaction()" th:if="${transaction.id != null}" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
                         <i class="fas fa-trash"></i>
-                        삭제
+                        削除
                     </button>
 
                     <button type="submit" class="btn btn-success" id="submitButton">
                         <i class="fas fa-save"></i>
-                        <span th:text="${transaction.id != null ? '수정하기' : '등록하기'}">등록하기</span>
+                        <span th:text="${transaction.id != null ? '修正する' : '登録する'}">登録する</span>
                     </button>
                 </div>
             </div>
@@ -334,7 +334,7 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         let stocks = [];
         let selectedStockId = null;
         let selectedTransactionType = null;
@@ -346,28 +346,28 @@
             initializeTooltips();
         });
 
-        // 폼 초기화
+        // フォーム初期化
         function initializeForm() {
-            // 현재 시간을 거래 일시 기본값으로 설정
+            // 現在時刻を取引日時のデフォルト値として設定
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('transactionDate').value = now.toISOString().slice(0, 16);
 
-            // 기존 선택된 거래 유형이 있는 경우 (수정 모드)
+            // 既存の取引タイプがある場合 (修正モード)
             const transactionType = document.getElementById('transactionType').value;
             if (transactionType) {
                 selectedTransactionType = transactionType;
                 selectTransactionType(transactionType, false);
             }
 
-            // 기존 선택된 재고가 있는 경우 (수정 모드)
+            // 既存の在庫が選択されている場合 (修正モード)
             const stockId = document.getElementById('stockId').value;
             if (stockId) {
                 selectedStockId = parseInt(stockId);
                 showSelectedStock();
             }
 
-            // URL 파라미터에서 거래 유형과 재고 ID 확인
+            // URLパラメータから取引タイプと在庫IDを確認
             const urlParams = new URLSearchParams(window.location.search);
             const urlType = urlParams.get('type');
             const urlStockId = urlParams.get('stockId');
@@ -377,7 +377,7 @@
             }
 
             if (urlStockId && !stockId) {
-                // 특정 재고 선택을 위해 로드 후 자동 선택
+                // 特定の在庫を選択するために、ロード後に自動選択
                 setTimeout(() => {
                     const stock = stocks.find(s => s.id === parseInt(urlStockId));
                     if (stock) {
@@ -387,23 +387,23 @@
             }
         }
 
-        // 재고 목록 로드
+        // 在庫リストのロード
         async function loadStocks() {
             try {
                 const response = await ApiClient.get('/api/stocks?status=AVAILABLE&size=1000&sort=medicine.name');
                 stocks = response.content || [];
             } catch (error) {
-                console.error('재고 목록 로드 오류:', error);
-                showAlert('재고 목록을 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('在庫リストのロードエラー:', error);
+                showAlert('在庫リストの読み込み中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 이벤트 리스너 설정
+        // イベントリスナー設定
         function setupEventListeners() {
             const form = document.getElementById('transactionForm');
             const submitButton = document.getElementById('submitButton');
 
-            // 폼 제출 처리
+            // フォーム送信処理
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -417,7 +417,7 @@
                     const formData = new FormData(form);
                     const data = {};
 
-                    // FormData를 JSON 객체로 변환
+                    // FormDataをJSONオブジェクトに変換
                     for (let [key, value] of formData.entries()) {
                         if (value !== '') {
                             if (key === 'quantity' || key === 'stockId') {
@@ -443,22 +443,22 @@
                     const result = await response.json();
 
                     if (response.ok && result.success) {
-                        showAlert(isEdit ? '거래 내역이 수정되었습니다.' : '거래가 등록되었습니다.', 'success');
+                        showAlert(isEdit ? '取引履歴が修正されました。' : '取引が登録されました。', 'success');
                         setTimeout(() => {
                             window.location.href = '/transactions/' + result.data.id;
                         }, 1500);
                     } else {
-                        throw new Error(result.message || '처리 중 오류가 발생했습니다.');
+                        throw new Error(result.message || '処理中にエラーが発生しました。');
                     }
                 } catch (error) {
-                    console.error('폼 제출 오류:', error);
-                    showAlert(error.message || '처리 중 오류가 발생했습니다.', 'danger');
+                    console.error('フォーム送信エラー:', error);
+                    showAlert(error.message || '処理中にエラーが発生しました。', 'danger');
                 } finally {
                     setLoading(false);
                 }
             });
 
-            // 재고 검색
+            // 在庫検索
             const stockSearch = document.getElementById('stockSearch');
             let searchTimeout;
 
@@ -476,13 +476,13 @@
             });
 
             stockSearch.addEventListener('blur', function() {
-                // 드롭다운 숨기기 (약간의 지연을 두어 클릭 이벤트 처리)
+                // ドロップダウンを隠す (クリックイベント処理のために少し遅延させる)
                 setTimeout(() => {
                     document.getElementById('stockDropdown').style.display = 'none';
                 }, 200);
             });
 
-            // 실시간 유효성 검증
+            // リアルタイムバリデーション
             const inputs = form.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
@@ -495,7 +495,7 @@
             });
         }
 
-        // 툴팁 초기화
+        // ツールチップ初期化
         function initializeTooltips() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -503,11 +503,11 @@
             });
         }
 
-        // 거래 유형 선택
+        // 取引タイプ選択
         function selectTransactionType(type, updateForm = true) {
             selectedTransactionType = type;
 
-            // UI 업데이트
+            // UI更新
             document.querySelectorAll('.transaction-type-option').forEach(option => {
                 option.classList.remove('selected');
                 if (option.dataset.type === type) {
@@ -520,39 +520,39 @@
                 clearFieldError(document.getElementById('transactionType'));
             }
 
-            // 거래 유형에 따른 UI 조정
+            // 取引タイプに応じてUIを調整
             updateFormByTransactionType(type);
         }
 
-        // 거래 유형에 따른 폼 조정
+        // 取引タイプに応じてフォームを調整
         function updateFormByTransactionType(type) {
             const quantityLabel = document.querySelector('label[for="quantity"]');
             const availableQuantity = document.getElementById('availableQuantity');
 
             switch (type) {
                 case 'INBOUND':
-                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 입고 수량';
+                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 入庫数量';
                     availableQuantity.style.display = 'none';
                     break;
                 case 'OUTBOUND':
-                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 출고 수량';
+                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 出庫数量';
                     availableQuantity.style.display = 'block';
                     break;
                 case 'ADJUSTMENT':
-                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 조정 수량';
+                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 調整数量';
                     availableQuantity.style.display = 'block';
                     break;
                 case 'DISPOSAL':
-                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 폐기 수량';
+                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 廃棄数量';
                     availableQuantity.style.display = 'block';
                     break;
                 default:
-                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 거래 수량';
+                    quantityLabel.innerHTML = '<i class="fas fa-calculator"></i> 取引数量';
                     availableQuantity.style.display = 'block';
             }
         }
 
-        // 재고 검색
+        // 在庫検索
         function searchStocks(query) {
             const dropdown = document.getElementById('stockDropdown');
 
@@ -565,17 +565,17 @@
                 stock.medicine.name.toLowerCase().includes(query.toLowerCase()) ||
                 stock.medicine.code.toLowerCase().includes(query.toLowerCase()) ||
                 stock.lotNumber.toLowerCase().includes(query.toLowerCase())
-            ).slice(0, 10); // 최대 10개만 표시
+            ).slice(0, 10); // 最大10件のみ表示
 
             if (filtered.length === 0) {
-                dropdown.innerHTML = '<div class="stock-option">검색 결과가 없습니다.</div>';
+                dropdown.innerHTML = '<div class="stock-option">検索結果がありません。</div>';
             } else {
                 dropdown.innerHTML = filtered.map(stock => `
                     <div class="stock-option" onclick="selectStock(${stock.id})">
                         <div class="stock-name">${stock.medicine.name}</div>
                         <div class="stock-details">
-                            로트: ${stock.lotNumber} | 수량: ${formatNumber(stock.quantity)}${stock.medicine.unit} |
-                            만료: ${formatDate(stock.expiryDate)}
+                            ロット: ${stock.lotNumber} | 数量: ${formatNumber(stock.quantity)}${stock.medicine.unit} |
+                            期限: ${formatDate(stock.expiryDate)}
                         </div>
                     </div>
                 `).join('');
@@ -584,7 +584,7 @@
             dropdown.style.display = 'block';
         }
 
-        // 재고 선택
+        // 在庫選択
         function selectStock(stockId) {
             const stock = stocks.find(s => s.id === stockId);
             if (!stock) return;
@@ -594,23 +594,23 @@
             document.getElementById('stockSearch').value = stock.medicine.name;
             document.getElementById('stockDropdown').style.display = 'none';
 
-            // 선택된 재고 표시
+            // 選択された在庫表示
             document.getElementById('selectedStockName').textContent = stock.medicine.name;
             document.getElementById('selectedStockMeta').textContent =
-                `로트: ${stock.lotNumber} | 수량: ${formatNumber(stock.quantity)}${stock.medicine.unit} | 만료: ${formatDate(stock.expiryDate)}`;
+                `ロット: ${stock.lotNumber} | 数量: ${formatNumber(stock.quantity)}${stock.medicine.unit} | 期限: ${formatDate(stock.expiryDate)}`;
 
             showSelectedStock();
             updateAvailableQuantity(stock);
             clearFieldError(document.getElementById('stockId'));
         }
 
-        // 선택된 재고 표시
+        // 選択された在庫表示
         function showSelectedStock() {
             document.getElementById('selectedStock').classList.add('show');
             document.getElementById('stockSearch').style.display = 'none';
         }
 
-        // 재고 변경
+        // 在庫変更
         function changeStock() {
             selectedStockId = null;
             document.getElementById('stockId').value = '';
@@ -621,12 +621,12 @@
             document.getElementById('stockSearch').focus();
         }
 
-        // 사용 가능 수량 업데이트
+        // 利用可能数量の更新
         function updateAvailableQuantity(stock) {
             const availableQuantity = document.getElementById('availableQuantity');
-            availableQuantity.textContent = `사용 가능: ${formatNumber(stock.quantity)}${stock.medicine.unit}`;
+            availableQuantity.textContent = `利用可能: ${formatNumber(stock.quantity)}${stock.medicine.unit}`;
 
-            // 출고 시 최대값 설정
+            // 出庫時の最大値を設定
             if (selectedTransactionType === 'OUTBOUND' || selectedTransactionType === 'DISPOSAL') {
                 document.getElementById('quantity').max = stock.quantity;
             } else {
@@ -634,16 +634,16 @@
             }
         }
 
-        // 수량 조정
+        // 数量調整
         function adjustQuantity(delta) {
             const quantityInput = document.getElementById('quantity');
             const currentValue = parseInt(quantityInput.value) || 0;
             const newValue = Math.max(1, currentValue + delta);
 
-            // 최대값 체크
+            // 最大値チェック
             const maxValue = parseInt(quantityInput.max);
             if (maxValue && newValue > maxValue) {
-                showAlert(`최대 ${maxValue}개까지만 가능합니다.`, 'warning');
+                showAlert(`最大${maxValue}個まで可能です。`, 'warning');
                 return;
             }
 
@@ -651,23 +651,23 @@
             validateField(quantityInput);
         }
 
-        // 폼 전체 유효성 검증
+        // フォーム全体のバリデーション
         function validateForm() {
             let isValid = true;
 
-            // 거래 유형 확인
+            // 取引タイプ確認
             if (!selectedTransactionType) {
-                setFieldError(document.getElementById('transactionType'), '거래 유형을 선택해주세요.');
+                setFieldError(document.getElementById('transactionType'), '取引タイプを選択してください。');
                 isValid = false;
             }
 
-            // 재고 선택 확인
+            // 在庫選択確認
             if (!selectedStockId) {
-                setFieldError(document.getElementById('stockId'), '재고를 선택해주세요.');
+                setFieldError(document.getElementById('stockId'), '在庫を選択してください。');
                 isValid = false;
             }
 
-            // 필수 필드 검증
+            // 必須フィールドバリデーション
             const requiredFields = ['quantity', 'transactionDate'];
             requiredFields.forEach(fieldName => {
                 const field = document.getElementById(fieldName);
@@ -679,28 +679,28 @@
             return isValid;
         }
 
-        // 개별 필드 유효성 검증
+        // 個別フィールドバリデーション
         function validateField(field) {
             const value = field.value.trim();
 
             if (field.required && !value) {
-                setFieldError(field, '필수 입력 항목입니다.');
+                setFieldError(field, '必須入力項目です。');
                 return false;
             }
 
-            // 수량 필드 검증
+            // 数量フィールドバリデーション
             if (field.id === 'quantity') {
                 const num = parseInt(value);
                 if (value && (isNaN(num) || num < 1)) {
-                    setFieldError(field, '1 이상의 수량을 입력해주세요.');
+                    setFieldError(field, '1以上の数量を入力してください。');
                     return false;
                 }
 
-                // 출고 시 재고 수량 체크
+                // 出庫時の在庫数量チェック
                 if ((selectedTransactionType === 'OUTBOUND' || selectedTransactionType === 'DISPOSAL') && selectedStockId) {
                     const stock = stocks.find(s => s.id === selectedStockId);
                     if (stock && num > stock.quantity) {
-                        setFieldError(field, `사용 가능한 수량(${stock.quantity}개)을 초과했습니다.`);
+                        setFieldError(field, `利用可能な数量(${stock.quantity}個)を超えました。`);
                         return false;
                     }
                 }
@@ -710,7 +710,7 @@
             return true;
         }
 
-        // 필드 오류 설정
+        // フィールドエラー設定
         function setFieldError(field, message) {
             field.classList.remove('is-valid');
             field.classList.add('is-invalid');
@@ -724,35 +724,35 @@
             }
         }
 
-        // 필드 유효성 설정
+        // フィールド有効設定
         function setFieldValid(field) {
             field.classList.remove('is-invalid');
             field.classList.add('is-valid');
         }
 
-        // 필드 오류 제거
+        // フィールドエラークリア
         function clearFieldError(field) {
             field.classList.remove('is-invalid', 'is-valid');
         }
 
-        // 폼 초기화
+        // フォームリセット
         function resetForm() {
-            if (confirm('입력한 내용이 모두 삭제됩니다. 계속하시겠습니까?')) {
+            if (confirm('入力した内容がすべて削除されます。続行しますか？')) {
                 document.getElementById('transactionForm').reset();
                 changeStock();
                 selectedTransactionType = null;
 
-                // 거래 유형 선택 해제
+                // 取引タイプ選択解除
                 document.querySelectorAll('.transaction-type-option').forEach(option => {
                     option.classList.remove('selected');
                 });
 
-                // 현재 시간을 거래 일시로 재설정
+                // 現在時刻を取引日時に再設定
                 const now = new Date();
                 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                 document.getElementById('transactionDate').value = now.toISOString().slice(0, 16);
 
-                // 유효성 검증 클래스 제거
+                // バリデーションクラス削除
                 const fields = document.querySelectorAll('.form-control, .form-select');
                 fields.forEach(field => {
                     field.classList.remove('is-valid', 'is-invalid');
@@ -760,9 +760,9 @@
             }
         }
 
-        // 거래 삭제
+        // 取引削除
         async function deleteTransaction() {
-            if (!confirm('이 거래를 삭제하시겠습니까?\n\n삭제된 거래는 복구할 수 없습니다.')) {
+            if (!confirm('この取引を削除しますか？\n\n削除された取引は元に戻せません。')) {
                 return;
             }
 
@@ -771,17 +771,17 @@
                 const response = await ApiClient.delete(`/api/transactions/${transactionId}`);
 
                 if (response.success) {
-                    showAlert('거래가 삭제되었습니다.', 'success');
+                    showAlert('取引が削除されました。', 'success');
                     setTimeout(() => {
                         window.location.href = '/transactions';
                     }, 1500);
                 }
             } catch (error) {
-                showAlert(error.message || '거래 삭제 중 오류가 발생했습니다.', 'danger');
+                showAlert(error.message || '取引の削除中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 로딩 상태 설정
+        // ローディング状態設定
         function setLoading(isLoading) {
             const submitButton = document.getElementById('submitButton');
 
@@ -794,22 +794,22 @@
             }
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl + S: 저장
+            // Ctrl + S: 保存
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 document.getElementById('transactionForm').dispatchEvent(new Event('submit'));
             }
 
-            // Esc: 취소 (목록으로 이동)
+            // Esc: キャンセル (一覧へ移動)
             if (e.key === 'Escape') {
-                if (confirm('작성 중인 내용이 저장되지 않습니다. 목록으로 이동하시겠습니까?')) {
+                if (confirm('作成中の内容は保存されません。一覧に移動しますか？')) {
                     window.location.href = '/transactions';
                 }
             }
 
-            // 숫자 키로 거래 유형 빠른 선택
+            // 数字キーで取引タイプをクイック選択
             if (e.key >= '1' && e.key <= '6' && !e.ctrlKey && !e.altKey) {
                 const types = ['INBOUND', 'OUTBOUND', 'ADJUSTMENT', 'RETURN', 'DISPOSAL', 'TRANSFER'];
                 const index = parseInt(e.key) - 1;

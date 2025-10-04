@@ -1,24 +1,30 @@
 package com.pharma.inventory.entity;
 
 /**
- * 재고 거래 유형
+ * 在庫取引タイプ
  */
 public enum TransactionType {
-    INBOUND("입고"),
-    OUTBOUND("출고"),
-    ADJUSTMENT("조정"),
-    RETURN("반품"),
-    DISPOSAL("폐기"),
-    TRANSFER("이동");
+    INBOUND("入庫", "fa-arrow-down"),
+    OUTBOUND("出庫", "fa-arrow-up"),
+    ADJUSTMENT("調整", "fa-edit"),
+    RETURN("返品", "fa-undo"),
+    DISPOSAL("廃棄", "fa-trash"),
+    TRANSFER("移動", "fa-exchange-alt");
     
     private final String description;
+    private final String icon;
     
-    TransactionType(String description) {
+    TransactionType(String description, String icon) {
         this.description = description;
+        this.icon = icon;
     }
     
     public String getDescription() {
         return description;
+    }
+
+    public String getIcon() {
+        return icon;
     }
     
     public boolean isIncreasing() {

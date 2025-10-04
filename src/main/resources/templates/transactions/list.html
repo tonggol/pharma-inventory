@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>거래 내역 - 의약품 재고관리 시스템</title>
+    <title>取引履歴 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 거래 내역 특화 스타일 */
+        /* 取引履歴特化スタイル */
         .transactions-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -53,7 +53,7 @@
             margin: 0;
         }
 
-        /* 통계 카드 */
+        /* 統計カード */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -128,7 +128,7 @@
         .stat-card-change.positive { color: var(--success-color); }
         .stat-card-change.negative { color: var(--danger-color); }
 
-        /* 검색 및 필터 */
+        /* 検索・フィルター */
         .search-filter-card {
             background: white;
             border-radius: 16px;
@@ -148,7 +148,7 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            position: relative; /* 드롭다운을 위한 추가 */
+            position: relative; /* ドロップダウン用に追記 */
         }
 
         .form-label {
@@ -209,7 +209,7 @@
             margin-top: 1rem;
         }
 
-        /* 버튼 스타일 */
+        /* ボタンのスタイル */
         .btn {
             border-radius: 12px;
             font-weight: 600;
@@ -269,7 +269,7 @@
             color: #6366f1;
         }
 
-        /* 거래 내역 목록 */
+        /* 取引履歴リスト */
         .transactions-list-card {
             background: white;
             border-radius: 16px;
@@ -319,7 +319,7 @@
             flex-wrap: wrap;
         }
 
-        /* 테이블 스타일 */
+        /* テーブルのスタイル */
         .table-container {
             overflow-x: auto;
         }
@@ -358,7 +358,7 @@
             transform: scale(1.001);
         }
 
-        /* 거래 타입 배지 */
+        /* 取引タイプバッジ */
         .transaction-type {
             padding: 0.4rem 0.8rem;
             border-radius: 20px;
@@ -400,7 +400,7 @@
             color: #166534;
         }
 
-        /* 수량 표시 */
+        /* 数量表示 */
         .quantity {
             font-weight: 600;
             font-size: 1.1rem;
@@ -418,7 +418,7 @@
             color: var(--primary-color);
         }
 
-        /* 의약품 정보 */
+        /* 医薬品情報 */
         .medicine-info {
             display: flex;
             flex-direction: column;
@@ -441,7 +441,7 @@
             width: fit-content;
         }
 
-        /* 로트 정보 */
+        /* ロット情報 */
         .lot-number {
             font-family: 'Courier New', monospace;
             background: rgba(16, 185, 129, 0.1);
@@ -452,7 +452,7 @@
             font-weight: 600;
         }
 
-        /* 승인자/담당자 정보 */
+        /* 承認者/担当者情報 */
         .user-info {
             display: flex;
             align-items: center;
@@ -477,7 +477,7 @@
             color: var(--dark-color);
         }
 
-        /* 날짜/시간 */
+        /* 日付/時刻 */
         .transaction-date {
             display: flex;
             flex-direction: column;
@@ -493,7 +493,7 @@
             color: #64748b;
         }
 
-        /* 액션 버튼 */
+        /* アクションボタン */
         .action-buttons {
             display: flex;
             gap: 0.5rem;
@@ -528,7 +528,7 @@
             color: white;
         }
 
-        /* 페이지네이션 */
+        /* ページネーション */
         .pagination-container {
             padding: 2rem;
             border-top: 1px solid var(--border-color);
@@ -585,7 +585,7 @@
             cursor: not-allowed;
         }
 
-        /* 빈 상태 */
+        /* 空の状態 */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -610,7 +610,7 @@
             margin-bottom: 2rem;
         }
 
-        /* 로딩 상태 */
+        /* ローディング状態 */
         .loading-overlay {
             position: absolute;
             top: 0;
@@ -638,7 +638,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 1024px) {
             .search-form {
                 grid-template-columns: 1fr;
@@ -706,7 +706,7 @@
             }
         }
 
-        /* 페이드 인 애니메이션 */
+        /* フェードインアニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -716,7 +716,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 드롭다운 스타일 (inbound.html에서 가져옴) */
+        /* ドロップダウンスタイル (inbound.htmlから引用) */
         .medicine-search {
             position: relative;
         }
@@ -773,22 +773,22 @@
                         <div class="page-title-icon">
                             <i class="fas fa-exchange-alt"></i>
                         </div>
-                        거래 내역
+                        取引履歴
                     </h1>
-                    <p class="page-subtitle">모든 입출고 거래 내역을 조회하고 관리할 수 있습니다.</p>
+                    <p class="page-subtitle">すべての入出庫取引履歴を照会・管理できます。</p>
                 </div>
                 <div class="d-flex gap-2">
                     <a href="/stocks/outbound"
                        class="btn btn-warning"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-minus-circle"></i>
-                        출고 처리
+                        出庫処理
                     </a>
                     <a href="/stocks/inbound"
                        class="btn btn-success"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-plus-circle"></i>
-                        입고 처리
+                        入庫処理
                     </a>
                 </div>
             </div>
@@ -800,27 +800,27 @@
         <div class="search-filter-card fade-in">
             <form class="search-form" id="searchForm">
                 <div class="form-group">
-                    <label class="form-label" for="keyword">통합 검색</label>
+                    <label class="form-label" for="keyword">統合検索</label>
                     <input type="text"
                            class="form-control"
                            id="keyword"
                            name="keyword"
-                           placeholder="의약품명, 로트번호, 담당자로 검색">
+                           placeholder="医薬品名、ロット番号、担当者で検索">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">의약품</label>
+                    <label class="form-label">医薬品</label>
                     <div class="medicine-search">
                         <button type="button" class="form-control text-start" id="medicineSelectButton"
                                 style="background: white; border: 1px solid #ced4da;">
-                            전체 의약품
+                            すべての医薬品
                         </button>
                         <input type="hidden" id="medicineId" name="medicineId" value="">
 
                         <div class="medicine-dropdown" id="medicineDropdown">
                             <div class="p-2 border-bottom">
                                 <input type="text" class="form-control form-control-sm"
-                                       id="searchMedicineInput" placeholder="의약품 검색...">
+                                       id="searchMedicineInput" placeholder="医薬品検索...">
                             </div>
                             <div id="medicineOptions">
                             </div>
@@ -829,54 +829,54 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="transactionType">거래 유형</label>
+                    <label class="form-label" for="transactionType">取引タイプ</label>
                     <select class="form-select" id="transactionType" name="transactionType">
-                        <option value="">전체 유형</option>
-                        <option value="INBOUND">입고</option>
-                        <option value="OUTBOUND">출고</option>
-                        <option value="ADJUSTMENT">조정</option>
-                        <option value="RETURN">반품</option>
-                        <option value="DISPOSAL">폐기</option>
-                        <option value="TRANSFER">이동</option>
+                        <option value="">すべてのタイプ</option>
+                        <option value="INBOUND">入庫</option>
+                        <option value="OUTBOUND">出庫</option>
+                        <option value="ADJUSTMENT">調整</option>
+                        <option value="RETURN">返品</option>
+                        <option value="DISPOSAL">廃棄</option>
+                        <option value="TRANSFER">移動</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="department">부서</label>
+                    <label class="form-label" for="department">部署</label>
                     <input type="text"
                            class="form-control"
                            id="department"
                            name="department"
-                           placeholder="부서명">
+                           placeholder="部署名">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">거래 기간</label>
+                    <label class="form-label">取引期間</label>
                     <div class="date-range">
                         <input type="date" class="form-control" id="startDate" name="startDate">
-                        <span class="date-separator">~</span>
+                        <span class="date-separator">〜</span>
                         <input type="date" class="form-control" id="endDate" name="endDate">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="sortBy">정렬</label>
+                    <label class="form-label" for="sortBy">並び替え</label>
                     <select class="form-select" id="sortBy" name="sortBy">
-                        <option value="transactionDate">거래일시</option>
-                        <option value="medicineName">의약품명</option>
-                        <option value="quantity">수량</option>
-                        <option value="createdByUsername">담당자</option>
+                        <option value="transactionDate">取引日時</option>
+                        <option value="medicineName">医薬品名</option>
+                        <option value="quantity">数量</option>
+                        <option value="createdByUsername">担当者</option>
                     </select>
                 </div>
 
                 <div class="search-actions">
                     <button type="button" class="btn btn-outline-secondary" onclick="resetSearch()">
                         <i class="fas fa-undo"></i>
-                        초기화
+                        リセット
                     </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search"></i>
-                        검색
+                        検索
                     </button>
                 </div>
             </form>
@@ -888,7 +888,7 @@
                     <div class="list-title-icon">
                         <i class="fas fa-list"></i>
                     </div>
-                    거래 내역
+                    取引履歴
                     <span class="badge bg-primary" id="totalCount">0</span>
                 </h2>
 
@@ -896,24 +896,18 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-download"></i>
-                            내보내기
+                            エクスポート
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" onclick="exportData('excel')">
-                                <i class="fas fa-file-excel me-2"></i>Excel
-                            </a></li>
-                            <li><a class="dropdown-item" href="#" onclick="exportData('csv')">
-                                <i class="fas fa-file-csv me-2"></i>CSV
-                            </a></li>
-                            <li><a class="dropdown-item" href="#" onclick="exportData('pdf')">
-                                <i class="fas fa-file-pdf me-2"></i>PDF
-                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('excel')"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('csv')"><i class="fas fa-file-csv me-2"></i>CSV</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('pdf')"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
                         </ul>
                     </div>
 
                     <button class="btn btn-outline-secondary" onclick="refreshData()">
                         <i class="fas fa-sync-alt"></i>
-                        새로고침
+                        更新
                     </button>
                 </div>
             </div>
@@ -922,15 +916,15 @@
                 <table class="transactions-table">
                     <thead>
                     <tr>
-                        <th>거래일시</th>
-                        <th>유형</th>
-                        <th>의약품</th>
-                        <th>로트번호</th>
-                        <th>수량</th>
-                        <th>부서</th>
-                        <th>담당자</th>
-                        <th>비고</th>
-                        <th>작업</th>
+                        <th>取引日時</th>
+                        <th>タイプ</th>
+                        <th>医薬品</th>
+                        <th>ロット番号</th>
+                        <th>数量</th>
+                        <th>部署</th>
+                        <th>担当者</th>
+                        <th>備考</th>
+                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody id="transactionsTableBody">
@@ -942,20 +936,20 @@
                 <div class="empty-state-icon">
                     <i class="fas fa-receipt"></i>
                 </div>
-                <h3 class="empty-state-title">거래 내역이 없습니다</h3>
-                <p class="empty-state-description">검색 조건에 맞는 거래 내역이 없거나 아직 거래가 발생하지 않았습니다.</p>
+                <h3 class="empty-state-title">取引履歴がありません</h3>
+                <p class="empty-state-description">検索条件に一致する取引履歴がないか、まだ取引が発生していません。</p>
                 <div class="d-flex gap-2 justify-content-center">
                     <a href="/stocks/new"
                        class="btn btn-success"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-plus-circle"></i>
-                        입고 처리
+                        入庫処理
                     </a>
                     <a href="/stocks/outbound"
                        class="btn btn-warning"
                        sec:authorize="hasAnyRole('ADMIN','MANAGER','PHARMACIST')">
                         <i class="fas fa-minus-circle"></i>
-                        출고 처리
+                        出庫処理
                     </a>
                 </div>
             </div>
@@ -978,7 +972,7 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         let currentPage = 0;
         let pageSize = 20;
         let totalElements = 0;
@@ -987,28 +981,28 @@
         let allMedicines = [];
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 페이지 초기화 순서를 조정
+            // ページの初期化順序を調整
             initializePage();
-            // 초기 데이터 로드 (검색)
+            // 初期データのロード (検索)
             loadInitialData();
-            // 이벤트 리스너 설정
+            // イベントリスナーの設定
             setupEventListeners();
         });
 
-        // 페이지 초기화
+        // ページ初期化
         function initializePage() {
-            // 날짜 범위를 먼저 설정하여 API 호출 시 값이 비어있지 않도록 합니다.
+            // 日付範囲を先に設定し、API呼び出し時に値が空にならないようにする
             setDefaultDateRange();
             initMedicineDropdown();
             loadStatsData();
         }
 
-        // 초기 데이터 로드
+        // 初期データロード
         function loadInitialData() {
             searchTransactions();
         }
 
-        // 기본 날짜 범위 설정 (최근 30일)
+        // デフォルトの日付範囲を設定 (直近30日間)
         function setDefaultDateRange() {
             const endDate = new Date();
             const startDate = new Date();
@@ -1018,16 +1012,16 @@
             document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
         }
 
-        // 이벤트 리스너 설정
+        // イベントリスナー設定
         function setupEventListeners() {
-            // 검색 폼 제출
+            // 検索フォーム送信
             document.getElementById('searchForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 currentPage = 0;
                 searchTransactions();
             });
 
-            // 실시간 검색 (디바운싱)
+            // リアルタイム検索 (デバウンス)
             let searchTimeout;
             document.getElementById('keyword').addEventListener('input', function() {
                 clearTimeout(searchTimeout);
@@ -1037,7 +1031,7 @@
                 }, 500);
             });
 
-            // 필터 변경 시 자동 검색
+            // フィルター変更時に自動検索
             const filterElements = ['transactionType', 'startDate', 'endDate', 'sortBy'];
             filterElements.forEach(id => {
                 document.getElementById(id).addEventListener('change', function() {
@@ -1047,7 +1041,7 @@
             });
         }
 
-        // 의약품 드롭다운 초기화 (inbound.html 로직 통합)
+        // 医薬品ドロップダウン初期化 (inbound.htmlのロジックを統合)
         async function initMedicineDropdown() {
             const medicineSelectButton = document.getElementById('medicineSelectButton');
             const medicineDropdown = document.getElementById('medicineDropdown');
@@ -1064,7 +1058,7 @@
                 }
                 showMedicines(allMedicines);
             } catch (error) {
-                console.error('의약품 목록 로드 오류:', error);
+                console.error('医薬品リストのロードエラー:', error);
                 showMedicines([]);
             }
 
@@ -1073,7 +1067,7 @@
                 if (medicinesToShow.length === 0) {
                     const noResultItem = document.createElement('div');
                     noResultItem.className = 'medicine-item text-muted';
-                    noResultItem.innerHTML = '<div class="medicine-name">검색 결과가 없습니다</div>';
+                    noResultItem.innerHTML = '<div class="medicine-name">検索結果がありません</div>';
                     medicineOptions.appendChild(noResultItem);
                     return;
                 }
@@ -1082,7 +1076,7 @@
                     item.className = 'medicine-item';
                     const name = med.name || med.medicineName || 'Unknown Medicine';
                     const code = med.code || med.medicineCode || 'N/A';
-                    const manufacturer = med.manufacturer || '제조사 미상';
+                    const manufacturer = med.manufacturer || '製造元不明';
 
                     item.innerHTML = `<div class="medicine-name">${name}</div><div class="medicine-details">${code} | ${manufacturer}</div>`;
 
@@ -1130,16 +1124,16 @@
             });
         }
 
-        // 통계 데이터 로드
+        // 統計データロード
         async function loadStatsData() {
             try {
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
 
-                // 날짜가 비어 있으면 API 호출을 중단합니다.
+                // 日付が空の場合はAPI呼び出しを中止
                 if (!startDate || !endDate) {
-                    console.error('날짜가 설정되지 않았습니다. API 호출을 중단합니다.');
-                    renderStatsCards({}); // 빈 카드를 렌더링
+                    console.error('日付が設定されていません。API呼び出しを中止します。');
+                    renderStatsCards({}); // 空のカードをレンダリング
                     return;
                 }
 
@@ -1149,13 +1143,13 @@
                     renderStatsCards(response.data);
                 }
             } catch (error) {
-                console.error('통계 데이터 로드 오류:', error);
-                // 기본값으로 렌더링
+                console.error('統計データのロードエラー:', error);
+                // デフォルト値でレンダリング
                 renderStatsCards({});
             }
         }
 
-        // 통계 카드 렌더링
+        // 統計カードのレンダリング
         function renderStatsCards(statsData) {
             const statsGrid = document.getElementById('statsGrid');
 
@@ -1163,7 +1157,7 @@
                 {
                     key: 'total',
                     icon: 'fas fa-receipt',
-                    label: '전체 거래',
+                    label: '全取引',
                     value: statsData.totalTransactions || 0,
                     change: '+12%',
                     filter: ''
@@ -1171,7 +1165,7 @@
                 {
                     key: 'inbound',
                     icon: 'fas fa-arrow-down',
-                    label: '입고',
+                    label: '入庫',
                     value: statsData.transactionsByType?.INBOUND || 0,
                     change: '+8%',
                     filter: 'INBOUND'
@@ -1179,7 +1173,7 @@
                 {
                     key: 'outbound',
                     icon: 'fas fa-arrow-up',
-                    label: '출고',
+                    label: '出庫',
                     value: statsData.transactionsByType?.OUTBOUND || 0,
                     change: '+15%',
                     filter: 'OUTBOUND'
@@ -1187,7 +1181,7 @@
                 {
                     key: 'adjustment',
                     icon: 'fas fa-edit',
-                    label: '조정',
+                    label: '調整',
                     value: statsData.transactionsByType?.ADJUSTMENT || 0,
                     change: '-5%',
                     filter: 'ADJUSTMENT'
@@ -1195,7 +1189,7 @@
                 {
                     key: 'disposal',
                     icon: 'fas fa-trash',
-                    label: '폐기',
+                    label: '廃棄',
                     value: statsData.transactionsByType?.DISPOSAL || 0,
                     change: '+3%',
                     filter: 'DISPOSAL'
@@ -1213,23 +1207,23 @@
                     <div class="stat-card-label">${stat.label}</div>
                     <div class="stat-card-change ${stat.change.startsWith('+') ? 'positive' : 'negative'}">
                         <i class="fas fa-arrow-${stat.change.startsWith('+') ? 'up' : 'down'}"></i>
-                        ${stat.change} (지난주 대비)
+                        ${stat.change} (先週比)
                     </div>
                 </div>
             `).join('');
         }
 
-        // 거래 내역 검색
+        // 取引履歴検索
         async function searchTransactions() {
             showLoading(true);
 
             try {
-                // 검색 파라미터 구성
+                // 検索パラメータ構成
                 const formData = new FormData(document.getElementById('searchForm'));
                 searchParams = {};
 
                 for (let [key, value] of formData.entries()) {
-                    if (key === 'medicineId' && value === '') { // 의약품 검색 필드가 비어 있으면 continue
+                    if (key === 'medicineId' && value === '') { // 医薬品検索フィールドが空の場合はスキップ
                         continue;
                     }
                     if (value && value.trim() !== '') {
@@ -1237,7 +1231,7 @@
                     }
                 }
 
-                // API 호출
+                // API呼び出し
                 const queryString = new URLSearchParams({
                     page: currentPage,
                     size: pageSize,
@@ -1256,8 +1250,8 @@
                     updateTotalCount();
                 }
             } catch (error) {
-                console.error('거래 내역 검색 오류:', error);
-                showAlert('거래 내역을 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('取引履歴の検索エラー:', error);
+                showAlert('取引履歴の読み込み中にエラーが発生しました。', 'danger');
                 transactionsData = [];
                 renderTransactionsList();
             } finally {
@@ -1265,7 +1259,7 @@
             }
         }
 
-        // 거래 내역 목록 렌더링
+        // 取引履歴リストのレンダリング
         function renderTransactionsList() {
             const tbody = document.getElementById('transactionsTableBody');
             const emptyState = document.getElementById('emptyState');
@@ -1290,7 +1284,7 @@
                     </td>
                     <td>
                         <span class="transaction-type ${transaction.transactionType.toLowerCase()}">
-                            <i class="fas fa-${getTransactionIcon(transaction.transactionType)}"></i>
+                            <i class="fas ${transaction.transactionTypeIcon || 'fa-question-circle'} me-1"></i>
                             ${transaction.transactionTypeDescription}
                         </span>
                     </td>
@@ -1320,11 +1314,11 @@
                     <td>${transaction.remarks || '-'}</td>
                     <td onclick="event.stopPropagation();">
                         <div class="action-buttons">
-                            <button class="btn btn-outline-primary btn-sm" onclick="viewTransaction(${transaction.id})" title="상세보기">
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewTransaction(${transaction.id})" title="詳細表示">
                                 <i class="fas fa-eye"></i>
                             </button>
                             ${transaction.transactionType !== 'DISPOSAL' && hasPermission('cancel') ? `
-                                <button class="btn btn-outline-danger btn-sm" onclick="cancelTransaction(${transaction.id})" title="취소"
+                                <button class="btn btn-outline-danger btn-sm" onclick="cancelTransaction(${transaction.id})" title="キャンセル"
                                         ${!canCancel(transaction) ? 'disabled' : ''}>
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -1335,7 +1329,7 @@
             `).join('');
         }
 
-        // 페이지네이션 렌더링
+        // ページネーションのレンダリング
         function renderPagination(pageData) {
             const pagination = document.getElementById('pagination');
             const totalPages = pageData.totalPages || 0;
@@ -1347,7 +1341,7 @@
 
             let paginationHTML = '';
 
-            // 첫 페이지
+            // 最初のページ
             paginationHTML += `
                 <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="goToPage(0); return false;">
@@ -1356,7 +1350,7 @@
                 </li>
             `;
 
-            // 이전 페이지
+            // 前のページ
             paginationHTML += `
                 <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">
@@ -1365,7 +1359,7 @@
                 </li>
             `;
 
-            // 페이지 번호들
+            // ページ番号
             const startPage = Math.max(0, currentPage - 2);
             const endPage = Math.min(totalPages - 1, currentPage + 2);
 
@@ -1379,7 +1373,7 @@
                 `;
             }
 
-            // 다음 페이지
+            // 次のページ
             paginationHTML += `
                 <li class="page-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">
@@ -1388,7 +1382,7 @@
                 </li>
             `;
 
-            // 마지막 페이지
+            // 最後のページ
             paginationHTML += `
                 <li class="page-item ${currentPage >= totalPages - 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="goToPage(${totalPages - 1}); return false;">
@@ -1399,14 +1393,14 @@
 
             pagination.innerHTML = paginationHTML;
 
-            // 페이지네이션 정보 업데이트
+            // ページネーション情報更新
             const start = currentPage * pageSize + 1;
             const end = Math.min((currentPage + 1) * pageSize, totalElements);
             document.getElementById('paginationInfo').textContent =
-                `총 ${formatNumber(totalElements)}개 중 ${formatNumber(start)}-${formatNumber(end)}개 표시`;
+                `全 ${formatNumber(totalElements)}件中 ${formatNumber(start)}-${formatNumber(end)}件を表示`;
         }
 
-        // 유틸리티 함수들
+        // ユーティリティ関数
         function getTransactionIcon(type) {
             const icons = {
                 'INBOUND': 'arrow-down',
@@ -1432,12 +1426,12 @@
         }
 
         function hasPermission(action) {
-            // 실제 구현에서는 사용자 권한 확인
-            return true; // 임시
+            // 実際の権限確認を実装
+            return true; // 仮
         }
 
         function canCancel(transaction) {
-            // 24시간 이내 거래만 취소 가능 (예시)
+            // 24時間以内の取引のみキャンセル可能 (例)
             const transactionDate = new Date(transaction.transactionDate);
             const now = new Date();
             const hoursDiff = (now - transactionDate) / (1000 * 60 * 60);
@@ -1455,25 +1449,25 @@
 
         function formatTime(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleTimeString('ko-KR', {
+            return date.toLocaleTimeString('ja-JP', {
                 hour: '2-digit',
                 minute: '2-digit'
             });
         }
 
-        // 검색 초기화 함수 수정
+        // 検索リセット関数を修正
         function resetSearch() {
             document.getElementById('searchForm').reset();
             setDefaultDateRange();
 
-            // 의약품 드롭다운 초기화
-            document.getElementById('medicineSelectButton').textContent = '전체 의약품';
+            // 医薬品ドロップダウンを初期化
+            document.getElementById('medicineSelectButton').textContent = 'すべての医薬品';
             document.getElementById('medicineId').value = '';
             document.getElementById('searchMedicineInput').value = '';
             showMedicines(allMedicines);
 
 
-            // 통계 카드 활성 상태 초기화
+            // 統計カードのアクティブ状態をリセット
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
             });
@@ -1484,9 +1478,9 @@
             loadStatsData();
         }
 
-        // 이벤트 핸들러들
+        // イベントハンドラ
         function filterByType(type) {
-            // 통계 카드 활성 상태 업데이트
+            // 統計カードのアクティブ状態を更新
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
                 if (card.dataset.filter === type) {
@@ -1494,7 +1488,7 @@
                 }
             });
 
-            // 필터 적용
+            // フィルター適用
             document.getElementById('transactionType').value = type;
             currentPage = 0;
             searchTransactions();
@@ -1516,46 +1510,46 @@
             window.open(`/api/transactions/export?${params.toString()}`, '_blank');
         }
 
-        // 액션 함수들
+        // アクション関数
         function viewTransaction(transactionId) {
             window.location.href = `/transactions/${transactionId}`;
         }
 
         async function cancelTransaction(transactionId) {
-            if (!confirm('이 거래를 취소하시겠습니까?\n\n취소된 거래는 되돌릴 수 없습니다.')) {
+            if (!confirm('この取引をキャンセルしますか？\n\nキャンセルされた取引は元に戻せません。')) {
                 return;
             }
 
-            const reason = prompt('취소 사유를 입력해주세요:');
+            const reason = prompt('キャンセル事由を入力してください:');
             if (!reason) return;
 
             try {
                 const response = await ApiClient.post(`/api/transactions/cancel/${transactionId}?reason=${encodeURIComponent(reason)}`);
 
                 if (response.success) {
-                    showAlert('거래가 취소되었습니다.', 'success');
+                    showAlert('取引がキャンセルされました。', 'success');
                     refreshData();
                 }
             } catch (error) {
-                showAlert('거래 취소 중 오류가 발생했습니다.', 'danger');
+                showAlert('取引のキャンセル中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // F5: 새로고침
+            // F5: 更新
             if (e.key === 'F5') {
                 e.preventDefault();
                 refreshData();
             }
 
-            // Ctrl + F: 검색 필드 포커스
+            // Ctrl + F: 検索フィールドにフォーカス
             if (e.ctrlKey && e.key === 'f') {
                 e.preventDefault();
                 document.getElementById('keyword').focus();
             }
 
-            // Ctrl + E: 내보내기
+            // Ctrl + E: エクスポート
             if (e.ctrlKey && e.key === 'e') {
                 e.preventDefault();
                 exportData('excel');

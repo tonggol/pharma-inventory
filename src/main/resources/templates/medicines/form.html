@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title th:text="${medicine.id != null ? '의약품 수정' : '의약품 등록'} + ' - 의약품 재고관리 시스템'">의약품 등록 - 의약품 재고관리 시스템</title>
+    <title th:text="${medicine.id != null ? '医薬品修正' : '医薬品登録'} + ' - 医薬品在庫管理システム'">医薬品登録 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 의약품 폼 특화 스타일 */
+        /* 医薬品フォーム特化スタイル */
         .form-container {
             max-width: 1000px;
             margin: 0 auto;
@@ -199,7 +199,7 @@
             gap: 0.5rem;
         }
 
-        /* 파일 업로드 스타일 */
+        /* ファイルアップロードスタイル */
         .file-upload-area {
             border: 2px dashed var(--border-color);
             border-radius: 12px;
@@ -258,7 +258,7 @@
             color: #64748b;
         }
 
-        /* 체크박스 스타일 */
+        /* チェックボックススタイル */
         .form-check {
             display: flex;
             align-items: center;
@@ -296,7 +296,7 @@
             margin: 0;
         }
 
-        /* 액션 버튼 영역 */
+        /* アクションボタン領域 */
         .form-actions {
             background: #f8fafc;
             padding: 2rem;
@@ -372,7 +372,7 @@
             color: white;
         }
 
-        /* 로딩 스피너 */
+        /* ローディングスピナー */
         .btn-loading {
             position: relative;
             pointer-events: none;
@@ -395,7 +395,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 768px) {
             .form-grid.two-columns,
             .form-grid.three-columns {
@@ -421,7 +421,7 @@
             }
         }
 
-        /* 애니메이션 */
+        /* アニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -446,7 +446,7 @@
             }
         }
 
-        /* 툴팁 스타일 */
+        /* ツールチップスタイル */
         .tooltip-icon {
             color: #94a3b8;
             cursor: help;
@@ -461,35 +461,35 @@
 
 <div layout:fragment="content">
     <div class="form-container">
-        <!-- 폼 헤더 -->
+        <!-- フォームヘッダー -->
         <div class="form-header fade-in">
             <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items: center">
                     <div class="form-title-icon">
                         <i class="fas fa-pills"></i>
                     </div>
                     <div>
-                        <h1 class="form-title" th:text="${medicine.id != null ? '의약품 정보 수정' : '새 의약품 등록'}">새 의약품 등록</h1>
-                        <p class="form-subtitle" th:text="${medicine.id != null ? '의약품 정보를 수정합니다.' : '새로운 의약품을 시스템에 등록합니다.'}">새로운 의약품을 시스템에 등록합니다.</p>
+                        <h1 class="form-title" th:text="${medicine.id != null ? '医薬品情報修正' : '新規医薬品登録'}">新規医薬品登録</h1>
+                        <p class="form-subtitle" th:text="${medicine.id != null ? '医薬品情報を修正します。' : '新規医薬品をシステムに登録します。'}">新規医薬品をシステムに登録します。</p>
                     </div>
                 </div>
                 <div>
                     <a href="/medicines" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i>
-                        목록으로
+                        一覧へ
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 알림 메시지 -->
+        <!-- 通知メッセージ -->
         <div th:if="${error}" class="alert alert-danger alert-dismissible fade show slide-up" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>
-            <span th:text="${error}">에러 메시지</span>
+            <span th:text="${error}">エラーメッセージ</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
-        <!-- 의약품 폼 -->
+        <!-- 医薬品フォーム -->
         <form class="slide-up"
               th:action="${medicine.id != null ? '/api/medicines/' + medicine.id : '/api/medicines'}"
               th:method="${medicine.id != null ? 'PUT' : 'POST'}"
@@ -498,143 +498,143 @@
               enctype="multipart/form-data"
               novalidate>
 
-            <!-- 기본 정보 섹션 -->
+            <!-- 基本情報セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-info-circle"></i>
                         </div>
-                        기본 정보
+                        基本情報
                     </h3>
 
                     <div class="form-grid two-columns">
                         <div class="form-group">
                             <label for="code" class="form-label required">
                                 <i class="fas fa-barcode"></i>
-                                의약품 코드
+                                医薬品コード
                                 <i class="fas fa-question-circle tooltip-icon"
                                    data-bs-toggle="tooltip"
-                                   title="고유한 의약품 식별 코드입니다. (예: MED001)"></i>
+                                   title="固有の医薬品識別コードです。(例: MED001)"></i>
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="code"
                                    name="code"
                                    th:field="*{code}"
-                                   placeholder="예: MED001"
+                                   placeholder="例: MED001"
                                    required
                                    maxlength="20"
                                    pattern="^[A-Z]{3}[0-9]{3,6}$">
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                영문 3자리 + 숫자 3-6자리 (예: MED001)
+                                英字3文字 + 数字3〜6桁 (例: MED001)
                             </div>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                <span id="codeError">올바른 의약품 코드를 입력해주세요.</span>
+                                <span id="codeError">正しい医薬品コードを入力してください。</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="category" class="form-label required">
                                 <i class="fas fa-tags"></i>
-                                카테고리
+                                カテゴリ
                             </label>
                             <select class="form-select" id="category" name="category" th:field="*{category}" required>
-                                <option value="">카테고리 선택</option>
-                                <option value="PAINKILLER">해열진통제</option>
-                                <option value="ANTIBIOTIC">항생제</option>
-                                <option value="DIGESTIVE">소화기계약물</option>
-                                <option value="IV_SOLUTION">수액제</option>
-                                <option value="HORMONE">호르몬제</option>
-                                <option value="VITAMIN">비타민제</option>
-                                <option value="TOPICAL">외용제</option>
-                                <option value="ANTIHISTAMINE">항히스타민제</option>
-                                <option value="OTHER">기타</option>
+                                <option value="">カテゴリ選択</option>
+                                <option value="PAINKILLER">解熱鎮痛剤</option>
+                                <option value="ANTIBIOTIC">抗生物質</option>
+                                <option value="DIGESTIVE">消化器系薬物</option>
+                                <option value="IV_SOLUTION">輸液剤</option>
+                                <option value="HORMONE">ホルモン剤</option>
+                                <option value="VITAMIN">ビタミン剤</option>
+                                <option value="TOPICAL">外用剤</option>
+                                <option value="ANTIHISTAMINE">抗ヒスタミン剤</option>
+                                <option value="OTHER">その他</option>
                             </select>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                카테고리를 선택해주세요.
+                                カテゴリを選択してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="name" class="form-label required">
                                 <i class="fas fa-prescription-bottle-alt"></i>
-                                의약품명 (한글)
+                                医薬品名 (日本語)
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="name"
                                    name="name"
                                    th:field="*{name}"
-                                   placeholder="예: 아스피린정 100mg"
+                                   placeholder="例: アスピリン錠 100mg"
                                    required
                                    maxlength="100">
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                의약품명을 입력해주세요.
+                                医薬品名を入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="nameEn" class="form-label">
                                 <i class="fas fa-globe"></i>
-                                의약품명 (영문)
+                                医薬品名 (英語)
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="nameEn"
                                    name="nameEn"
                                    th:field="*{nameEn}"
-                                   placeholder="예: Aspirin Tablet 100mg"
+                                   placeholder="例: Aspirin Tablet 100mg"
                                    maxlength="100">
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                영문명이 있는 경우 입력해주세요.
+                                英語名がある場合、入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="manufacturer" class="form-label required">
                                 <i class="fas fa-industry"></i>
-                                제조사
+                                製造元
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="manufacturer"
                                    name="manufacturer"
                                    th:field="*{manufacturer}"
-                                   placeholder="예: 한국제약"
+                                   placeholder="例: 韓国製薬"
                                    required
                                    maxlength="50">
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                제조사를 입력해주세요.
+                                製造元を入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="unit" class="form-label required">
                                 <i class="fas fa-balance-scale"></i>
-                                단위
+                                単位
                             </label>
                             <select class="form-select" id="unit" name="unit" th:field="*{unit}" required>
-                                <option value="">단위 선택</option>
-                                <option value="정">정 (Tablet)</option>
-                                <option value="캡슐">캡슐 (Capsule)</option>
-                                <option value="ml">ml (Milliliter)</option>
-                                <option value="g">g (Gram)</option>
-                                <option value="병">병 (Bottle)</option>
-                                <option value="앰플">앰플 (Ampoule)</option>
-                                <option value="바이알">바이알 (Vial)</option>
-                                <option value="튜브">튜브 (Tube)</option>
-                                <option value="박스">박스 (Box)</option>
+                                <option value="">単位選択</option>
+                                <option value="錠">錠 (Tablet)</option>
+                                <option value="カプセル">カプセル (Capsule)</option>
+                                <option value="ml">ml (ミリリットル)</option>
+                                <option value="g">g (グラム)</option>
+                                <option value="瓶">瓶 (Bottle)</option>
+                                <option value="アンプル">アンプル (Ampoule)</option>
+                                <option value="バイアル">バイアル (Vial)</option>
+                                <option value="チューブ">チューブ (Tube)</option>
+                                <option value="箱">箱 (Box)</option>
                             </select>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                단위를 선택해주세요.
+                                単位を選択してください。
                             </div>
                         </div>
                     </div>
@@ -643,119 +643,119 @@
                         <div class="form-group full-width">
                             <label for="description" class="form-label">
                                 <i class="fas fa-file-alt"></i>
-                                설명
+                                説明
                             </label>
                             <textarea class="form-control"
                                       id="description"
                                       name="description"
                                       th:field="*{description}"
                                       rows="3"
-                                      placeholder="의약품에 대한 상세 설명을 입력해주세요."
+                                      placeholder="医薬品に関する詳細な説明を入力してください。"
                                       maxlength="500"></textarea>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                의약품의 효능, 주의사항 등을 간략히 기술해주세요. (최대 500자)
+                                医薬品の効能、注意事項などを簡潔に記述してください。(最大500文字)
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 용량 및 재고 정보 섹션 -->
+            <!-- 容量及び在庫情報セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-cubes"></i>
                         </div>
-                        용량 및 재고 정보
+                        容量及び在庫情報
                     </h3>
 
                     <div class="form-grid three-columns">
                         <div class="form-group">
                             <label for="dosage" class="form-label">
                                 <i class="fas fa-pills"></i>
-                                용량/규격
+                                容量/規格
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="dosage"
                                    name="dosage"
                                    th:field="*{dosage}"
-                                   placeholder="예: 100mg, 500ml"
+                                   placeholder="例: 100mg, 500ml"
                                    maxlength="50">
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                의약품의 용량이나 규격을 입력해주세요.
+                                医薬品の容量や規格を入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="minStockQuantity" class="form-label required">
                                 <i class="fas fa-exclamation-triangle"></i>
-                                최소 재고량
+                                最小在庫量
                                 <i class="fas fa-question-circle tooltip-icon"
                                    data-bs-toggle="tooltip"
-                                   title="이 수량 이하로 재고가 떨어지면 알림이 발생합니다."></i>
+                                   title="この数量以下に在庫が減少すると通知が発生します。"></i>
                             </label>
                             <input type="number"
                                    class="form-control"
                                    id="minStockQuantity"
                                    name="minStockQuantity"
                                    th:field="*{minStockQuantity}"
-                                   placeholder="예: 10"
+                                   placeholder="例: 10"
                                    required
                                    min="0"
                                    max="999999">
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                최소 재고량을 입력해주세요.
+                                最小在庫量を入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="storageCondition" class="form-label">
                                 <i class="fas fa-thermometer-half"></i>
-                                보관 조건
+                                保管条件
                             </label>
                             <select class="form-select" id="storageCondition" name="storageCondition" th:field="*{storageCondition}">
-                                <option value="">보관 조건 선택</option>
-                                <option value="ROOM_TEMPERATURE">실온 보관</option>
-                                <option value="REFRIGERATED">냉장 보관 (2-8°C)</option>
-                                <option value="FROZEN">냉동 보관 (-20°C 이하)</option>
-                                <option value="CONTROLLED_ROOM_TEMPERATURE">조절된 실온 (15-25°C)</option>
-                                <option value="DARK_PLACE">차광 보관</option>
+                                <option value="">保管条件選択</option>
+                                <option value="ROOM_TEMPERATURE">室温保管</option>
+                                <option value="REFRIGERATED">冷蔵保管 (2-8°C)</option>
+                                <option value="FROZEN">冷凍保管 (-20°C以下)</option>
+                                <option value="CONTROLLED_ROOM_TEMPERATURE">調整室温 (15-25°C)</option>
+                                <option value="DARK_PLACE">遮光保管</option>
                             </select>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                의약품의 적절한 보관 조건을 선택해주세요.
+                                医薬品の適切な保管条件を選択してください。
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 이미지 업로드 섹션 -->
+            <!-- 画像アップロードセクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-image"></i>
                         </div>
-                        의약품 이미지
+                        医薬品画像
                     </h3>
 
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-camera"></i>
-                            제품 이미지
+                            製品画像
                         </label>
                         <div class="file-upload-area" id="fileUploadArea">
                             <div class="file-upload-icon">
                                 <i class="fas fa-cloud-upload-alt"></i>
                             </div>
-                            <div class="file-upload-text">이미지를 드래그하여 올리거나 클릭하여 선택하세요</div>
-                            <div class="file-upload-hint">PNG, JPG, JPEG 파일만 업로드 가능 (최대 5MB)</div>
+                            <div class="file-upload-text">画像をドラッグ＆ドロップするか、クリックして選択してください</div>
+                            <div class="file-upload-hint">PNG, JPG, JPEGファイルのみアップロード可能 (最大5MB)</div>
                             <input type="file"
                                    id="imageFile"
                                    name="imageFile"
@@ -763,30 +763,30 @@
                                    style="display: none;">
                         </div>
                         <div class="file-preview" id="filePreview">
-                            <img id="previewImage" src="" alt="미리보기">
+                            <img id="previewImage" src="" alt="プレビュー">
                             <div class="file-info">
                                 <span id="fileName"></span> (<span id="fileSize"></span>)
                                 <button type="button" class="btn btn-outline-danger btn-sm ms-2" onclick="removeFile()">
-                                    <i class="fas fa-times"></i> 제거
+                                    <i class="fas fa-times"></i> 削除
                                 </button>
                             </div>
                         </div>
                         <div class="form-text">
                             <i class="fas fa-info-circle"></i>
-                            의약품의 외관을 확인할 수 있는 이미지를 업로드해주세요.
+                            医薬品の外観を確認できる画像をアップロードしてください。
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 설정 섹션 -->
+            <!-- 追加設定セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-cogs"></i>
                         </div>
-                        추가 설정
+                        追加設定
                     </h3>
 
                     <div class="form-grid">
@@ -799,9 +799,9 @@
                                        th:field="*{isActive}"
                                        th:checked="${medicine.isActive != null ? medicine.isActive : true}">
                                 <label class="form-check-label" for="isActive">
-                                    <strong>활성 상태</strong>
+                                    <strong>有効状態</strong>
                                     <div style="font-weight: 400; color: #64748b; font-size: 0.9rem;">
-                                        체크하면 이 의약품을 시스템에서 사용할 수 있습니다.
+                                        チェックすると、この医薬品をシステムで利用できるようになります。
                                     </div>
                                 </label>
                             </div>
@@ -810,27 +810,27 @@
                 </div>
             </div>
 
-            <!-- 액션 버튼 -->
+            <!-- アクションボタン -->
             <div class="form-card">
                 <div class="form-actions">
                     <a href="/medicines" class="btn btn-outline-secondary">
                         <i class="fas fa-times"></i>
-                        취소
+                        キャンセル
                     </a>
 
                     <button type="button" class="btn btn-outline-secondary" onclick="resetForm()" th:if="${medicine.id == null}">
                         <i class="fas fa-undo"></i>
-                        초기화
+                        リセット
                     </button>
 
                     <button type="button" class="btn btn-outline-danger" onclick="deleteMedicine()" th:if="${medicine.id != null}" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
                         <i class="fas fa-trash"></i>
-                        삭제
+                        削除
                     </button>
 
                     <button type="submit" class="btn btn-success" id="submitButton">
                         <i class="fas fa-save"></i>
-                        <span th:text="${medicine.id != null ? '수정하기' : '등록하기'}">등록하기</span>
+                        <span th:text="${medicine.id != null ? '修正する' : '登録する'}">登録する</span>
                     </button>
                 </div>
             </div>
@@ -847,12 +847,12 @@
             initializeTooltips();
         });
 
-        // 폼 초기화
+        // フォーム初期化
         function initializeForm() {
             const form = document.getElementById('medicineForm');
             const submitButton = document.getElementById('submitButton');
 
-            // 폼 제출 처리
+            // フォーム送信処理
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -865,7 +865,7 @@
                 try {
                     const formData = new FormData(form);
 
-                    // 이미지 파일이 있는 경우 추가
+                    // 画像ファイルがある場合に追加
                     const imageFile = document.getElementById('imageFile').files[0];
                     if (imageFile) {
                         formData.append('imageFile', imageFile);
@@ -885,22 +885,22 @@
                     const result = await response.json();
 
                     if (response.ok && result.success) {
-                        showAlert(isEdit ? '의약품이 수정되었습니다.' : '의약품이 등록되었습니다.', 'success');
+                        showAlert(isEdit ? '医薬品情報が修正されました。' : '医薬品が登録されました。', 'success');
                         setTimeout(() => {
                             window.location.href = '/medicines/' + result.data.id;
                         }, 1500);
                     } else {
-                        throw new Error(result.message || '처리 중 오류가 발생했습니다.');
+                        throw new Error(result.message || '処理中にエラーが発生しました。');
                     }
                 } catch (error) {
-                    console.error('폼 제출 오류:', error);
-                    showAlert(error.message || '처리 중 오류가 발생했습니다.', 'danger');
+                    console.error('フォーム送信エラー:', error);
+                    showAlert(error.message || '処理中にエラーが発生しました。', 'danger');
                 } finally {
                     setLoading(false);
                 }
             });
 
-            // 실시간 유효성 검증
+            // リアルタイムバリデーション
             const inputs = form.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
@@ -913,23 +913,23 @@
             });
         }
 
-        // 파일 업로드 초기화
+        // ファイルアップロード初期化
         function initializeFileUpload() {
             const uploadArea = document.getElementById('fileUploadArea');
             const fileInput = document.getElementById('imageFile');
             const preview = document.getElementById('filePreview');
 
-            // 클릭으로 파일 선택
+            // クリックでファイル選択
             uploadArea.addEventListener('click', function() {
                 fileInput.click();
             });
 
-            // 파일 선택 시 처리
+            // ファイル選択時の処理
             fileInput.addEventListener('change', function() {
                 handleFileSelect(this.files[0]);
             });
 
-            // 드래그 앤 드롭
+            // ドラッグ＆ドロップ
             uploadArea.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 this.classList.add('dragover');
@@ -951,23 +951,23 @@
             });
         }
 
-        // 파일 선택 처리
+        // ファイル選択処理
         function handleFileSelect(file) {
             if (!file) return;
 
-            // 파일 유형 검증
+            // ファイルタイプ検証
             if (!file.type.startsWith('image/')) {
-                showAlert('이미지 파일만 업로드할 수 있습니다.', 'warning');
+                showAlert('画像ファイルのみアップロードできます。', 'warning');
                 return;
             }
 
-            // 파일 크기 검증 (5MB)
+            // ファイルサイズ検証 (5MB)
             if (file.size > 5 * 1024 * 1024) {
-                showAlert('파일 크기는 5MB를 초과할 수 없습니다.', 'warning');
+                showAlert('ファイルサイズは5MBを超えることはできません。', 'warning');
                 return;
             }
 
-            // 미리보기 표시
+            // プレビュー表示
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('previewImage').src = e.target.result;
@@ -979,14 +979,14 @@
             reader.readAsDataURL(file);
         }
 
-        // 파일 제거
+        // ファイル削除
         function removeFile() {
             document.getElementById('imageFile').value = '';
             document.getElementById('filePreview').style.display = 'none';
             document.getElementById('fileUploadArea').style.display = 'block';
         }
 
-        // 파일 크기 포맷팅
+        // ファイルサイズフォーマット
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -995,15 +995,15 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // 유효성 검증 초기화
+        // バリデーション初期化
         function initializeValidation() {
-            // 의약품 코드 실시간 검증
+            // 医薬品コードのリアルタイム検証
             const codeInput = document.getElementById('code');
             codeInput.addEventListener('input', function() {
                 validateMedicineCode(this.value);
             });
 
-            // 의약품 코드 중복 검사 (디바운싱)
+            // 医薬品コードの重複チェック (デバウンス)
             let codeCheckTimeout;
             codeInput.addEventListener('input', function() {
                 clearTimeout(codeCheckTimeout);
@@ -1013,7 +1013,7 @@
             });
         }
 
-        // 툴팁 초기화
+        // ツールチップ初期化
         function initializeTooltips() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -1021,19 +1021,19 @@
             });
         }
 
-        // 의약품 코드 유효성 검증
+        // 医薬品コードのバリデーション
         function validateMedicineCode(code) {
             const pattern = /^[A-Z]{3}[0-9]{3,6}$/;
             const codeInput = document.getElementById('code');
             const errorElement = document.getElementById('codeError');
 
             if (!code) {
-                setFieldError(codeInput, '의약품 코드를 입력해주세요.');
+                setFieldError(codeInput, '医薬品コードを入力してください。');
                 return false;
             }
 
             if (!pattern.test(code)) {
-                setFieldError(codeInput, '영문 3자리 + 숫자 3-6자리 형식으로 입력해주세요. (예: MED001)');
+                setFieldError(codeInput, '英字3文字 + 数字3〜6桁の形式で入力してください。(例: MED001)');
                 return false;
             }
 
@@ -1041,7 +1041,7 @@
             return true;
         }
 
-        // 의약품 코드 중복 검사
+        // 医薬品コードの重複チェック
         async function checkCodeDuplication(code) {
             if (!validateMedicineCode(code)) return;
 
@@ -1052,18 +1052,18 @@
                 const response = await ApiClient.get(`/api/medicines/check-code?code=${code}&excludeId=${currentMedicineId || ''}`);
 
                 if (response.data.exists) {
-                    setFieldError(document.getElementById('code'), '이미 사용 중인 의약품 코드입니다.');
+                    setFieldError(document.getElementById('code'), '既に使用されている医薬品コードです。');
                     return false;
                 }
 
                 setFieldValid(document.getElementById('code'));
                 return true;
             } catch (error) {
-                console.error('코드 중복 검사 오류:', error);
+                console.error('コード重複チェックエラー:', error);
             }
         }
 
-        // 폼 전체 유효성 검증
+        // フォーム全体のバリデーション
         function validateForm() {
             let isValid = true;
             const requiredFields = ['code', 'name', 'manufacturer', 'category', 'unit', 'minStockQuantity'];
@@ -1075,7 +1075,7 @@
                 }
             });
 
-            // 의약품 코드 특별 검증
+            // 医薬品コードの特別検証
             if (!validateMedicineCode(document.getElementById('code').value)) {
                 isValid = false;
             }
@@ -1083,20 +1083,20 @@
             return isValid;
         }
 
-        // 개별 필드 유효성 검증
+        // 個別フィールドのバリデーション
         function validateField(field) {
             const value = field.value.trim();
 
             if (field.required && !value) {
-                setFieldError(field, '필수 입력 항목입니다.');
+                setFieldError(field, '必須入力項目です。');
                 return false;
             }
 
-            // 숫자 필드 검증
+            // 数値フィールドの検証
             if (field.type === 'number') {
                 const num = parseFloat(value);
                 if (value && (isNaN(num) || num < 0)) {
-                    setFieldError(field, '0 이상의 숫자를 입력해주세요.');
+                    setFieldError(field, '0以上の数値を入力してください。');
                     return false;
                 }
             }
@@ -1105,7 +1105,7 @@
             return true;
         }
 
-        // 필드 오류 설정
+        // フィールドエラーの設定
         function setFieldError(field, message) {
             field.classList.remove('is-valid');
             field.classList.add('is-invalid');
@@ -1116,30 +1116,30 @@
             }
         }
 
-        // 필드 유효성 설정
+        // フィールド有効性の設定
         function setFieldValid(field) {
             field.classList.remove('is-invalid');
             field.classList.add('is-valid');
         }
 
-        // 필드 오류 제거
+        // フィールドエラーのクリア
         function clearFieldError(field) {
             field.classList.remove('is-invalid', 'is-valid');
         }
 
-        // 체크박스 토글
+        // チェックボックスのトグル
         function toggleCheckbox(id) {
             const checkbox = document.getElementById(id);
             checkbox.checked = !checkbox.checked;
         }
 
-        // 폼 초기화
+        // フォームのリセット
         function resetForm() {
-            if (confirm('입력한 내용이 모두 삭제됩니다. 계속하시겠습니까?')) {
+            if (confirm('入力した内容がすべて削除されます。続行しますか？')) {
                 document.getElementById('medicineForm').reset();
                 removeFile();
 
-                // 유효성 검증 클래스 제거
+                // バリデーションクラスの削除
                 const fields = document.querySelectorAll('.form-control, .form-select');
                 fields.forEach(field => {
                     field.classList.remove('is-valid', 'is-invalid');
@@ -1147,11 +1147,11 @@
             }
         }
 
-        // 의약품 삭제
+        // 医薬品の削除
         async function deleteMedicine() {
             const medicineName = document.getElementById('name').value;
 
-            if (!confirm(`"${medicineName}" 의약품을 삭제하시겠습니까?\n\n삭제된 의약품은 복구할 수 없습니다.`)) {
+            if (!confirm(`「${medicineName}」医薬品を削除しますか？\n\n削除された医薬品は復元できません。`)) {
                 return;
             }
 
@@ -1160,17 +1160,17 @@
                 const response = await ApiClient.delete(`/api/medicines/${medicineId}`);
 
                 if (response.success) {
-                    showAlert('의약품이 삭제되었습니다.', 'success');
+                    showAlert('医薬品が削除されました。', 'success');
                     setTimeout(() => {
                         window.location.href = '/medicines';
                     }, 1500);
                 }
             } catch (error) {
-                showAlert(error.message || '의약품 삭제 중 오류가 발생했습니다.', 'danger');
+                showAlert(error.message || '医薬品の削除中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 로딩 상태 설정
+        // ローディング状態の設定
         function setLoading(isLoading) {
             const submitButton = document.getElementById('submitButton');
 
@@ -1183,17 +1183,17 @@
             }
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl + S: 저장
+            // Ctrl + S: 保存
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 document.getElementById('medicineForm').dispatchEvent(new Event('submit'));
             }
 
-            // Esc: 취소 (목록으로 이동)
+            // Esc: キャンセル (一覧へ移動)
             if (e.key === 'Escape') {
-                if (confirm('작성 중인 내용이 저장되지 않습니다. 목록으로 이동하시겠습니까?')) {
+                if (confirm('作成中の内容は保存されません。一覧に移動しますか？')) {
                     window.location.href = '/medicines';
                 }
             }

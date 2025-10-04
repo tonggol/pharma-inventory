@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title th:text="${stock.id != null ? '재고 수정' : '재고 입고'} + ' - 의약품 재고관리 시스템'">재고 입고 - 의약품 재고관리 시스템</title>
+    <title th:text="${stock.id != null ? '在庫修正' : '在庫入庫'} + ' - 医薬品在庫管理システム'">在庫入庫 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 재고 폼 특화 스타일 */
+        /* 在庫フォーム特化スタイル */
         .form-container {
             max-width: 1000px;
             margin: 0 auto;
@@ -199,7 +199,7 @@
             gap: 0.5rem;
         }
 
-        /* 의약품 선택 */
+        /* 医薬品選択 */
         .medicine-selector {
             position: relative;
         }
@@ -299,7 +299,7 @@
             color: var(--success-color);
         }
 
-        /* 바코드 스캔 */
+        /* バーコードスキャン */
         .barcode-scanner {
             border: 2px dashed var(--border-color);
             border-radius: 12px;
@@ -340,7 +340,7 @@
             color: #94a3b8;
         }
 
-        /* 수량 입력 */
+        /* 数量入力 */
         .quantity-input {
             position: relative;
         }
@@ -382,7 +382,7 @@
             font-size: 1.2rem;
         }
 
-        /* 날짜 입력 */
+        /* 日付入力 */
         .date-input-group {
             position: relative;
         }
@@ -397,7 +397,7 @@
             pointer-events: none;
         }
 
-        /* 가격 입력 */
+        /* 価格入力 */
         .price-input {
             position: relative;
         }
@@ -415,7 +415,7 @@
             padding-left: 2.5rem;
         }
 
-        /* 액션 버튼 */
+        /* アクションボタン */
         .form-actions {
             background: #f8fafc;
             padding: 2rem;
@@ -491,7 +491,7 @@
             color: white;
         }
 
-        /* 로딩 스피너 */
+        /* ローディングスピナー */
         .btn-loading {
             position: relative;
             pointer-events: none;
@@ -514,7 +514,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 알림 카드 */
+        /* 通知カード */
         .alert-card {
             border-left: 4px solid;
             border-radius: 8px;
@@ -555,7 +555,7 @@
             opacity: 0.9;
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 768px) {
             .form-grid.two-columns,
             .form-grid.three-columns {
@@ -592,7 +592,7 @@
             }
         }
 
-        /* 애니메이션 */
+        /* アニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -617,7 +617,7 @@
             }
         }
 
-        /* 툴팁 스타일 */
+        /* ツールチップスタイル */
         .tooltip-icon {
             color: #94a3b8;
             cursor: help;
@@ -632,7 +632,7 @@
 
 <div layout:fragment="content">
     <div class="form-container">
-        <!-- 폼 헤더 -->
+        <!-- フォームヘッダー -->
         <div class="form-header fade-in">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
@@ -640,29 +640,29 @@
                         <i class="fas fa-plus-circle"></i>
                     </div>
                     <div>
-                        <h1 class="form-title" th:text="${stock.id != null ? '재고 정보 수정' : '재고 입고 등록'}">재고 입고 등록</h1>
-                        <p class="form-subtitle" th:text="${stock.id != null ? '재고 정보를 수정합니다.' : '새로운 재고를 시스템에 입고 등록합니다.'}">새로운 재고를 시스템에 입고 등록합니다.</p>
+                        <h1 class="form-title" th:text="${stock.id != null ? '在庫情報修正' : '在庫入庫登録'}">在庫入庫登録</h1>
+                        <p class="form-subtitle" th:text="${stock.id != null ? '在庫情報を修正します。' : '新規在庫をシステムに入庫登録します。'}">新規在庫をシステムに入庫登録します。</p>
                     </div>
                 </div>
                 <div>
                     <a href="/stocks" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i>
-                        목록으로
+                        一覧へ
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 알림 메시지 -->
+        <!-- 通知メッセージ -->
         <div th:if="${error}" class="alert-card warning slide-up">
             <i class="fas fa-exclamation-circle alert-icon"></i>
             <div class="alert-content">
-                <div class="alert-title">입력 오류</div>
-                <div class="alert-message" th:text="${error}">에러 메시지</div>
+                <div class="alert-title">入力エラー</div>
+                <div class="alert-message" th:text="${error}">エラーメッセージ</div>
             </div>
         </div>
 
-        <!-- 재고 입고 폼 -->
+        <!-- 在庫入庫フォーム -->
         <form class="slide-up"
               th:action="${stock.id != null ? '/api/stocks/' + stock.id : '/api/stocks'}"
               th:method="${stock.id != null ? 'PUT' : 'POST'}"
@@ -670,119 +670,119 @@
               id="stockForm"
               novalidate>
 
-            <!-- 의약품 선택 섹션 -->
+            <!-- 医薬品選択セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-pills"></i>
                         </div>
-                        의약품 선택
+                        医薬品選択
                     </h3>
 
-                    <!-- 바코드 스캔 -->
+                    <!-- バーコードスキャン -->
                     <div class="form-group full-width" th:if="${stock.id == null}">
                         <label class="form-label">
                             <i class="fas fa-barcode"></i>
-                            바코드 스캔 (선택사항)
+                            バーコードスキャン (任意)
                         </label>
                         <div class="barcode-scanner" id="barcodeScanner" onclick="toggleBarcodeScanner()">
                             <div class="barcode-icon">
                                 <i class="fas fa-barcode"></i>
                             </div>
-                            <div class="barcode-text">바코드를 스캔하여 자동 입력</div>
-                            <div class="barcode-hint">클릭하여 바코드 스캐너 시뮬레이션</div>
+                            <div class="barcode-text">バーコードをスキャンして自動入力</div>
+                            <div class="barcode-hint">クリックしてバーコードスキャナーをシミュレート</div>
                         </div>
                     </div>
 
-                    <!-- 의약품 검색/선택 -->
+                    <!-- 医薬品検索/選択 -->
                     <div class="form-group full-width">
                         <label class="form-label required" for="medicineSearch">
                             <i class="fas fa-search"></i>
-                            의약품 검색
+                            医薬品検索
                         </label>
                         <div class="medicine-selector">
                             <div class="medicine-search">
                                 <input type="text"
                                        class="form-control"
                                        id="medicineSearch"
-                                       placeholder="의약품명 또는 코드로 검색..."
+                                       placeholder="医薬品名またはコードで検索..."
                                        autocomplete="off">
                                 <div class="medicine-dropdown" id="medicineDropdown">
-                                    <!-- 동적으로 로드됨 -->
+                                    <!-- 動的にロード -->
                                 </div>
                             </div>
 
-                            <!-- 선택된 의약품 표시 -->
+                            <!-- 選択された医薬品表示 -->
                             <div class="selected-medicine" id="selectedMedicine">
                                 <div class="selected-medicine-info">
                                     <div class="selected-medicine-details">
-                                        <div class="selected-medicine-name" id="selectedMedicineName">선택된 의약품</div>
-                                        <div class="selected-medicine-meta" id="selectedMedicineMeta">코드: MED001 | 제조사: 한국제약</div>
+                                        <div class="selected-medicine-name" id="selectedMedicineName">選択された医薬品</div>
+                                        <div class="selected-medicine-meta" id="selectedMedicineMeta">コード: MED001 | 製造元: 韓国製薬</div>
                                     </div>
                                     <button type="button" class="change-medicine-btn" onclick="changeMedicine()">
                                         <i class="fas fa-edit"></i>
-                                        변경
+                                        変更
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div class="form-text">
                             <i class="fas fa-info-circle"></i>
-                            의약품명 또는 코드를 입력하여 검색하세요.
+                            医薬品名またはコードを入力して検索してください。
                         </div>
 
-                        <!-- 숨겨진 필드 -->
+                        <!-- 隠しフィールド -->
                         <input type="hidden" id="medicineId" name="medicineId" th:field="*{medicineId}" required>
                         <div class="invalid-feedback">
                             <i class="fas fa-times-circle"></i>
-                            <span id="medicineError">의약품을 선택해주세요.</span>
+                            <span id="medicineError">医薬品を選択してください。</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 재고 정보 섹션 -->
+            <!-- 在庫情報セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-boxes"></i>
                         </div>
-                        재고 정보
+                        在庫情報
                     </h3>
 
                     <div class="form-grid two-columns">
                         <div class="form-group">
                             <label for="lotNumber" class="form-label required">
                                 <i class="fas fa-tag"></i>
-                                로트번호
+                                ロット番号
                                 <i class="fas fa-question-circle tooltip-icon"
                                    data-bs-toggle="tooltip"
-                                   title="제조사에서 제공하는 고유한 로트번호입니다."></i>
+                                   title="製造元から提供される固有のロット番号です。"></i>
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="lotNumber"
                                    name="lotNumber"
                                    th:field="*{lotNumber}"
-                                   placeholder="예: LOT2024001"
+                                   placeholder="例: LOT2024001"
                                    required
                                    maxlength="50">
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                제조사 제공 로트번호를 정확히 입력해주세요.
+                                製造元提供のロット番号を正確に入力してください。
                             </div>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                <span id="lotNumberError">로트번호를 입력해주세요.</span>
+                                <span id="lotNumberError">ロット番号を入力してください。</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="quantity" class="form-label required">
                                 <i class="fas fa-calculator"></i>
-                                입고 수량
+                                入庫数量
                             </label>
                             <div class="quantity-controls">
                                 <button type="button" class="quantity-btn" onclick="adjustQuantity(-1)">
@@ -803,7 +803,7 @@
                             </div>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                <span id="quantityError">1 이상의 수량을 입력해주세요.</span>
+                                <span id="quantityError">1以上の数量を入力してください。</span>
                             </div>
                         </div>
                     </div>
@@ -812,7 +812,7 @@
                         <div class="form-group">
                             <label for="manufactureDate" class="form-label">
                                 <i class="fas fa-industry"></i>
-                                제조일
+                                製造日
                             </label>
                             <div class="date-input-group">
                                 <input type="date"
@@ -820,18 +820,18 @@
                                        id="manufactureDate"
                                        name="manufactureDate"
                                        th:field="*{manufactureDate}">
-                                <div class="date-helper">제조일</div>
+                                <div class="date-helper">製造日</div>
                             </div>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                제품 포장에 표시된 제조일을 입력하세요.
+                                製品パッケージに表示されている製造日を入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="expiryDate" class="form-label required">
                                 <i class="fas fa-calendar-times"></i>
-                                유효기간
+                                使用期限
                             </label>
                             <div class="date-input-group">
                                 <input type="date"
@@ -840,22 +840,22 @@
                                        name="expiryDate"
                                        th:field="*{expiryDate}"
                                        required>
-                                <div class="date-helper">만료일</div>
+                                <div class="date-helper">満了日</div>
                             </div>
                             <div class="form-text">
                                 <i class="fas fa-exclamation-triangle"></i>
-                                제품 포장에 표시된 유효기간을 정확히 입력하세요.
+                                製品パッケージに表示されている使用期限を正確に入力してください。
                             </div>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                <span id="expiryDateError">유효기간을 입력해주세요.</span>
+                                <span id="expiryDateError">使用期限を入力してください。</span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="receivedDate" class="form-label required">
                                 <i class="fas fa-truck"></i>
-                                입고일
+                                入庫日
                             </label>
                             <div class="date-input-group">
                                 <input type="date"
@@ -864,57 +864,57 @@
                                        name="receivedDate"
                                        th:field="*{receivedDate}"
                                        required>
-                                <div class="date-helper">입고일</div>
+                                <div class="date-helper">入庫日</div>
                             </div>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                실제 재고가 입고된 날짜입니다.
+                                実際に在庫が入庫された日付です。
                             </div>
                             <div class="invalid-feedback">
                                 <i class="fas fa-times-circle"></i>
-                                <span id="receivedDateError">입고일을 입력해주세요.</span>
+                                <span id="receivedDateError">入庫日を入力してください。</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 공급업체 및 구매 정보 섹션 -->
+            <!-- 仕入先及び購買情報セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-handshake"></i>
                         </div>
-                        공급업체 및 구매 정보
+                        仕入先及び購買情報
                     </h3>
 
                     <div class="form-grid two-columns">
                         <div class="form-group">
                             <label for="supplierName" class="form-label">
                                 <i class="fas fa-building"></i>
-                                공급업체명
+                                仕入先名
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="supplierName"
                                    name="supplierName"
                                    th:field="*{supplierName}"
-                                   placeholder="예: 한국의약품유통"
+                                   placeholder="例: 韓国医薬品流通"
                                    maxlength="100">
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                재고를 공급한 업체명을 입력하세요.
+                                在庫を供給した業者名を入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="purchasePrice" class="form-label">
-                                <i class="fas fa-won-sign"></i>
-                                구매 단가
+                                <i class="fas fa-yen-sign"></i>
+                                仕入単価
                             </label>
                             <div class="price-input">
-                                <div class="price-currency">₩</div>
+                                <div class="price-currency">¥</div>
                                 <input type="number"
                                        class="form-control"
                                        id="purchasePrice"
@@ -922,59 +922,59 @@
                                        th:field="*{purchasePrice}"
                                        placeholder="0"
                                        min="0"
-                                       step="0.01">
+                                       step="1">
                             </div>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                개당 구매 가격을 입력하세요.
+                                1個あたりの仕入価格を入力してください。
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 보관 정보 섹션 -->
+            <!-- 保管情報セクション -->
             <div class="form-card">
                 <div class="form-section">
                     <h3 class="section-title">
                         <div class="section-icon">
                             <i class="fas fa-warehouse"></i>
                         </div>
-                        보관 정보
+                        保管情報
                     </h3>
 
                     <div class="form-grid two-columns">
                         <div class="form-group">
                             <label for="location" class="form-label">
                                 <i class="fas fa-map-marker-alt"></i>
-                                보관 위치
+                                保管場所
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="location"
                                    name="location"
                                    th:field="*{location}"
-                                   placeholder="예: A동-1층-냉장고1"
+                                   placeholder="例: A棟-1階-冷蔵庫1"
                                    maxlength="100">
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                재고가 보관될 구체적인 위치를 입력하세요.
+                                在庫が保管される具体的な場所を入力してください。
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="status" class="form-label">
                                 <i class="fas fa-flag"></i>
-                                초기 상태
+                                初期ステータス
                             </label>
                             <select class="form-select" id="status" name="status" th:field="*{status}">
-                                <option value="AVAILABLE">사용 가능</option>
-                                <option value="QUARANTINE">격리 (검사 대기)</option>
-                                <option value="RESERVED">예약됨</option>
+                                <option value="AVAILABLE">利用可能</option>
+                                <option value="QUARANTINE">隔離 (検査待ち)</option>
+                                <option value="RESERVED">予約済み</option>
                             </select>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                입고 시점의 재고 상태를 선택하세요.
+                                入庫時点の在庫ステータスを選択してください。
                             </div>
                         </div>
                     </div>
@@ -983,45 +983,45 @@
                         <div class="form-group full-width">
                             <label for="remarks" class="form-label">
                                 <i class="fas fa-sticky-note"></i>
-                                비고
+                                備考
                             </label>
                             <textarea class="form-control"
                                       id="remarks"
                                       name="remarks"
                                       th:field="*{remarks}"
                                       rows="3"
-                                      placeholder="특이사항이나 주의사항을 입력하세요."
+                                      placeholder="特記事項や注意事項を入力してください。"
                                       maxlength="500"></textarea>
                             <div class="form-text">
                                 <i class="fas fa-info-circle"></i>
-                                보관 시 주의사항이나 특이사항을 기록해주세요. (최대 500자)
+                                保管時の注意事項や特記事項を記録してください。(最大500文字)
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 액션 버튼 -->
+            <!-- アクションボタン -->
             <div class="form-card">
                 <div class="form-actions">
                     <a href="/stocks" class="btn btn-outline-secondary">
                         <i class="fas fa-times"></i>
-                        취소
+                        キャンセル
                     </a>
 
                     <button type="button" class="btn btn-outline-secondary" onclick="resetForm()" th:if="${stock.id == null}">
                         <i class="fas fa-undo"></i>
-                        초기화
+                        リセット
                     </button>
 
                     <button type="button" class="btn btn-outline-danger" onclick="deleteStock()" th:if="${stock.id != null}" sec:authorize="hasAnyRole('ADMIN','MANAGER')">
                         <i class="fas fa-trash"></i>
-                        삭제
+                        削除
                     </button>
 
                     <button type="submit" class="btn btn-success" id="submitButton">
                         <i class="fas fa-save"></i>
-                        <span th:text="${stock.id != null ? '수정하기' : '입고 등록'}">입고 등록</span>
+                        <span th:text="${stock.id != null ? '修正する' : '入庫登録'}">入庫登録</span>
                     </button>
                 </div>
             </div>
@@ -1031,7 +1031,7 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         let medicines = [];
         let selectedMedicineId = null;
         let barcodeActive = false;
@@ -1043,13 +1043,13 @@
             initializeTooltips();
         });
 
-        // 폼 초기화
+        // フォーム初期化
         function initializeForm() {
-            // 오늘 날짜를 입고일 기본값으로 설정
+            // 今日の日付を入庫日のデフォルト値として設定
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('receivedDate').value = today;
 
-            // 기존 선택된 의약품이 있는 경우 (수정 모드)
+            // 既存で選択された医薬品がある場合 (修正モード)
             const medicineId = document.getElementById('medicineId').value;
             if (medicineId) {
                 selectedMedicineId = parseInt(medicineId);
@@ -1057,23 +1057,23 @@
             }
         }
 
-        // 의약품 목록 로드
+        // 医薬品リストのロード
         async function loadMedicines() {
             try {
                 const response = await ApiClient.get('/api/medicines?size=1000&sort=name');
                 medicines = response.content || [];
             } catch (error) {
-                console.error('의약품 목록 로드 오류:', error);
-                showAlert('의약품 목록을 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('医薬品リストのロードエラー:', error);
+                showAlert('医薬品リストの読み込み中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 이벤트 리스너 설정
+        // イベントリスナー設定
         function setupEventListeners() {
             const form = document.getElementById('stockForm');
             const submitButton = document.getElementById('submitButton');
 
-            // 폼 제출 처리
+            // フォーム送信処理
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -1087,7 +1087,7 @@
                     const formData = new FormData(form);
                     const data = {};
 
-                    // FormData를 JSON 객체로 변환
+                    // FormDataをJSONオブジェクトに変換
                     for (let [key, value] of formData.entries()) {
                         if (value !== '') {
                             if (key === 'quantity' || key === 'medicineId') {
@@ -1115,22 +1115,22 @@
                     const result = await response.json();
 
                     if (response.ok && result.success) {
-                        showAlert(isEdit ? '재고가 수정되었습니다.' : '재고가 입고 등록되었습니다.', 'success');
+                        showAlert(isEdit ? '在庫が修正されました。' : '在庫が入庫登録されました。', 'success');
                         setTimeout(() => {
                             window.location.href = '/stocks/' + result.data.id;
                         }, 1500);
                     } else {
-                        throw new Error(result.message || '처리 중 오류가 발생했습니다.');
+                        throw new Error(result.message || '処理中にエラーが発生しました。');
                     }
                 } catch (error) {
-                    console.error('폼 제출 오류:', error);
-                    showAlert(error.message || '처리 중 오류가 발생했습니다.', 'danger');
+                    console.error('フォーム送信エラー:', error);
+                    showAlert(error.message || '処理中にエラーが発生しました。', 'danger');
                 } finally {
                     setLoading(false);
                 }
             });
 
-            // 의약품 검색
+            // 医薬品検索
             const medicineSearch = document.getElementById('medicineSearch');
             let searchTimeout;
 
@@ -1148,13 +1148,13 @@
             });
 
             medicineSearch.addEventListener('blur', function() {
-                // 드롭다운 숨기기 (약간의 지연을 두어 클릭 이벤트 처리)
+                // ドロップダウンを隠す (クリックイベント処理のために少し遅延させる)
                 setTimeout(() => {
                     document.getElementById('medicineDropdown').style.display = 'none';
                 }, 200);
             });
 
-            // 실시간 유효성 검증
+            // リアルタイムバリデーション
             const inputs = form.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {
@@ -1166,13 +1166,13 @@
                 });
             });
 
-            // 날짜 검증
+            // 日付バリデーション
             document.getElementById('expiryDate').addEventListener('change', validateDates);
             document.getElementById('receivedDate').addEventListener('change', validateDates);
             document.getElementById('manufactureDate').addEventListener('change', validateDates);
         }
 
-        // 툴팁 초기화
+        // ツールチップ初期化
         function initializeTooltips() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -1180,7 +1180,7 @@
             });
         }
 
-        // 의약품 검색
+        // 医薬品検索
         function searchMedicines(query) {
             const dropdown = document.getElementById('medicineDropdown');
 
@@ -1192,10 +1192,10 @@
             const filtered = medicines.filter(medicine =>
                 medicine.name.toLowerCase().includes(query.toLowerCase()) ||
                 medicine.code.toLowerCase().includes(query.toLowerCase())
-            ).slice(0, 10); // 최대 10개만 표시
+            ).slice(0, 10); // 最大10件のみ表示
 
             if (filtered.length === 0) {
-                dropdown.innerHTML = '<div class="medicine-option">검색 결과가 없습니다.</div>';
+                dropdown.innerHTML = '<div class="medicine-option">検索結果がありません。</div>';
             } else {
                 dropdown.innerHTML = filtered.map(medicine => `
                     <div class="medicine-option" onclick="selectMedicine(${medicine.id})">
@@ -1208,7 +1208,7 @@
             dropdown.style.display = 'block';
         }
 
-        // 의약품 선택
+        // 医薬品選択
         function selectMedicine(medicineId) {
             const medicine = medicines.find(m => m.id === medicineId);
             if (!medicine) return;
@@ -1218,22 +1218,22 @@
             document.getElementById('medicineSearch').value = medicine.name;
             document.getElementById('medicineDropdown').style.display = 'none';
 
-            // 선택된 의약품 표시
+            // 選択された医薬品表示
             document.getElementById('selectedMedicineName').textContent = medicine.name;
             document.getElementById('selectedMedicineMeta').textContent =
-                `코드: ${medicine.code} | 제조사: ${medicine.manufacturer} | 단위: ${medicine.unit}`;
+                `コード: ${medicine.code} | 製造元: ${medicine.manufacturer} | 単位: ${medicine.unit}`;
 
             showSelectedMedicine();
             clearFieldError(document.getElementById('medicineId'));
         }
 
-        // 선택된 의약품 표시
+        // 選択された医薬品表示
         function showSelectedMedicine() {
             document.getElementById('selectedMedicine').classList.add('show');
             document.getElementById('medicineSearch').style.display = 'none';
         }
 
-        // 의약품 변경
+        // 医薬品変更
         function changeMedicine() {
             selectedMedicineId = null;
             document.getElementById('medicineId').value = '';
@@ -1243,7 +1243,7 @@
             document.getElementById('medicineSearch').focus();
         }
 
-        // 바코드 스캐너 토글
+        // バーコードスキャナートグル
         function toggleBarcodeScanner() {
             const scanner = document.getElementById('barcodeScanner');
             barcodeActive = !barcodeActive;
@@ -1254,11 +1254,11 @@
                     <div class="barcode-icon">
                         <i class="fas fa-spinner fa-spin"></i>
                     </div>
-                    <div class="barcode-text">바코드 스캐닝 중...</div>
-                    <div class="barcode-hint">스캔을 중지하려면 클릭하세요</div>
+                    <div class="barcode-text">バーコードスキャン中...</div>
+                    <div class="barcode-hint">スキャンを停止するにはクリックしてください</div>
                 `;
 
-                // 시뮬레이션: 3초 후 더미 데이터 입력
+                // シミュレーション: 3秒後にダミーデータを入力
                 setTimeout(() => {
                     simulateBarcodeResult();
                 }, 3000);
@@ -1267,34 +1267,34 @@
             }
         }
 
-        // 바코드 스캔 결과 시뮬레이션
+        // バーコードスキャン結果シミュレーション
         function simulateBarcodeResult() {
             if (!barcodeActive) return;
 
-            // 더미 데이터로 자동 입력
+            // ダミーデータで自動入力
             const dummyData = {
                 medicineCode: 'MED001',
                 lotNumber: 'LOT' + Date.now().toString().slice(-6),
                 quantity: Math.floor(Math.random() * 100) + 10,
-                expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 1년 후
+                expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 1年後
             };
 
-            // 의약품 자동 선택
+            // 医薬品自動選択
             const medicine = medicines.find(m => m.code === dummyData.medicineCode);
             if (medicine) {
                 selectMedicine(medicine.id);
             }
 
-            // 다른 필드 자동 입력
+            // 他のフィールド自動入力
             document.getElementById('lotNumber').value = dummyData.lotNumber;
             document.getElementById('quantity').value = dummyData.quantity;
             document.getElementById('expiryDate').value = dummyData.expiryDate;
 
             resetBarcodeScanner();
-            showAlert('바코드 스캔이 완료되었습니다.', 'success');
+            showAlert('バーコードスキャンが完了しました。', 'success');
         }
 
-        // 바코드 스캐너 리셋
+        // バーコードスキャナーリセット
         function resetBarcodeScanner() {
             barcodeActive = false;
             const scanner = document.getElementById('barcodeScanner');
@@ -1303,12 +1303,12 @@
                 <div class="barcode-icon">
                     <i class="fas fa-barcode"></i>
                 </div>
-                <div class="barcode-text">바코드를 스캔하여 자동 입력</div>
-                <div class="barcode-hint">클릭하여 바코드 스캐너 시뮬레이션</div>
+                <div class="barcode-text">バーコードをスキャンして自動入力</div>
+                <div class="barcode-hint">クリックしてバーコードスキャナーをシミュレート</div>
             `;
         }
 
-        // 수량 조정
+        // 数量調整
         function adjustQuantity(delta) {
             const quantityInput = document.getElementById('quantity');
             const currentValue = parseInt(quantityInput.value) || 0;
@@ -1317,7 +1317,7 @@
             validateField(quantityInput);
         }
 
-        // 날짜 유효성 검증
+        // 日付バリデーション
         function validateDates() {
             const manufactureDate = new Date(document.getElementById('manufactureDate').value);
             const expiryDate = new Date(document.getElementById('expiryDate').value);
@@ -1326,38 +1326,38 @@
 
             let isValid = true;
 
-            // 유효기간이 현재 날짜보다 이후인지 확인
+            // 使用期限が現在日付より後か確認
             if (expiryDate && expiryDate <= today) {
-                setFieldError(document.getElementById('expiryDate'), '유효기간이 이미 만료되었습니다.');
+                setFieldError(document.getElementById('expiryDate'), '使用期限が既に切れています。');
                 isValid = false;
             }
 
-            // 제조일이 유효기간보다 이전인지 확인
+            // 製造日が使用期限より前か確認
             if (manufactureDate && expiryDate && manufactureDate >= expiryDate) {
-                setFieldError(document.getElementById('manufactureDate'), '제조일은 유효기간보다 이전이어야 합니다.');
+                setFieldError(document.getElementById('manufactureDate'), '製造日は使用期限より前でなければなりません。');
                 isValid = false;
             }
 
-            // 입고일이 미래가 아닌지 확인
+            // 入庫日が未来でないか確認
             if (receivedDate && receivedDate > today) {
-                setFieldError(document.getElementById('receivedDate'), '입고일은 미래 날짜일 수 없습니다.');
+                setFieldError(document.getElementById('receivedDate'), '入庫日は未来の日付にできません。');
                 isValid = false;
             }
 
             return isValid;
         }
 
-        // 폼 전체 유효성 검증
+        // フォーム全体のバリデーション
         function validateForm() {
             let isValid = true;
 
-            // 의약품 선택 확인
+            // 医薬品選択確認
             if (!selectedMedicineId) {
-                setFieldError(document.getElementById('medicineId'), '의약품을 선택해주세요.');
+                setFieldError(document.getElementById('medicineId'), '医薬品を選択してください。');
                 isValid = false;
             }
 
-            // 필수 필드 검증
+            // 必須フィールドバリデーション
             const requiredFields = ['lotNumber', 'quantity', 'expiryDate', 'receivedDate'];
             requiredFields.forEach(fieldName => {
                 const field = document.getElementById(fieldName);
@@ -1366,7 +1366,7 @@
                 }
             });
 
-            // 날짜 유효성 검증
+            // 日付バリデーション
             if (!validateDates()) {
                 isValid = false;
             }
@@ -1374,34 +1374,34 @@
             return isValid;
         }
 
-        // 개별 필드 유효성 검증
+        // 個別フィールドバリデーション
         function validateField(field) {
             const value = field.value.trim();
 
             if (field.required && !value) {
-                setFieldError(field, '필수 입력 항목입니다.');
+                setFieldError(field, '必須入力項目です。');
                 return false;
             }
 
-            // 숫자 필드 검증
+            // 数値フィールドバリデーション
             if (field.type === 'number') {
                 const num = parseFloat(value);
                 if (value && (isNaN(num) || num < parseFloat(field.min))) {
-                    setFieldError(field, `${field.min} 이상의 값을 입력해주세요.`);
+                    setFieldError(field, `${field.min}以上の値を入力してください。`);
                     return false;
                 }
             }
 
-            // 로트번호 중복 검사 (실제 구현에서는 API 호출)
+            // ロット番号重複チェック (実際の구현ではAPI呼び出し)
             if (field.id === 'lotNumber' && value) {
-                // TODO: 로트번호 중복 검사 API 호출
+                // TODO: ロット番号重複チェックAPI呼び出し
             }
 
             setFieldValid(field);
             return true;
         }
 
-        // 필드 오류 설정
+        // フィールドエラー設定
         function setFieldError(field, message) {
             field.classList.remove('is-valid');
             field.classList.add('is-invalid');
@@ -1415,29 +1415,29 @@
             }
         }
 
-        // 필드 유효성 설정
+        // フィールド有効設定
         function setFieldValid(field) {
             field.classList.remove('is-invalid');
             field.classList.add('is-valid');
         }
 
-        // 필드 오류 제거
+        // フィールドエラークリア
         function clearFieldError(field) {
             field.classList.remove('is-invalid', 'is-valid');
         }
 
-        // 폼 초기화
+        // フォームリセット
         function resetForm() {
-            if (confirm('입력한 내용이 모두 삭제됩니다. 계속하시겠습니까?')) {
+            if (confirm('入力した内容がすべて削除されます。続行しますか？')) {
                 document.getElementById('stockForm').reset();
                 changeMedicine();
                 resetBarcodeScanner();
 
-                // 오늘 날짜를 입고일로 재설정
+                // 今日の日付を入庫日に再設定
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('receivedDate').value = today;
 
-                // 유효성 검증 클래스 제거
+                // バリデーションクラス削除
                 const fields = document.querySelectorAll('.form-control, .form-select');
                 fields.forEach(field => {
                     field.classList.remove('is-valid', 'is-invalid');
@@ -1445,9 +1445,9 @@
             }
         }
 
-        // 재고 삭제
+        // 在庫削除
         async function deleteStock() {
-            if (!confirm('이 재고를 삭제하시겠습니까?\n\n삭제된 재고는 복구할 수 없습니다.')) {
+            if (!confirm('この在庫を削除しますか？\n\n削除された在庫は復元できません。')) {
                 return;
             }
 
@@ -1456,17 +1456,17 @@
                 const response = await ApiClient.delete(`/api/stocks/${stockId}`);
 
                 if (response.success) {
-                    showAlert('재고가 삭제되었습니다.', 'success');
+                    showAlert('在庫が削除されました。', 'success');
                     setTimeout(() => {
                         window.location.href = '/stocks';
                     }, 1500);
                 }
             } catch (error) {
-                showAlert(error.message || '재고 삭제 중 오류가 발생했습니다.', 'danger');
+                showAlert(error.message || '在庫の削除中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 로딩 상태 설정
+        // ローディング状態設定
         function setLoading(isLoading) {
             const submitButton = document.getElementById('submitButton');
 
@@ -1479,22 +1479,22 @@
             }
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl + S: 저장
+            // Ctrl + S: 保存
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 document.getElementById('stockForm').dispatchEvent(new Event('submit'));
             }
 
-            // Esc: 취소 (목록으로 이동)
+            // Esc: キャンセル (一覧へ移動)
             if (e.key === 'Escape') {
-                if (confirm('작성 중인 내용이 저장되지 않습니다. 목록으로 이동하시겠습니까?')) {
+                if (confirm('作成中の内容は保存されません。一覧に移動しますか？')) {
                     window.location.href = '/stocks';
                 }
             }
 
-            // F1: 바코드 스캐너 토글
+            // F1: バーコードスキャナートグル
             if (e.key === 'F1') {
                 e.preventDefault();
                 toggleBarcodeScanner();

@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>의약품 등록 - 의약품 재고관리 시스템</title>
+    <title>医薬品登録 - 医薬品在庫管理システム</title>
 
     <th:block layout:fragment="css">
         <style>
-            /* 폼 스타일 */
+            /* フォームスタイル */
             .form-container {
                 background: white;
                 border-radius: 12px;
@@ -111,7 +111,7 @@
                 border-color: var(--danger-color);
             }
 
-            /* 반응형 디자인 */
+            /* レスポンシブデザイン */
             @media (max-width: 768px) {
                 .sidebar {
                     transform: translateX(-100%);
@@ -138,12 +138,12 @@
 <div layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-1" th:text="${pageTitle ?: '의약품 등록'}">의약품 등록</h1>
-            <p class="text-muted mb-0" th:text="${pageDescription ?: '새로운 의약품을 시스템에 등록합니다'}">새로운 의약품을 시스템에 등록합니다</p>
+            <h1 class="h3 mb-1" th:text="${pageTitle ?: '医薬品登録'}">医薬品登録</h1>
+            <p class="text-muted mb-0" th:text="${pageDescription ?: '新規医薬品をシステムに登録します'}">新規医薬品をシステムに登録します</p>
         </div>
         <div>
             <a href="/medicines" class="btn btn-outline-secondary">
-                <i class="fas fa-list me-2"></i>의약품 목록
+                <i class="fas fa-list me-2"></i>医薬品一覧
             </a>
         </div>
     </div>
@@ -153,30 +153,30 @@
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-info-circle text-info"></i>
-                    기본 정보
+                    基本情報
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="code" class="form-label">
-                                의약품 코드 <span class="required">*</span>
+                                医薬品コード <span class="required">*</span>
                             </label>
                             <input type="text" class="form-control" id="code" name="code"
-                                   placeholder="의약품 코드를 입력하세요" maxlength="50" required>
+                                   placeholder="医薬品コードを入力してください" maxlength="50" required>
                             <div class="validation-error" id="code-error"></div>
                             <small class="form-text text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                고유한 의약품 코드를 입력하세요 (최대 50자).
+                                固有の医薬品コードを入力してください (最大50文字)。
                             </small>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="name" class="form-label">
-                                의약품명 <span class="required">*</span>
+                                医薬品名 <span class="required">*</span>
                             </label>
                             <input type="text" class="form-control" id="name" name="name"
-                                   placeholder="의약품명을 입력하세요" maxlength="100" required>
+                                   placeholder="医薬品名を入力してください" maxlength="100" required>
                             <div class="validation-error" id="name-error"></div>
                         </div>
                     </div>
@@ -184,58 +184,58 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="nameEn" class="form-label">영문명</label>
+                            <label for="nameEn" class="form-label">英語名</label>
                             <input type="text" class="form-control" id="nameEn" name="nameEn"
-                                   placeholder="영문명을 입력하세요" maxlength="100">
+                                   placeholder="英語名を入力してください" maxlength="100">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="manufacturer" class="form-label">
-                                제조사 <span class="required">*</span>
+                                製造元 <span class="required">*</span>
                             </label>
                             <input type="text" class="form-control" id="manufacturer" name="manufacturer"
-                                   placeholder="제조사명을 입력하세요" maxlength="50" required>
+                                   placeholder="製造元名を入力してください" maxlength="50" required>
                             <div class="validation-error" id="manufacturer-error"></div>
                         </div>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="description" class="form-label">설명</label>
+                    <label for="description" class="form-label">説明</label>
                     <textarea class="form-control" id="description" name="description" rows="3"
-                              placeholder="의약품 설명을 입력하세요"></textarea>
+                              placeholder="医薬品の説明を入力してください"></textarea>
                 </div>
             </div>
 
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-tags text-warning"></i>
-                    분류 정보
+                    分類情報
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="categorySelect" class="form-label">카테고리</label>
+                            <label for="categorySelect" class="form-label">カテゴリ</label>
                             <div class="category-select">
                                 <button type="button" class="form-control text-start" id="categorySelect"
                                         style="background: white; border: 1px solid #ced4da;">
-                                    카테고리를 선택하세요...
+                                    カテゴリを選択してください...
                                 </button>
                                 <input type="hidden" id="category" name="category">
 
                                 <div class="category-dropdown" id="categoryDropdown">
-                                    <div class="category-item" data-value="">카테고리 없음</div>
-                                    <div class="category-item" data-value="PAIN_RELIEVER">진통제</div>
-                                    <div class="category-item" data-value="ANTIBIOTIC">항생제</div>
-                                    <div class="category-item" data-value="VITAMIN">비타민</div>
-                                    <div class="category-item" data-value="SUPPLEMENT">보조제</div>
-                                    <div class="category-item" data-value="DIGESTIVE">소화제</div>
-                                    <div class="category-item" data-value="CARDIOVASCULAR">심혈관</div>
-                                    <div class="category-item" data-value="RESPIRATORY">호흡기</div>
-                                    <div class="category-item" data-value="DERMATOLOGICAL">피부과</div>
-                                    <div class="category-item" data-value="NEUROLOGICAL">신경계</div>
-                                    <div class="category-item" data-value="HORMONAL">호르몬</div>
-                                    <div class="category-item" data-value="OTHER">기타</div>
+                                    <div class="category-item" data-value="">カテゴリなし</div>
+                                    <div class="category-item" data-value="PAIN_RELIEVER">鎮痛剤</div>
+                                    <div class="category-item" data-value="ANTIBIOTIC">抗生物質</div>
+                                    <div class="category-item" data-value="VITAMIN">ビタミン</div>
+                                    <div class="category-item" data-value="SUPPLEMENT">補助剤</div>
+                                    <div class="category-item" data-value="DIGESTIVE">消化剤</div>
+                                    <div class="category-item" data-value="CARDIOVASCULAR">循環器系薬</div>
+                                    <div class="category-item" data-value="RESPIRATORY">呼吸器系薬</div>
+                                    <div class="category-item" data-value="DERMATOLOGICAL">皮膚科用薬</div>
+                                    <div class="category-item" data-value="NEUROLOGICAL">神経系薬</div>
+                                    <div class="category-item" data-value="HORMONAL">ホルモン剤</div>
+                                    <div class="category-item" data-value="OTHER">その他</div>
                                 </div>
                             </div>
                         </div>
@@ -243,10 +243,10 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="unit" class="form-label">
-                                단위 <span class="required">*</span>
+                                単位 <span class="required">*</span>
                             </label>
                             <input type="text" class="form-control" id="unit" name="unit"
-                                   placeholder="예: 정, 캡슐, ml, g" maxlength="20" required>
+                                   placeholder="例: 錠, カプセル, ml, g" maxlength="20" required>
                             <div class="validation-error" id="unit-error"></div>
                         </div>
                     </div>
@@ -254,15 +254,15 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="storageCondition" class="form-label">보관 조건</label>
+                            <label for="storageCondition" class="form-label">保管条件</label>
                             <input type="text" class="form-control" id="storageCondition" name="storageCondition"
-                                   placeholder="예: 실온보관, 냉장보관" maxlength="100">
+                                   placeholder="例: 室温保管, 冷蔵保管" maxlength="100">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="minStockQuantity" class="form-label">
-                                최소 재고 수량 <span class="required">*</span>
+                                最小在庫数量 <span class="required">*</span>
                             </label>
                             <input type="number" class="form-control" id="minStockQuantity" name="minStockQuantity"
                                    min="0" value="0" required>
@@ -275,7 +275,7 @@
             <div class="form-section">
                 <div class="section-title">
                     <i class="fas fa-cog text-secondary"></i>
-                    설정
+                    設定
                 </div>
                 <div class="row">
                     <div class="col-md-6">
@@ -284,11 +284,11 @@
                                 <input class="form-check-input" type="checkbox" id="isPrescriptionRequired"
                                        name="isPrescriptionRequired">
                                 <label class="form-check-label" for="isPrescriptionRequired">
-                                    처방전 필요
+                                    処方箋要
                                 </label>
                             </div>
                             <small class="form-text text-muted">
-                                이 의약품이 처방전을 필요로 하는지 선택하세요.
+                                この医薬品が処方箋を必要とするか選択してください。
                             </small>
                         </div>
                     </div>
@@ -298,11 +298,11 @@
                                 <input class="form-check-input" type="checkbox" id="isActive"
                                        name="isActive" checked>
                                 <label class="form-check-label" for="isActive">
-                                    활성 상태
+                                    有効状態
                                 </label>
                             </div>
                             <small class="form-text text-muted">
-                                비활성화하면 재고 입고 및 판매에서 제외됩니다.
+                                無効にすると、在庫の入庫や販売から除外されます。
                             </small>
                         </div>
                     </div>
@@ -311,10 +311,10 @@
 
             <div class="d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
-                    <i class="fas fa-times me-2"></i>취소
+                    <i class="fas fa-times me-2"></i>キャンセル
                 </button>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>의약품 등록
+                    <i class="fas fa-plus me-2"></i>医薬品登録
                 </button>
             </div>
         </form>
@@ -323,27 +323,27 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        console.log('=== 의약품 등록 페이지 스크립트 시작 ===');
+        console.log('=== 医薬品登録ページのスクリプト開始 ===');
 
-        // 카테고리 드롭다운 초기화
+        // カテゴリドロップダウン初期化
         function initCategoryDropdown() {
             const categorySelect = document.getElementById('categorySelect');
             const categoryDropdown = document.getElementById('categoryDropdown');
             const categoryInput = document.getElementById('category');
 
             if (!categorySelect || !categoryDropdown || !categoryInput) {
-                console.error('카테고리 요소를 찾을 수 없습니다!');
+                console.error('カテゴリ要素が見つかりません！');
                 return;
             }
 
-            // 드롭다운 버튼 클릭
+            // ドロップダウンボタンクリック
             categorySelect.addEventListener('click', function(e) {
                 e.preventDefault();
                 const isVisible = categoryDropdown.style.display === 'block';
                 categoryDropdown.style.display = isVisible ? 'none' : 'block';
             });
 
-            // 카테고리 아이템 클릭
+            // カテゴリアイテムクリック
             const categoryItems = categoryDropdown.querySelectorAll('.category-item');
             categoryItems.forEach(item => {
                 item.addEventListener('click', function() {
@@ -354,73 +354,73 @@
                     categoryInput.value = value;
                     categoryDropdown.style.display = 'none';
 
-                    console.log('카테고리 선택:', text, 'value:', value);
+                    console.log('カテゴリ選択:', text, 'value:', value);
                 });
             });
 
-            // 외부 클릭시 드롭다운 숨기기
+            // 外部クリックでドロップダウンを隠す
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.category-select')) {
                     categoryDropdown.style.display = 'none';
                 }
             });
 
-            console.log('카테고리 드롭다운 초기화 완료');
+            console.log('カテゴリドロップダウンの初期化完了');
         }
 
-        // 폼 검증 함수들
+        // フォーム検証関数
         function validateCode(code) {
             if (!code || code.trim().length === 0) {
-                return '의약품 코드는 필수입니다.';
+                return '医薬品コードは必須です。';
             }
             if (code.length > 50) {
-                return '의약품 코드는 50자를 초과할 수 없습니다.';
+                return '医薬品コードは50文字を超えることはできません。';
             }
             return null;
         }
 
         function validateName(name) {
             if (!name || name.trim().length === 0) {
-                return '의약품명은 필수입니다.';
+                return '医薬品名は必須です。';
             }
             if (name.length > 100) {
-                return '의약품명은 100자를 초과할 수 없습니다.';
+                return '医薬品名は100文字を超えることはできません。';
             }
             return null;
         }
 
         function validateManufacturer(manufacturer) {
             if (!manufacturer || manufacturer.trim().length === 0) {
-                return '제조사는 필수입니다.';
+                return '製造元は必須です。';
             }
             if (manufacturer.length > 50) {
-                return '제조사명은 50자를 초과할 수 없습니다.';
+                return '製造元名は50文字を超えることはできません。';
             }
             return null;
         }
 
         function validateUnit(unit) {
             if (!unit || unit.trim().length === 0) {
-                return '단위는 필수입니다.';
+                return '単位は必須です。';
             }
             if (unit.length > 20) {
-                return '단위는 20자를 초과할 수 없습니다.';
+                return '単位は20文字を超えることはできません。';
             }
             return null;
         }
 
         function validateMinStockQuantity(quantity) {
             if (quantity === null || quantity === undefined || quantity === '') {
-                return '최소 재고 수량은 필수입니다.';
+                return '最小在庫数量は必須です。';
             }
             const num = parseInt(quantity);
             if (isNaN(num) || num < 0) {
-                return '최소 재고 수량은 0 이상의 숫자여야 합니다.';
+                return '最小在庫数量は0以上の数値である必要があります。';
             }
             return null;
         }
 
-        // 검증 에러 표시
+        // 検証エラー表示
         function showValidationError(fieldId, message) {
             const field = document.getElementById(fieldId);
             const errorDiv = document.getElementById(fieldId + '-error');
@@ -432,7 +432,7 @@
             }
         }
 
-        // 검증 에러 제거
+        // 検証エラー非表示
         function hideValidationError(fieldId) {
             const field = document.getElementById(fieldId);
             const errorDiv = document.getElementById(fieldId + '-error');
@@ -443,16 +443,16 @@
             }
         }
 
-        // 폼 검증
+        // フォーム検証
         function validateForm() {
             let isValid = true;
 
-            // 모든 에러 제거
+            // 全てのエラーを非表示
             ['code', 'name', 'manufacturer', 'unit', 'minStockQuantity'].forEach(fieldId => {
                 hideValidationError(fieldId);
             });
 
-            // 각 필드 검증
+            // 各フィールド検証
             const code = document.getElementById('code').value;
             const codeError = validateCode(code);
             if (codeError) {
@@ -491,25 +491,25 @@
             return isValid;
         }
 
-        // 폼 제출 처리
+        // フォーム送信処理
         function initForm() {
             const form = document.getElementById('medicineForm');
             if (!form) {
-                console.error('폼을 찾을 수 없습니다');
+                console.error('フォームが見つかりません');
                 return;
             }
 
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                console.log('의약품 등록 시작');
+                console.log('医薬品登録開始');
 
-                // 폼 검증
+                // フォーム検証
                 if (!validateForm()) {
-                    showAlert('입력 정보를 확인해주세요.', 'danger');
+                    showAlert('入力情報を確認してください。', 'danger');
                     return;
                 }
 
-                // 요청 데이터 구성
+                // リクエストデータ構成
                 const requestData = {
                     code: document.getElementById('code').value.trim(),
                     name: document.getElementById('name').value.trim(),
@@ -524,13 +524,13 @@
                     isActive: document.getElementById('isActive').checked
                 };
 
-                console.log('등록 요청 데이터:', requestData);
+                console.log('登録リクエストデータ:', requestData);
 
-                // 로딩 상태 표시
+                // ローディング状態表示
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>등록 중...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>登録中...';
 
                 try {
                     const response = await fetch('/api/medicines', {
@@ -545,57 +545,57 @@
                     const result = await response.json();
 
                     if (response.ok && result.success) {
-                        showAlert(result.message || '의약품이 성공적으로 등록되었습니다!', 'success');
-                        console.log('등록 성공:', result.data);
+                        showAlert(result.message || '医薬品が正常に登録されました！', 'success');
+                        console.log('登録成功:', result.data);
 
-                        // 의약품 목록 페이지로 이동할지 확인
-                        if (confirm('의약품이 등록되었습니다. 의약품 목록을 확인하시겠습니까?')) {
+                        // 医薬品一覧ページに移動するか確認
+                        if (confirm('医薬品が登録されました。医薬品一覧を確認しますか？')) {
                             window.location.href = '/medicines';
                         } else {
-                            // 폼 리셋
+                            // フォームリセット
                             form.reset();
-                            document.getElementById('categorySelect').textContent = '카테고리를 선택하세요...';
+                            document.getElementById('categorySelect').textContent = 'カテゴリを選択してください...';
                             document.getElementById('category').value = '';
                             document.getElementById('isActive').checked = true;
                         }
 
                     } else {
-                        // API 에러 응답 처리
-                        const errorMessage = result.message || result.error || '의약품 등록 중 오류가 발생했습니다.';
-                        console.error('등록 실패:', result);
+                        // APIエラー応答処理
+                        const errorMessage = result.message || result.error || '医薬品の登録中にエラーが発生しました。';
+                        console.error('登録失敗:', result);
 
                         if (response.status === 400) {
-                            // 유효성 검증 오류
+                            // バリデーションエラー
                             if (result.errors && Array.isArray(result.errors)) {
                                 const errorMessages = result.errors.join('\n');
-                                showAlert('입력 정보를 확인해주세요:\n' + errorMessages, 'danger');
+                                showAlert('入力情報を確認してください:\n' + errorMessages, 'danger');
                             } else {
-                                showAlert('입력 정보를 확인해주세요:\n' + errorMessage, 'danger');
+                                showAlert('入力情報を確認してください:\n' + errorMessage, 'danger');
                             }
                         } else if (response.status === 409) {
-                            // 중복 코드 등
-                            showAlert('의약품 코드가 이미 존재합니다:\n' + errorMessage, 'danger');
+                            // 重複コードなど
+                            showAlert('医薬品コードは既に存在します:\n' + errorMessage, 'danger');
                             document.getElementById('code').focus();
                             document.getElementById('code').select();
                         } else {
-                            showAlert('의약품 등록 중 오류가 발생했습니다:\n' + errorMessage, 'danger');
+                            showAlert('医薬品の登録中にエラーが発生しました:\n' + errorMessage, 'danger');
                         }
                     }
 
                 } catch (error) {
-                    console.error('네트워크 오류:', error);
-                    showAlert('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.', 'danger');
+                    console.error('ネットワークエラー:', error);
+                    showAlert('ネットワークエラーが発生しました。インターネット接続を確認して、もう一度お試しください。', 'danger');
                 } finally {
-                    // 로딩 상태 해제
+                    // ローディング状態解除
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                 }
             });
 
-            console.log('폼 초기화 완료');
+            console.log('フォーム初期化完了');
         }
 
-        // 실시간 검증 추가
+        // リアルタイム検証追加
         function addRealTimeValidation() {
             const fields = [
                 { id: 'code', validator: validateCode },
@@ -617,7 +617,7 @@
                         }
                     });
 
-                    // 입력 중에는 에러 제거
+                    // 入力中はエラーを非表示
                     field.addEventListener('input', function() {
                         hideValidationError(id);
                     });
@@ -625,19 +625,19 @@
             });
         }
 
-        // 페이지 로드 후 초기화
+        // ページロード後に初期化
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOMContentLoaded - 초기화 시작');
+            console.log('DOMContentLoaded - 初期化開始');
 
             setTimeout(function() {
                 try {
                     initCategoryDropdown();
                     initForm();
                     addRealTimeValidation();
-                    console.log('=== 모든 초기화 완료 ===');
+                    console.log('=== すべての初期化完了 ===');
                 } catch (error) {
-                    console.error('초기화 중 오류 발생:', error);
-                    showAlert('페이지 초기화 중 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'danger');
+                    console.error('初期化中にエラーが発生しました:', error);
+                    showAlert('ページの初期化中にエラーが発生しました。ページを更新してください。', 'danger');
                 }
             }, 100);
         });

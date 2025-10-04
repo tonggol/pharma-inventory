@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * 재고 엔티티
- * 로트번호별 재고 정보 관리
+ * 在庫エンティティ
+ * ロット番号別の在庫情報を管理
  */
 @Entity
 @Table(name = "stocks", indexes = {
@@ -44,28 +44,28 @@ public class Stock extends BaseEntity {
     private LocalDate expiryDate;
     
     @Column(name = "received_date")
-    private LocalDate receivedDate;  // 입고일
+    private LocalDate receivedDate;  // 入庫日
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private StockStatus status = StockStatus.AVAILABLE;  // 재고 상태
+    private StockStatus status = StockStatus.AVAILABLE;  // 在庫ステータス
     
     @Column(length = 100)
-    private String location; // 보관 위치
+    private String location; // 保管場所
     
     @Column(name = "supplier_name", length = 100)
-    private String supplierName; // 공급업체
+    private String supplierName; // 仕入先
     
     @Column(name = "purchase_price", precision = 10, scale = 2)
-    private BigDecimal purchasePrice; // 구매 단가
+    private BigDecimal purchasePrice; // 仕入単価
     
     @Column(name = "selling_price", precision = 10, scale = 2)
-    private BigDecimal sellingPrice; // 판매 단가
+    private BigDecimal sellingPrice; // 販売単価
     
     @Column(columnDefinition = "TEXT")
-    private String remarks; // 비고
+    private String remarks; // 備考
 
-    // === 생성자 ===
+    // === コンストラクタ ===
     public Stock(Medicine medicine, String lotNumber, Integer quantity,
                  LocalDate manufactureDate, LocalDate expiryDate) {
         validateStock(medicine, lotNumber, quantity, expiryDate);
@@ -82,73 +82,73 @@ public class Stock extends BaseEntity {
         return this.id;
     }
     
-    // === 비즈니스 메소드 ===
+    // === ビジネスメソッド ===
     
     /**
-     * 재고 증가
+     * 在庫を増加
      */
     public void increaseQuantity(Integer amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("증가량은 양수여야 합니다");
+            throw new IllegalArgumentException("増加量は正の数である必要があります");
         }
         this.quantity += amount;
     }
 
     /**
-     * 재고 조정 (직접 수량 설정)
+     * 在庫調整 (直接数量設定)
      */
     public void adjustQuantity(Integer newQuantity) {
         if (newQuantity == null || newQuantity < 0) {
-            throw new IllegalArgumentException("조정 수량은 0 이상이어야 합니다");
+            throw new IllegalArgumentException("調整数量は0以上である必要があります");
         }
         this.quantity = newQuantity;
     }
     
     /**
-     * 재고 감소
+     * 在庫を減少
      */
     public void decreaseQuantity(Integer amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("감소량은 양수여야 합니다");
+            throw new IllegalArgumentException("減少量は正の数である必要があります");
         }
         if (this.quantity < amount) {
-            throw new IllegalStateException("재고가 부족합니다. 현재 재고: " + this.quantity);
+            throw new IllegalStateException("在庫が不足しています。現在の在庫: " + this.quantity);
         }
         this.quantity -= amount;
     }
     
     /**
-     * 재고 상태 변경
+     * 在庫ステータス変更
      */
     public void updateStatus(StockStatus status) {
         if (status == null) {
-            throw new IllegalArgumentException("재고 상태는 필수입니다");
+            throw new IllegalArgumentException("在庫ステータスは必須です");
         }
         
-        // 만료된 재고는 다시 사용 가능 상태로 변경 불가
+        // 期限切れの在庫は再度利用可能状態に変更不可
         if (this.status == StockStatus.EXPIRED && status.isUsable()) {
-            throw new IllegalStateException("만료된 재고는 사용 가능 상태로 변경할 수 없습니다");
+            throw new IllegalStateException("期限切れの在庫は利用可能状態に変更できません");
         }
         
         this.status = status;
     }
     
     /**
-     * 위치 변경
+     * 場所を変更
      */
     public void updateLocation(String location) {
         this.location = location;
     }
     
     /**
-     * 비고 업데이트
+     * 備考を更新
      */
     public void updateRemarks(String remarks) {
         this.remarks = remarks;
     }
     
     /**
-     * 공급업체 정보 설정
+     * 仕入先情報を設定
      */
     public void setSupplierInfo(String supplierName, BigDecimal purchasePrice) {
         this.supplierName = supplierName;
@@ -156,49 +156,49 @@ public class Stock extends BaseEntity {
     }
     
     /**
-     * 가격 정보 설정
+     * 価格情報を設定
      */
     public void setPriceInfo(BigDecimal purchasePrice, BigDecimal sellingPrice) {
         if (purchasePrice != null && purchasePrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("구매 가격은 0 이상이어야 합니다");
+            throw new IllegalArgumentException("仕入価格は0以上である必要があります");
         }
         if (sellingPrice != null && sellingPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("판매 가격은 0 이상이어야 합니다");
+            throw new IllegalArgumentException("販売価格は0以上である必要があります");
         }
         this.purchasePrice = purchasePrice;
         this.sellingPrice = sellingPrice;
     }
     
     /**
-     * 비고 추가
+     * 備考を追加
      */
     public void addRemarks(String remarks) {
         this.remarks = remarks;
     }
     
     /**
-     * 만료 여부 확인
+     * 期限切れかどうかを確認
      */
     public boolean isExpired() {
         return LocalDate.now().isAfter(expiryDate) || status == StockStatus.EXPIRED;
     }
 
     /**
-     * 만료 임박 여부 확인
+     * 期限間近かどうかを確認
      */
     public boolean isExpiringSoon(int daysBeforeExpiry) {
         return LocalDate.now().plusDays(daysBeforeExpiry).isAfter(expiryDate);
     }
     
     /**
-     * 사용 가능 여부 확인
+     * 利用可能かどうかを確認
      */
     public boolean isAvailable() {
         return status == StockStatus.AVAILABLE && !isExpired() && quantity > 0;
     }
     
     /**
-     * 재고 가치 계산
+     * 在庫価値を計算
      */
     public BigDecimal calculateValue() {
         if (purchasePrice == null || quantity == null) {
@@ -208,7 +208,7 @@ public class Stock extends BaseEntity {
     }
     
     /**
-     * 만료 자동 체크 및 상태 업데이트
+     * 期限切れを自動チェックしてステータスを更新
      */
     public void checkAndUpdateExpiry() {
         if (isExpired() && status != StockStatus.EXPIRED && status != StockStatus.DISPOSED) {
@@ -216,23 +216,23 @@ public class Stock extends BaseEntity {
         }
     }
 
-    // === Validation ===
+    // === バリデーション ===
     private void validateStock(Medicine medicine, String lotNumber,
                                Integer quantity, LocalDate expiryDate) {
         if (medicine == null) {
-            throw new IllegalArgumentException("의약품 정보는 필수입니다");
+            throw new IllegalArgumentException("医薬品情報は必須です");
         }
         if (lotNumber == null || lotNumber.trim().isEmpty()) {
-            throw new IllegalArgumentException("로트 번호는 필수입니다");
+            throw new IllegalArgumentException("ロット番号は必須です");
         }
         if (quantity == null || quantity < 0) {
-            throw new IllegalArgumentException("수량은 0 이상이어야 합니다");
+            throw new IllegalArgumentException("数量は0以上である必要があります");
         }
         if (expiryDate == null) {
-            throw new IllegalArgumentException("유효기간은 필수입니다");
+            throw new IllegalArgumentException("有効期限は必須です");
         }
         if (expiryDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("유효기간은 현재 날짜 이후여야 합니다");
+            throw new IllegalArgumentException("有効期限は現在日付以降である必要があります");
         }
     }
 

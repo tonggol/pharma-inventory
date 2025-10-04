@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>유효기간 보고서 - 의약품 재고관리 시스템</title>
+    <title>有効期限レポート - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 보고서 특화 스타일 */
+        /* レポート特化スタイル */
         .report-container {
             max-width: 1600px;
             margin: 0 auto;
@@ -72,7 +72,7 @@
             align-items: center;
         }
 
-        /* 알림 섹션 */
+        /* 通知セクション */
         .alert-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -153,7 +153,7 @@
             font-size: 0.9rem;
         }
 
-        /* 필터 섹션 */
+        /* フィルターセクション */
         .filter-section {
             background: white;
             border-radius: 16px;
@@ -222,7 +222,7 @@
             margin-top: 1rem;
         }
 
-        /* 차트 섹션 */
+        /* チャートセクション */
         .charts-section {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -278,7 +278,7 @@
             height: 300px;
         }
 
-        /* 유효기간 상태별 리스트 */
+        /* 有効期限ステータス別リスト */
         .expiry-status-list {
             display: flex;
             flex-direction: column;
@@ -325,7 +325,7 @@
             font-size: 0.9rem;
         }
 
-        /* 테이블 섹션 */
+        /* テーブルセクション */
         .table-section {
             background: white;
             border-radius: 16px;
@@ -433,7 +433,7 @@
             color: var(--success-color);
         }
 
-        /* 인쇄 스타일 */
+        /* 印刷スタイル */
         @media print {
             body {
                 background: white !important;
@@ -470,7 +470,7 @@
             }
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 1200px) {
             .charts-section {
                 grid-template-columns: 1fr;
@@ -527,7 +527,7 @@
             }
         }
 
-        /* 애니메이션 */
+        /* アニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -552,7 +552,7 @@
             }
         }
 
-        /* 로딩 상태 */
+        /* ローディング状態 */
         .loading-overlay {
             position: absolute;
             top: 0;
@@ -580,7 +580,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 버튼 스타일 */
+        /* ボタンスタイル */
         .btn {
             border-radius: 12px;
             font-weight: 600;
@@ -637,30 +637,30 @@
 
 <div layout:fragment="content">
     <div class="report-container">
-        <!-- 보고서 헤더 -->
+        <!-- レポートヘッダー -->
         <div class="report-header fade-in">
             <div class="report-title-icon">
                 <i class="fas fa-calendar-times"></i>
             </div>
             <div style="flex: 1;">
-                <h1 class="report-title">유효기간 보고서</h1>
-                <p class="report-subtitle">의약품 유효기간 현황과 만료 예정 리스트를 확인할 수 있습니다.</p>
+                <h1 class="report-title">有効期限レポート</h1>
+                <p class="report-subtitle">医薬品の有効期限状況と期限切れ予定リストを確認できます。</p>
             </div>
 
             <div class="report-meta">
                 <div class="report-info">
-                    <div>생성일시: <span id="reportGeneratedTime">-</span></div>
-                    <div>보고서 범위: <span id="reportPeriod">전체 기간</span></div>
+                    <div>作成日時: <span id="reportGeneratedTime">-</span></div>
+                    <div>レポート範囲: <span id="reportPeriod">全期間</span></div>
                 </div>
                 <div class="report-actions">
                     <button class="btn btn-outline-secondary" onclick="printReport()">
                         <i class="fas fa-print"></i>
-                        인쇄
+                        印刷
                     </button>
                     <div class="dropdown">
                         <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-download"></i>
-                            내보내기
+                            エクスポート
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#" onclick="exportReport('excel')"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
@@ -672,17 +672,17 @@
             </div>
         </div>
 
-        <!-- 알림 섹션 -->
+        <!-- 通知セクション -->
         <div class="alert-section slide-up">
             <div class="alert-card critical">
                 <div class="alert-header">
                     <div class="alert-icon critical">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <h3 class="alert-title">만료된 의약품</h3>
+                    <h3 class="alert-title">期限切れ医薬品</h3>
                 </div>
                 <div class="alert-count critical" id="expiredCount">-</div>
-                <div class="alert-description">즉시 폐기 처리가 필요한 의약품</div>
+                <div class="alert-description">直ちに廃棄処理が必要な医薬品</div>
             </div>
 
             <div class="alert-card warning">
@@ -690,10 +690,10 @@
                     <div class="alert-icon warning">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <h3 class="alert-title">만료 임박 (30일 이내)</h3>
+                    <h3 class="alert-title">期限間近 (30日以内)</h3>
                 </div>
                 <div class="alert-count warning" id="expiringSoonCount">-</div>
-                <div class="alert-description">빠른 사용 또는 재고 조정 필요</div>
+                <div class="alert-description">早期使用または在庫調整が必要</div>
             </div>
 
             <div class="alert-card info">
@@ -701,123 +701,123 @@
                     <div class="alert-icon info">
                         <i class="fas fa-info-circle"></i>
                     </div>
-                    <h3 class="alert-title">주의 필요 (90일 이내)</h3>
+                    <h3 class="alert-title">要注意 (90日以内)</h3>
                 </div>
                 <div class="alert-count info" id="attentionNeededCount">-</div>
-                <div class="alert-description">계획적인 재고 관리 권장</div>
+                <div class="alert-description">計画的な在庫管理を推奨</div>
             </div>
         </div>
 
-        <!-- 필터 섹션 -->
+        <!-- フィルターセクション -->
         <div class="filter-section slide-up">
             <div class="filter-header">
                 <h3 class="filter-title">
                     <i class="fas fa-filter"></i>
-                    필터 옵션
+                    フィルターオプション
                 </h3>
                 <button class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
                     <i class="fas fa-undo"></i>
-                    초기화
+                    リセット
                 </button>
             </div>
 
             <form id="filterForm">
                 <div class="filter-grid">
                     <div class="form-group">
-                        <label class="form-label" for="expiryStatus">유효기간 상태</label>
+                        <label class="form-label" for="expiryStatus">有効期限ステータス</label>
                         <select class="form-select" id="expiryStatus" name="expiryStatus">
-                            <option value="">전체</option>
-                            <option value="expired">만료됨</option>
-                            <option value="critical">만료 임박 (7일 이내)</option>
-                            <option value="warning">만료 예정 (30일 이내)</option>
-                            <option value="attention">주의 필요 (90일 이내)</option>
-                            <option value="normal">정상</option>
+                            <option value="">すべて</option>
+                            <option value="expired">期限切れ</option>
+                            <option value="critical">期限間近 (7日以内)</option>
+                            <option value="warning">期限切れ予定 (30日以内)</option>
+                            <option value="attention">要注意 (90日以内)</option>
+                            <option value="normal">正常</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="category">카테고리</label>
+                        <label class="form-label" for="category">カテゴリ</label>
                         <select class="form-select" id="category" name="category">
-                            <option value="">전체 카테고리</option>
-                            <option value="PAINKILLER">해열진통제</option>
-                            <option value="ANTIBIOTIC">항생제</option>
-                            <option value="DIGESTIVE">소화기계약물</option>
-                            <option value="IV_SOLUTION">수액제</option>
-                            <option value="HORMONE">호르몬제</option>
-                            <option value="VITAMIN">비타민제</option>
-                            <option value="TOPICAL">외용제</option>
-                            <option value="ANTIHISTAMINE">항히스타민제</option>
-                            <option value="OTHER">기타</option>
+                            <option value="">すべてのカテゴリ</option>
+                            <option value="PAINKILLER">解熱鎮痛剤</option>
+                            <option value="ANTIBIOTIC">抗生物質</option>
+                            <option value="DIGESTIVE">消化器系薬物</option>
+                            <option value="IV_SOLUTION">輸液剤</option>
+                            <option value="HORMONE">ホルモン剤</option>
+                            <option value="VITAMIN">ビタミン剤</option>
+                            <option value="TOPICAL">外用剤</option>
+                            <option value="ANTIHISTAMINE">抗ヒスタミン剤</option>
+                            <option value="OTHER">その他</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="location">보관 위치</label>
+                        <label class="form-label" for="location">保管場所</label>
                         <select class="form-select" id="location" name="location">
-                            <option value="">전체 위치</option>
-                            <option value="A구역">A구역</option>
-                            <option value="B구역">B구역</option>
-                            <option value="C구역">C구역</option>
-                            <option value="냉장고">냉장고</option>
-                            <option value="특수보관">특수보관</option>
+                            <option value="">すべての場所</option>
+                            <option value="A区画">A区画</option>
+                            <option value="B区画">B区画</option>
+                            <option value="C区画">C区画</option>
+                            <option value="冷蔵庫">冷蔵庫</option>
+                            <option value="特別保管">特別保管</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="dateRange">조회 기간</label>
+                        <label class="form-label" for="dateRange">照会期間</label>
                         <select class="form-select" id="dateRange" name="dateRange">
-                            <option value="7">7일 이내 만료</option>
-                            <option value="30" selected>30일 이내 만료</option>
-                            <option value="90">90일 이내 만료</option>
-                            <option value="180">180일 이내 만료</option>
-                            <option value="all">전체</option>
+                            <option value="7">7日以内に期限切れ</option>
+                            <option value="30" selected>30日以内に期限切れ</option>
+                            <option value="90">90日以内に期限切れ</option>
+                            <option value="180">180日以内に期限切れ</option>
+                            <option value="all">すべて</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="sortBy">정렬 기준</label>
+                        <label class="form-label" for="sortBy">並び替え</label>
                         <select class="form-select" id="sortBy" name="sortBy">
-                            <option value="expiryDate">유효기간 순</option>
-                            <option value="name">의약품명 순</option>
-                            <option value="quantity">수량 순</option>
-                            <option value="category">카테고리 순</option>
+                            <option value="expiryDate">有効期限順</option>
+                            <option value="name">医薬品名順</option>
+                            <option value="quantity">数量順</option>
+                            <option value="category">カテゴリ順</option>
                         </select>
                     </div>
 
                     <div class="filter-actions">
                         <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
                             <i class="fas fa-undo"></i>
-                            초기화
+                            リセット
                         </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search"></i>
-                            보고서 생성
+                            レポート生成
                         </button>
                     </div>
                 </div>
             </form>
         </div>
 
-        <!-- 차트 섹션 -->
+        <!-- チャートセクション -->
         <div class="charts-section slide-up">
-            <!-- 유효기간 추이 차트 -->
+            <!-- 有効期限推移チャート -->
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">
                         <div class="chart-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        유효기간별 분포 추이
+                        有効期限別分布推移
                     </h3>
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-calendar"></i>
-                            월별
+                            月別
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('weekly')">주별</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('monthly')">월별</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('quarterly')">분기별</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('weekly')">週別</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('monthly')">月別</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateExpiryTrendChart('quarterly')">四半期別</a></li>
                         </ul>
                     </div>
                 </div>
@@ -828,14 +828,14 @@
                 </div>
             </div>
 
-            <!-- 유효기간 상태별 현황 -->
+            <!-- 有効期限ステータス別状況 -->
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">
                         <div class="chart-icon">
                             <i class="fas fa-chart-pie"></i>
                         </div>
-                        유효기간 상태별 현황
+                        有効期限ステータス別状況
                     </h3>
                     <button class="btn btn-outline-secondary btn-sm" onclick="refreshExpiryStatus()">
                         <i class="fas fa-sync-alt"></i>
@@ -844,45 +844,45 @@
                 <div class="chart-content">
                     <div class="expiry-status-list" id="expiryStatusList">
                         <div class="expiry-status-item critical">
-                            <div class="expiry-period">만료됨</div>
-                            <div class="expiry-count">5개 의약품</div>
+                            <div class="expiry-period">期限切れ</div>
+                            <div class="expiry-count">5個の医薬品</div>
                         </div>
                         <div class="expiry-status-item warning">
-                            <div class="expiry-period">7일 이내</div>
-                            <div class="expiry-count">12개 의약품</div>
+                            <div class="expiry-period">7日以内</div>
+                            <div class="expiry-count">12個の医薬品</div>
                         </div>
                         <div class="expiry-status-item warning">
-                            <div class="expiry-period">30일 이내</div>
-                            <div class="expiry-count">28개 의약품</div>
+                            <div class="expiry-period">30日以内</div>
+                            <div class="expiry-count">28個の医薬品</div>
                         </div>
                         <div class="expiry-status-item">
-                            <div class="expiry-period">90일 이내</div>
-                            <div class="expiry-count">45개 의약품</div>
+                            <div class="expiry-period">90日以内</div>
+                            <div class="expiry-count">45個の医薬品</div>
                         </div>
                         <div class="expiry-status-item">
-                            <div class="expiry-period">정상</div>
-                            <div class="expiry-count">187개 의약품</div>
+                            <div class="expiry-period">正常</div>
+                            <div class="expiry-count">187個の医薬品</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 상세 데이터 테이블 -->
+        <!-- 詳細データテーブル -->
         <div class="table-section slide-up">
             <div class="table-header">
                 <h3 class="table-title">
-                    유효기간 상세 현황
+                    有効期限詳細状況
                     <span class="badge bg-primary" id="tableRowCount">0</span>
                 </h3>
                 <div class="table-actions">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="showOnlyProblems" onchange="toggleProblemsOnly()">
-                        <label class="form-check-label" for="showOnlyProblems">문제 의약품만 표시</label>
+                        <label class="form-check-label" for="showOnlyProblems">問題のある医薬品のみ表示</label>
                     </div>
                     <button class="btn btn-outline-secondary btn-sm" onclick="refreshTable()">
                         <i class="fas fa-sync-alt"></i>
-                        새로고침
+                        更新
                     </button>
                 </div>
             </div>
@@ -893,50 +893,50 @@
                         <thead>
                         <tr>
                             <th onclick="sortTable('code')">
-                                코드 <i class="fas fa-sort"></i>
+                                コード <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('name')">
-                                의약품명 <i class="fas fa-sort"></i>
+                                医薬品名 <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('lotNumber')">
-                                로트번호 <i class="fas fa-sort"></i>
+                                ロット番号 <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('category')">
-                                카테고리 <i class="fas fa-sort"></i>
+                                カテゴリ <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('quantity')">
-                                수량 <i class="fas fa-sort"></i>
+                                数量 <i class="fas fa-sort"></i>
                             </th>
                             <th onclick="sortTable('expiryDate')">
-                                유효기간 <i class="fas fa-sort"></i>
+                                有効期限 <i class="fas fa-sort"></i>
                             </th>
-                            <th>남은 일수</th>
+                            <th>残日数</th>
                             <th onclick="sortTable('location')">
-                                보관 위치 <i class="fas fa-sort"></i>
+                                保管場所 <i class="fas fa-sort"></i>
                             </th>
-                            <th>조치 필요</th>
+                            <th>必要な措置</th>
                         </tr>
                         </thead>
                         <tbody id="expiryTableBody">
-                        <!-- 동적으로 로드됨 -->
+                        <!-- 動的にロード -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- 로딩 오버레이 -->
+                <!-- ローディングオーバーレイ -->
                 <div class="loading-overlay" id="tableLoadingOverlay" style="display: none;">
                     <div class="spinner"></div>
                 </div>
             </div>
 
-            <!-- 페이지네이션 -->
+            <!-- ページネーション -->
             <div class="pagination-container" id="paginationContainer" style="display: none;">
                 <div class="pagination-info">
-                    <span id="paginationInfo">총 0개 중 0-0개 표시</span>
+                    <span id="paginationInfo">全0件中 0-0件を表示</span>
                 </div>
                 <nav>
                     <ul class="pagination" id="pagination">
-                        <!-- 동적으로 생성됨 -->
+                        <!-- 動的に生成 -->
                     </ul>
                 </nav>
             </div>
@@ -947,7 +947,7 @@
 <th:block layout:fragment="javascript">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
-        // 전역 변수
+        // グローバル変数
         let expiryTrendChart = null;
         let currentFilters = {};
         let currentPage = 0;
@@ -962,12 +962,12 @@
             setupEventListeners();
         });
 
-        // 페이지 초기화
+        // ページ初期化
         function initializePage() {
-            // 현재 시간 설정
+            // 現在時刻の設定
             const now = new Date();
             document.getElementById('reportGeneratedTime').textContent =
-                now.toLocaleDateString('ko-KR', {
+                now.toLocaleDateString('ja-JP', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -975,38 +975,38 @@
                     minute: '2-digit'
                 });
 
-            // 기본 필터 설정
+            // デフォルトのフィルター設定
             updateReportPeriod();
         }
 
-        // 이벤트 리스너 설정
+        // イベントリスナー設定
         function setupEventListeners() {
-            // 필터 폼 제출
+            // フィルターフォーム送信
             document.getElementById('filterForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 applyFilters();
             });
 
-            // 기타 필터 변경
+            // その他のフィルター変更
             ['expiryStatus', 'category', 'location', 'dateRange', 'sortBy'].forEach(id => {
                 document.getElementById(id).addEventListener('change', applyFilters);
             });
         }
 
-        // 보고서 기간 업데이트
+        // レポート期間の更新
         function updateReportPeriod() {
             const dateRange = document.getElementById('dateRange').value;
             const periodMap = {
-                '7': '7일 이내 만료 예정',
-                '30': '30일 이내 만료 예정',
-                '90': '90일 이내 만료 예정',
-                '180': '180일 이내 만료 예정',
-                'all': '전체 기간'
+                '7': '7日以内に期限切れ予定',
+                '30': '30日以内に期限切れ予定',
+                '90': '90日以内に期限切れ予定',
+                '180': '180日以内に期限切れ予定',
+                'all': '全期間'
             };
-            document.getElementById('reportPeriod').textContent = periodMap[dateRange] || '전체 기간';
+            document.getElementById('reportPeriod').textContent = periodMap[dateRange] || '全期間';
         }
 
-        // 보고서 데이터 로드
+        // レポートデータロード
         async function loadReportData() {
             try {
                 await Promise.all([
@@ -1015,15 +1015,15 @@
                     loadChartData()
                 ]);
             } catch (error) {
-                console.error('보고서 데이터 로드 오류:', error);
-                showAlert('보고서 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('レポートデータのロードエラー:', error);
+                showAlert('レポートデータの読み込み中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 알림 카운트 로드
+        // 通知カウントのロード
         async function loadAlertCounts() {
             try {
-                // 실제 구현에서는 API 호출
+                // 実際の구현ではAPI呼び出し
                 const counts = {
                     expired: 5,
                     expiringSoon: 23,
@@ -1034,36 +1034,36 @@
                 document.getElementById('expiringSoonCount').textContent = formatNumber(counts.expiringSoon);
                 document.getElementById('attentionNeededCount').textContent = formatNumber(counts.attentionNeeded);
             } catch (error) {
-                console.error('알림 카운트 로드 오류:', error);
+                console.error('通知カウントのロードエラー:', error);
             }
         }
 
-        // 유효기간 데이터 로드
+        // 有効期限データロード
         async function loadExpiryData(page = 0, filters = {}) {
             showTableLoading(true);
 
             try {
-                // 실제 구현에서는 API 호출
+                // 実際の구현ではAPI呼び出し
                 const mockData = generateMockExpiryData();
                 renderExpiryTable(mockData.content);
                 updateTableInfo(mockData);
             } catch (error) {
-                console.error('유효기간 데이터 로드 오류:', error);
-                showAlert('유효기간 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('有効期限データのロードエラー:', error);
+                showAlert('有効期限データの読み込み中にエラーが発生しました。', 'danger');
             } finally {
                 showTableLoading(false);
             }
         }
 
-        // 모의 유효기간 데이터 생성
+        // モック有効期限データ生成
         function generateMockExpiryData() {
-            const categories = ['해열진통제', '항생제', '소화기계약물', '수액제', '호르몬제'];
-            const locations = ['A구역', 'B구역', 'C구역', '냉장고', '특수보관'];
+            const categories = ['解熱鎮痛剤', '抗生物質', '消化器系薬物', '輸液剤', 'ホルモン剤'];
+            const locations = ['A区画', 'B区画', 'C区画', '冷蔵庫', '特別保管'];
             const medicines = [];
 
             for (let i = 1; i <= 50; i++) {
                 const expiryDate = new Date();
-                const daysToExpiry = Math.floor(Math.random() * 365) - 30; // -30 ~ 335일
+                const daysToExpiry = Math.floor(Math.random() * 365) - 30; // -30〜335日
                 expiryDate.setDate(expiryDate.getDate() + daysToExpiry);
 
                 const quantity = Math.floor(Math.random() * 200) + 10;
@@ -1071,7 +1071,7 @@
                 medicines.push({
                     id: i,
                     code: `MED${String(i).padStart(3, '0')}`,
-                    name: `의약품명 ${i}`,
+                    name: `医薬品名 ${i}`,
                     lotNumber: `LOT${String(i).padStart(4, '0')}`,
                     category: categories[Math.floor(Math.random() * categories.length)],
                     quantity: quantity,
@@ -1082,7 +1082,7 @@
                 });
             }
 
-            // 정렬 적용
+            // ソート適用
             medicines.sort((a, b) => {
                 if (sortColumn === 'expiryDate') {
                     return sortOrder === 'asc' ? a.expiryDate - b.expiryDate : b.expiryDate - a.expiryDate;
@@ -1099,7 +1099,7 @@
             };
         }
 
-        // 유효기간 상태 판단
+        // 有効期限ステータス判定
         function getExpiryStatus(daysToExpiry) {
             if (daysToExpiry < 0) return 'expired';
             if (daysToExpiry <= 7) return 'critical';
@@ -1108,7 +1108,7 @@
             return 'normal';
         }
 
-        // 유효기간 테이블 렌더링
+        // 有効期限テーブルレンダリング
         function renderExpiryTable(expiryData) {
             const tbody = document.getElementById('expiryTableBody');
 
@@ -1141,7 +1141,7 @@
                         </td>
                         <td>
                             <span class="days-remaining ${medicine.status}">
-                                ${medicine.daysToExpiry < 0 ? '만료됨' : `${medicine.daysToExpiry}일`}
+                                ${medicine.daysToExpiry < 0 ? '期限切れ' : `${medicine.daysToExpiry}日`}
                             </span>
                         </td>
                         <td>${medicine.location}</td>
@@ -1153,28 +1153,28 @@
             }).join('');
         }
 
-        // 필요 조치 텍스트 반환
+        // 必要な措置テキストを返す
         function getActionRequired(status) {
             const actionMap = {
-                'expired': '<span class="text-danger"><i class="fas fa-trash"></i> 즉시 폐기</span>',
-                'critical': '<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> 긴급 사용</span>',
-                'warning': '<span class="text-warning"><i class="fas fa-clock"></i> 우선 사용</span>',
-                'attention': '<span class="text-info"><i class="fas fa-eye"></i> 모니터링</span>',
+                'expired': '<span class="text-danger"><i class="fas fa-trash"></i> 直ちに廃棄</span>',
+                'critical': '<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> 緊急使用</span>',
+                'warning': '<span class="text-warning"><i class="fas fa-clock"></i> 優先使用</span>',
+                'attention': '<span class="text-info"><i class="fas fa-eye"></i> モニタリング</span>',
                 'normal': '<span class="text-muted">-</span>'
             };
             return actionMap[status] || '-';
         }
 
-        // 테이블 정보 업데이트
+        // テーブル情報更新
         function updateTableInfo(data) {
             document.getElementById('tableRowCount').textContent = data.totalElements;
 
             const start = data.number * data.size + 1;
             const end = Math.min((data.number + 1) * data.size, data.totalElements);
             document.getElementById('paginationInfo').textContent =
-                `총 ${data.totalElements}개 중 ${start}-${end}개 표시`;
+                `全 ${data.totalElements}件中 ${start}-${end}件を表示`;
 
-            // 페이지네이션 표시/숨김
+            // ページネーション表示/非表示
             const paginationContainer = document.getElementById('paginationContainer');
             if (data.totalPages > 1) {
                 paginationContainer.style.display = 'flex';
@@ -1184,12 +1184,12 @@
             }
         }
 
-        // 페이지네이션 렌더링
+        // ページネーションレンダリング
         function renderPagination(data) {
             const pagination = document.getElementById('pagination');
             let html = '';
 
-            // 이전 페이지 버튼
+            // 前のページボタン
             html += `
                 <li class="page-item ${data.number === 0 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="changePage(${data.number - 1})">
@@ -1198,7 +1198,7 @@
                 </li>
             `;
 
-            // 페이지 번호들
+            // ページ番号
             const startPage = Math.max(0, data.number - 2);
             const endPage = Math.min(data.totalPages - 1, data.number + 2);
 
@@ -1210,7 +1210,7 @@
                 `;
             }
 
-            // 다음 페이지 버튼
+            // 次のページボタン
             html += `
                 <li class="page-item ${data.number === data.totalPages - 1 ? 'disabled' : ''}">
                     <a class="page-link" href="#" onclick="changePage(${data.number + 1})">
@@ -1222,12 +1222,12 @@
             pagination.innerHTML = html;
         }
 
-        // 차트 초기화
+        // チャート初期化
         function initializeCharts() {
             initializeExpiryTrendChart();
         }
 
-        // 유효기간 추이 차트 초기화
+        // 有効期限推移チャート初期化
         function initializeExpiryTrendChart() {
             const ctx = document.getElementById('expiryTrendChart').getContext('2d');
 
@@ -1236,7 +1236,7 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: '만료됨',
+                        label: '期限切れ',
                         data: [],
                         borderColor: 'rgb(239, 68, 68)',
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -1244,14 +1244,14 @@
                         fill: true,
                         tension: 0.4
                     }, {
-                        label: '만료 임박',
+                        label: '期限間近',
                         data: [],
                         borderColor: 'rgb(245, 158, 11)',
                         backgroundColor: 'rgba(245, 158, 11, 0.1)',
                         borderWidth: 2,
                         tension: 0.4
                     }, {
-                        label: '주의 필요',
+                        label: '要注意',
                         data: [],
                         borderColor: 'rgb(59, 130, 246)',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -1286,15 +1286,15 @@
             loadExpiryTrendData('monthly');
         }
 
-        // 차트 데이터 로드
+        // チャートデータロード
         async function loadChartData() {
             await loadExpiryTrendData('monthly');
         }
 
-        // 유효기간 추이 데이터 로드
+        // 有効期限推移データロード
         async function loadExpiryTrendData(period) {
             try {
-                // 모의 데이터 생성
+                // モックデータ生成
                 const labels = [];
                 const expiredData = [];
                 const expiringSoonData = [];
@@ -1303,7 +1303,7 @@
 
                 for (let i = 11; i >= 0; i--) {
                     const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-                    labels.push(date.toLocaleDateString('ko-KR', { month: 'short' }));
+                    labels.push(date.toLocaleDateString('ja-JP', { month: 'short' }));
                     expiredData.push(Math.floor(Math.random() * 10) + 1);
                     expiringSoonData.push(Math.floor(Math.random() * 20) + 5);
                     attentionNeededData.push(Math.floor(Math.random() * 30) + 10);
@@ -1315,16 +1315,16 @@
                 expiryTrendChart.data.datasets[2].data = attentionNeededData;
                 expiryTrendChart.update();
             } catch (error) {
-                console.error('유효기간 추이 데이터 로드 오류:', error);
+                console.error('有効期限推移データのロードエラー:', error);
             }
         }
 
-        // 유틸리티 함수들
+        // ユーティリティ関数
         function formatDate(date) {
-            return new Date(date).toLocaleDateString('ko-KR');
+            return new Date(date).toLocaleDateString('ja-JP');
         }
 
-        // 이벤트 핸들러들
+        // イベントハンドラ
         function applyFilters() {
             currentPage = 0;
             currentFilters = {
@@ -1372,20 +1372,20 @@
                 sortOrder = 'asc';
             }
 
-            // 정렬 아이콘 업데이트
+            // ソートアイコン更新
             updateSortIcons();
 
-            // 데이터 재로드
+            // データ再ロード
             loadExpiryData(currentPage, currentFilters);
         }
 
         function updateSortIcons() {
-            // 모든 정렬 아이콘 초기화
+            // すべてのソートアイコンを初期化
             document.querySelectorAll('th i.fas').forEach(icon => {
                 icon.className = 'fas fa-sort';
             });
 
-            // 현재 정렬 열 아이콘 업데이트
+            // 現在のソート列のアイコンを更新
             const currentHeader = document.querySelector(`th[onclick="sortTable('${sortColumn}')"] i`);
             if (currentHeader) {
                 currentHeader.className = `fas fa-sort-${sortOrder === 'asc' ? 'up' : 'down'}`;
@@ -1421,26 +1421,26 @@
 
             const url = `/api/reports/expiry/export?${params.toString()}`;
 
-            // 다운로드 링크 생성
+            // ダウンロードリンクを作成
             const link = document.createElement('a');
             link.href = url;
-            link.download = `유효기간보고서_${new Date().toISOString().split('T')[0]}.${format}`;
+            link.download = `有効期限レポート_${new Date().toISOString().split('T')[0]}.${format}`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
-            showAlert(`${format.toUpperCase()} 파일이 다운로드됩니다.`, 'success');
+            showAlert(`${format.toUpperCase()} ファイルがダウンロードされます。`, 'success');
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl + P: 인쇄
+            // Ctrl + P: 印刷
             if (e.ctrlKey && e.key === 'p') {
                 e.preventDefault();
                 printReport();
             }
 
-            // F5: 새로고침
+            // F5: 更新
             if (e.key === 'F5') {
                 e.preventDefault();
                 loadReportData();

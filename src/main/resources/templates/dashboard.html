@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>대시보드 - 의약품 재고관리 시스템</title>
+    <title>ダッシュボード - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 대시보드 특화 스타일 */
+        /* ダッシュボード特化スタイル */
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -50,7 +50,7 @@
             font-size: 1rem;
         }
 
-        /* 통계 카드 */
+        /* 統計カード */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -122,7 +122,7 @@
         .stat-card-change.negative { color: var(--danger-color); }
         .stat-card-change.neutral { color: #64748b; }
 
-        /* 메인 그리드 */
+        /* メイングリッド */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -173,13 +173,13 @@
             padding: 2rem;
         }
 
-        /* 차트 컨테이너 */
+        /* チャートコンテナ */
         .chart-container {
             position: relative;
             height: 300px;
         }
 
-        /* 활동 리스트 */
+        /* アクティビティリスト */
         .activity-list {
             max-height: 400px;
             overflow-y: auto;
@@ -240,7 +240,7 @@
             color: #94a3b8;
         }
 
-        /* 알림 카드 */
+        /* 通知カード */
         .alert-items {
             display: flex;
             flex-direction: column;
@@ -293,14 +293,14 @@
             color: #64748b;
         }
 
-        /* 하단 그리드 */
+        /* 下部グリッド */
         .bottom-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 2rem;
         }
 
-        /* 빠른 액션 */
+        /* クイックアクション */
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -344,7 +344,7 @@
         .quick-action-icon.primary { background: rgba(44, 90, 160, 0.1); color: var(--primary-color); }
         .quick-action-icon.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
 
-        /* 로딩 상태 */
+        /* ローディング状態 */
         .loading {
             display: flex;
             justify-content: center;
@@ -368,7 +368,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 1024px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -401,7 +401,7 @@
             }
         }
 
-        /* 페이드 인 애니메이션 */
+        /* フェードインアニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -430,23 +430,23 @@
 
 <div layout:fragment="content">
     <div class="dashboard-container">
-        <!-- 환영 섹션 -->
+        <!-- ウェルカムセクション -->
         <div class="welcome-section fade-in">
             <div class="welcome-bg">
                 <i class="fas fa-chart-pie"></i>
             </div>
             <div class="welcome-content">
                 <h1 class="welcome-title">
-                    안녕하세요, <span sec:authentication="principal.fullName" th:text="${#authentication.principal.fullName ?: #authentication.principal.username}">사용자</span>님!
+                    こんにちは、<span sec:authentication="principal.fullName" th:text="${#authentication.principal.fullName ?: #authentication.principal.username}">ユーザー</span>さん!
                 </h1>
                 <p class="welcome-subtitle">
-                    오늘도 안전하고 효율적인 의약품 재고관리를 시작해보세요.
+                    今日も安全で効率的な医薬品在庫管理を始めましょう。
                     <span id="currentDateTime"></span>
                 </p>
             </div>
         </div>
 
-        <!-- 통계 카드 -->
+        <!-- 統計カード -->
         <div class="stats-grid fade-in">
             <div class="stat-card" onclick="location.href='/medicines'">
                 <div class="stat-card-header">
@@ -455,10 +455,10 @@
                     </div>
                 </div>
                 <div class="stat-card-value" id="totalMedicines">-</div>
-                <div class="stat-card-label">등록된 의약품</div>
+                <div class="stat-card-label">登録医薬品</div>
                 <div class="stat-card-change positive" id="medicinesChange">
                     <i class="fas fa-arrow-up"></i>
-                    <span>활성 의약품 수</span>
+                    <span>有効な医薬品数</span>
                 </div>
             </div>
 
@@ -469,10 +469,10 @@
                     </div>
                 </div>
                 <div class="stat-card-value" id="totalStocks">-</div>
-                <div class="stat-card-label">총 재고량</div>
+                <div class="stat-card-label">総在庫量</div>
                 <div class="stat-card-change positive" id="stocksChange">
                     <i class="fas fa-info-circle"></i>
-                    <span>재고 항목 수</span>
+                    <span>在庫品目数</span>
                 </div>
             </div>
 
@@ -483,10 +483,10 @@
                     </div>
                 </div>
                 <div class="stat-card-value" id="lowStockItems">-</div>
-                <div class="stat-card-label">재고 부족</div>
+                <div class="stat-card-label">在庫不足</div>
                 <div class="stat-card-change negative" id="lowStockChange">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <span>주의 필요</span>
+                    <span>注意が必要</span>
                 </div>
             </div>
 
@@ -497,10 +497,10 @@
                     </div>
                 </div>
                 <div class="stat-card-value" id="expiringItems">-</div>
-                <div class="stat-card-label">만료 임박</div>
+                <div class="stat-card-label">期限間近</div>
                 <div class="stat-card-change neutral" id="expiringChange">
                     <i class="fas fa-clock"></i>
-                    <span>30일 이내</span>
+                    <span>30日以内</span>
                 </div>
             </div>
 
@@ -511,34 +511,34 @@
                     </div>
                 </div>
                 <div class="stat-card-value" id="todayTransactions">-</div>
-                <div class="stat-card-label">오늘의 거래</div>
+                <div class="stat-card-label">今日の取引</div>
                 <div class="stat-card-change positive" id="transactionsChange">
                     <i class="fas fa-chart-line"></i>
-                    <span>입출고 활동</span>
+                    <span>入出庫活動</span>
                 </div>
             </div>
         </div>
 
-        <!-- 메인 대시보드 그리드 -->
+        <!-- メインダッシュボードグリッド -->
         <div class="dashboard-grid slide-up">
-            <!-- 재고 추이 차트 -->
+            <!-- 在庫推移チャート -->
             <div class="dashboard-card">
                 <div class="card-header">
                     <h3 class="card-title">
                         <div class="card-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        재고 추이 (최근 30일)
+                        在庫推移 (直近30日)
                     </h3>
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-calendar"></i>
-                            30일
+                            30日
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" onclick="updateChart(7)">7일</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateChart(30)">30일</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateChart(90)">90일</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateChart(7)">7日</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateChart(30)">30日</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateChart(90)">90日</a></li>
                         </ul>
                     </div>
                 </div>
@@ -549,41 +549,41 @@
                 </div>
             </div>
 
-            <!-- 최근 활동 -->
+            <!-- 最近の活動 -->
             <div class="dashboard-card">
                 <div class="card-header">
                     <h3 class="card-title">
                         <div class="card-icon">
                             <i class="fas fa-history"></i>
                         </div>
-                        최근 활동
+                        最近の活動
                     </h3>
                     <a href="/transactions" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-external-link-alt"></i>
-                        전체 보기
+                        すべて表示
                     </a>
                 </div>
                 <div class="card-content" style="padding: 0;">
                     <div class="activity-list" id="recentActivities">
                         <div class="loading">
                             <div class="spinner"></div>
-                            데이터를 불러오는 중...
+                            データを読み込み中...
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 하단 그리드 -->
+        <!-- 下部グリッド -->
         <div class="bottom-grid slide-up">
-            <!-- 중요 알림 -->
+            <!-- 重要なお知らせ -->
             <div class="dashboard-card">
                 <div class="card-header">
                     <h3 class="card-title">
                         <div class="card-icon">
                             <i class="fas fa-bell"></i>
                         </div>
-                        중요 알림
+                        重要なお知らせ
                         <span class="badge bg-danger" id="alertCount">0</span>
                     </h3>
                     <button class="btn btn-outline-secondary btn-sm" onclick="refreshAlerts()">
@@ -594,20 +594,20 @@
                     <div class="alert-items" id="importantAlerts">
                         <div class="loading">
                             <div class="spinner"></div>
-                            알림을 불러오는 중...
+                            通知を読み込み中...
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 빠른 작업 -->
+            <!-- クイック操作 -->
             <div class="dashboard-card">
                 <div class="card-header">
                     <h3 class="card-title">
                         <div class="card-icon">
                             <i class="fas fa-bolt"></i>
                         </div>
-                        빠른 작업
+                        クイック操作
                     </h3>
                 </div>
                 <div class="card-content">
@@ -617,8 +617,8 @@
                                 <i class="fas fa-plus"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600;">재고 입고</div>
-                                <div style="font-size: 0.85rem; color: #64748b;">새 재고 추가</div>
+                                <div style="font-weight: 600;">在庫入庫</div>
+                                <div style="font-size: 0.85rem; color: #64748b;">新規在庫追加</div>
                             </div>
                         </a>
 
@@ -627,8 +627,8 @@
                                 <i class="fas fa-minus"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600;">재고 출고</div>
-                                <div style="font-size: 0.85rem; color: #64748b;">재고 사용 처리</div>
+                                <div style="font-weight: 600;">在庫出庫</div>
+                                <div style="font-size: 0.85rem; color: #64748b;">在庫使用処理</div>
                             </div>
                         </a>
 
@@ -637,8 +637,8 @@
                                 <i class="fas fa-pills"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600;">의약품 등록</div>
-                                <div style="font-size: 0.85rem; color: #64748b;">새 의약품 추가</div>
+                                <div style="font-weight: 600;">医薬品登録</div>
+                                <div style="font-size: 0.85rem; color: #64748b;">新規医薬品追加</div>
                             </div>
                         </a>
 
@@ -647,8 +647,8 @@
                                 <i class="fas fa-clipboard-check"></i>
                             </div>
                             <div>
-                                <div style="font-weight: 600;">재고 실사</div>
-                                <div style="font-size: 0.85rem; color: #64748b;">재고 확인 및 조정</div>
+                                <div style="font-weight: 600;">在庫棚卸</div>
+                                <div style="font-size: 0.85rem; color: #64748b;">在庫確認および調整</div>
                             </div>
                         </a>
                     </div>
@@ -660,7 +660,7 @@
 
 <th:block layout:fragment="javascript">
     <script>
-        // 전역 변수
+        // グローバル変数
         let stockChart = null;
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -670,16 +670,16 @@
             updateDateTime();
         });
 
-        // 대시보드 초기화
+        // ダッシュボード初期化
         function initializeDashboard() {
-            // 현재 시간 표시 및 자동 업데이트
-            setInterval(updateDateTime, 60000); // 1분마다 업데이트
+            // 現在時刻の表示と自動更新
+            setInterval(updateDateTime, 60000); // 1分ごとに更新
 
-            // 실시간 데이터 업데이트 (선택)
-            // setInterval(loadDashboardData, 300000); // 5분마다 업데이트
+            // リアルタイムデータ更新 (任意)
+            // setInterval(loadDashboardData, 300000); // 5分ごとに更新
         }
 
-        // 현재 시간 업데이트
+        // 現在時刻の更新
         function updateDateTime() {
             const now = new Date();
             const options = {
@@ -691,10 +691,10 @@
                 minute: '2-digit'
             };
             document.getElementById('currentDateTime').textContent =
-                '현재 시간: ' + now.toLocaleDateString('ko-KR', options);
+                '現在時刻: ' + now.toLocaleDateString('ja-JP', options);
         }
 
-        // 대시보드 데이터 로드
+        // ダッシュボードデータロード
         async function loadDashboardData() {
             try {
                 await Promise.all([
@@ -703,17 +703,17 @@
                     loadImportantAlerts()
                 ]);
             } catch (error) {
-                console.error('대시보드 데이터 로드 오류:', error);
-                showAlert('대시보드 데이터를 불러오는 중 오류가 발생했습니다.', 'danger');
+                console.error('ダッシュボードデータのロードエラー:', error);
+                showAlert('ダッシュボードデータの読み込み中にエラーが発生しました。', 'danger');
             }
         }
 
-        // 통계 데이터 로드 (세션 기반 인증)
+        // 統計データロード (セッションベース認証)
         async function loadStatistics() {
             try {
                 const response = await fetch('/api/dashboard/summary', {
                     method: 'GET',
-                    credentials: 'include', // 세션 쿠키 포함
+                    credentials: 'include', // セッションクッキーを含む
                     headers: {
                         'Content-Type': 'application/json'
                     }
@@ -729,11 +729,11 @@
                 } else if (response.status === 401) {
                     window.location.href = '/login';
                 } else {
-                    throw new Error('통계 데이터 로드 실패');
+                    throw new Error('統計データのロードに失敗しました');
                 }
             } catch (error) {
-                console.error('통계 데이터 로드 오류:', error);
-                // 기본값으로 대체
+                console.error('統計データのロードエラー:', error);
+                // デフォルト値で代替
                 updateStatistics({
                     totalMedicines: 0,
                     activeMedicines: 0,
@@ -747,12 +747,12 @@
             }
         }
 
-        // 통계 업데이트
+        // 統計更新
         function updateStatistics(stats) {
             document.getElementById('totalMedicines').textContent = formatNumber(stats.totalMedicines || 0);
             document.getElementById('totalStocks').textContent = formatNumber(stats.totalStockItems || 0);
 
-            // 재고 부족 및 만료 관련 데이터는 별도 API에서 가져와야 함
+            // 在庫不足および期限関連データは別途APIから取得
             loadAlertCounts().then(alertData => {
                 document.getElementById('lowStockItems').textContent = formatNumber(alertData.lowStockCount || 0);
                 document.getElementById('expiringItems').textContent = formatNumber(alertData.expiringSoonCount || 0);
@@ -761,11 +761,11 @@
             const totalTransactions = (stats.todayInboundCount || 0) + (stats.todayOutboundCount || 0);
             document.getElementById('todayTransactions').textContent = formatNumber(totalTransactions);
 
-            // 변화 정보 업데이트
+            // 変更情報の更新
             updateStatChanges(stats);
         }
 
-        // 알림 카운트 로드
+        // 通知カウントのロード
         async function loadAlertCounts() {
             try {
                 const response = await fetch('/api/dashboard/alerts', {
@@ -781,12 +781,12 @@
                     return result.success ? result.data : {};
                 }
             } catch (error) {
-                console.error('알림 카운트 로드 오류:', error);
+                console.error('通知カウントのロードエラー:', error);
             }
             return {};
         }
 
-        // 최근 활동 로드
+        // 最近の活動ロード
         async function loadRecentActivities() {
             try {
                 const response = await fetch('/api/dashboard/recent-activities?limit=8', {
@@ -805,15 +805,15 @@
                         throw new Error(result.message);
                     }
                 } else {
-                    throw new Error('최근 활동 로드 실패');
+                    throw new Error('最近の活動のロードに失敗しました');
                 }
             } catch (error) {
-                console.error('최근 활동 로드 오류:', error);
+                console.error('最近の活動のロードエラー:', error);
                 renderRecentActivities([]);
             }
         }
 
-        // 최근 활동 렌더링
+        // 最近の活動レンダリング
         function renderRecentActivities(activities) {
             const container = document.getElementById('recentActivities');
 
@@ -821,7 +821,7 @@
                 container.innerHTML = `
                     <div class="activity-item" style="justify-content: center; text-align: center; color: #64748b;">
                         <i class="fas fa-info-circle me-2"></i>
-                        최근 활동이 없습니다.
+                        最近の活動はありません。
                     </div>
                 `;
                 return;
@@ -834,14 +834,14 @@
                     </div>
                     <div class="activity-content">
                         <div class="activity-title">${activity.transactionTypeDescription || activity.transactionType}</div>
-                        <div class="activity-description">${activity.medicineName} - ${formatNumber(activity.quantity)}개</div>
+                        <div class="activity-description">${activity.medicineName} - ${formatNumber(activity.quantity)}個</div>
                         <div class="activity-time">${timeAgo(activity.transactionDate)}</div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // 중요 알림 로드
+        // 重要なお知らせロード
         async function loadImportantAlerts() {
             try {
                 const response = await fetch('/api/dashboard/alerts', {
@@ -860,10 +860,10 @@
                         throw new Error(result.message);
                     }
                 } else {
-                    throw new Error('알림 로드 실패');
+                    throw new Error('通知のロードに失敗しました');
                 }
             } catch (error) {
-                console.error('알림 로드 오류:', error);
+                console.error('通知のロードエラー:', error);
                 renderImportantAlerts({
                     criticalStockCount: 0,
                     lowStockCount: 0,
@@ -874,7 +874,7 @@
             }
         }
 
-        // 중요 알림 렌더링
+        // 重要なお知らせレンダリング
         function renderImportantAlerts(alerts) {
             const container = document.getElementById('importantAlerts');
             const alertCount = document.getElementById('alertCount');
@@ -885,8 +885,8 @@
             if (alerts.criticalStockCount > 0) {
                 alertItems.push({
                     type: 'danger',
-                    title: '재고 소진',
-                    message: `${alerts.criticalStockCount}개 의약품의 재고가 소진되었습니다.`
+                    title: '在庫切れ',
+                    message: `${alerts.criticalStockCount}品目の医薬品の在庫が切れました。`
                 });
                 totalAlerts += alerts.criticalStockCount;
             }
@@ -894,8 +894,8 @@
             if (alerts.lowStockCount > 0) {
                 alertItems.push({
                     type: 'warning',
-                    title: '재고 부족 경고',
-                    message: `${alerts.lowStockCount}개 의약품의 재고가 최소 수량 이하입니다.`
+                    title: '在庫不足警告',
+                    message: `${alerts.lowStockCount}品目の医薬品の在庫が最小数量以下です。`
                 });
                 totalAlerts += alerts.lowStockCount;
             }
@@ -903,8 +903,8 @@
             if (alerts.expiredCount > 0) {
                 alertItems.push({
                     type: 'danger',
-                    title: '만료된 재고',
-                    message: `${alerts.expiredCount}개 재고가 유효기간을 초과했습니다.`
+                    title: '期限切れ在庫',
+                    message: `${alerts.expiredCount}個の在庫が有効期限を超えました。`
                 });
                 totalAlerts += alerts.expiredCount;
             }
@@ -912,8 +912,8 @@
             if (alerts.expiringSoonCount > 0) {
                 alertItems.push({
                     type: 'warning',
-                    title: '유효기간 임박',
-                    message: `${alerts.expiringSoonCount}개 재고가 30일 이내에 만료됩니다.`
+                    title: '有効期限間近',
+                    message: `${alerts.expiringSoonCount}個の在庫が30日以内に期限切れになります。`
                 });
                 totalAlerts += alerts.expiringSoonCount;
             }
@@ -925,8 +925,8 @@
                     <div class="alert-item info">
                         <i class="fas fa-check-circle alert-icon info"></i>
                         <div class="alert-content">
-                            <div class="alert-title">모든 상태 정상</div>
-                            <div class="alert-message">현재 주의가 필요한 알림이 없습니다.</div>
+                            <div class="alert-title">すべてのステータスは正常です</div>
+                            <div class="alert-message">現在、注意が必要なお知らせはありません。</div>
                         </div>
                     </div>
                 `;
@@ -944,17 +944,17 @@
             `).join('');
         }
 
-        // 차트 초기화
+        // チャート初期化
         function initializeChart() {
-            // Chart.js가 로드되지 않은 경우 스킵
+            // Chart.jsがロードされていない場合はスキップ
             if (typeof Chart === 'undefined') {
-                console.warn('Chart.js가 로드되지 않았습니다. 차트를 건너뜁니다.');
+                console.warn('Chart.jsがロードされていません。チャートをスキップします。');
                 return;
             }
 
             const chartElement = document.getElementById('stockChart');
             if (!chartElement) {
-                console.warn('차트 요소를 찾을 수 없습니다.');
+                console.warn('チャート要素が見つかりません。');
                 return;
             }
 
@@ -966,7 +966,7 @@
                     data: {
                         labels: [],
                         datasets: [{
-                            label: '총 재고량',
+                            label: '総在庫量',
                             data: [],
                             borderColor: 'rgb(44, 90, 160)',
                             backgroundColor: 'rgba(44, 90, 160, 0.1)',
@@ -974,7 +974,7 @@
                             fill: true,
                             tension: 0.4
                         }, {
-                            label: '재고 부족',
+                            label: '在庫不足',
                             data: [],
                             borderColor: 'rgb(245, 158, 11)',
                             backgroundColor: 'rgba(245, 158, 11, 0.1)',
@@ -1008,15 +1008,15 @@
 
                 loadChartData(30);
             } catch (error) {
-                console.error('차트 초기화 오류:', error);
+                console.error('チャートの初期化エラー:', error);
             }
         }
 
-        // 차트 데이터 로드
+        // チャートデータロード
         async function loadChartData(days) {
             try {
-                // 실제 구현에서는 API로 데이터를 가져와야 합니다
-                // 현재는 더미 데이터 사용
+                // 実際の구현ではAPIからデータを取得する必要があります
+                // 現在はダミーデータを使用
                 const labels = [];
                 const stockData = [];
                 const lowStockData = [];
@@ -1024,9 +1024,9 @@
 
                 for (let i = days - 1; i >= 0; i--) {
                     const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
-                    labels.push(date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }));
+                    labels.push(date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }));
 
-                    // 더미 데이터 (실제로는 API에서 가져옴)
+                    // ダミーデータ (実際にはAPIから取得)
                     stockData.push(Math.floor(Math.random() * 1000) + 14000);
                     lowStockData.push(Math.floor(Math.random() * 15) + 5);
                 }
@@ -1036,11 +1036,11 @@
                 stockChart.data.datasets[1].data = lowStockData;
                 stockChart.update();
             } catch (error) {
-                console.error('차트 데이터 로드 오류:', error);
+                console.error('チャートデータのロードエラー:', error);
             }
         }
 
-        // 유틸리티 함수들
+        // ユーティリティ関数
         function getActivityIcon(type) {
             const icons = {
                 'INBOUND': 'arrow-down',
@@ -1061,11 +1061,11 @@
         }
 
         function updateStatChanges(stats) {
-            // 변화 정보는 추가 API 호출이나 더 복잡한 로직이 필요
-            // 현재는 기본 정보만 표시
+            // 変更情報は追加のAPI呼び出しやより複雑なロジックが必要
+            // 現在は基本情報のみ表示
         }
 
-        // 이벤트 핸들러들
+        // イベントハンドラ
         function updateChart(days) {
             loadChartData(days);
         }
@@ -1074,22 +1074,22 @@
             loadImportantAlerts();
         }
 
-        // 키보드 단축키
+        // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // F5: 새로고침
+            // F5: 更新
             if (e.key === 'F5') {
                 e.preventDefault();
                 loadDashboardData();
             }
 
-            // Ctrl + N: 새 재고 입고
+            // Ctrl + N: 新規在庫入庫
             if (e.ctrlKey && e.key === 'n') {
                 e.preventDefault();
                 window.location.href = '/stocks/new';
             }
         });
 
-        // 페이지 가시성 변경 시 데이터 새로고침
+        // ページ可視性変更時にデータ更新
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 loadDashboardData();

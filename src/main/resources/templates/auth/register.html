@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입 - PharmaInventory</title>
+    <title>会員登録 - PharmaInventory</title>
 
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -311,7 +311,7 @@
             }
         }
 
-        /* 애니메이션 */
+        /* アニメーション */
         .form-group {
             animation: fadeInUp 0.5s ease-out;
             animation-fill-mode: both;
@@ -344,8 +344,8 @@
             <div class="register-icon">
                 <i class="fas fa-user-plus"></i>
             </div>
-            <h1 class="register-title">회원가입</h1>
-            <p class="register-subtitle">PharmaInventory에 오신 것을 환영합니다</p>
+            <h1 class="register-title">会員登録</h1>
+            <p class="register-subtitle">PharmaInventoryへようこそ</p>
         </div>
     </div>
 
@@ -356,153 +356,153 @@
 
         <form id="registerForm" novalidate>
             <div class="row">
-                <!-- 사용자명 -->
+                <!-- ユーザー名 -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="username" class="form-label">
                             <i class="fas fa-user"></i>
-                            사용자명 <span class="required">*</span>
+                            ユーザー名 <span class="required">*</span>
                         </label>
                         <input type="text" class="form-control" id="username" name="username"
-                               placeholder="영문, 숫자, 언더스코어만 사용" required>
+                               placeholder="英数字、アンダースコアのみ" required>
                         <div class="invalid-feedback"></div>
-                        <div class="valid-feedback">사용 가능한 사용자명입니다</div>
+                        <div class="valid-feedback">使用可能なユーザー名です</div>
                     </div>
                 </div>
 
-                <!-- 실명 -->
+                <!-- 氏名 -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="fullName" class="form-label">
                             <i class="fas fa-id-card"></i>
-                            실명 <span class="required">*</span>
+                            氏名 <span class="required">*</span>
                         </label>
                         <input type="text" class="form-control" id="fullName" name="fullName"
-                               placeholder="실명을 입력해주세요" required>
+                               placeholder="氏名を入力してください" required>
                         <div class="invalid-feedback"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- 이메일 -->
+            <!-- メールアドレス -->
             <div class="form-group">
                 <label for="email" class="form-label">
                     <i class="fas fa-envelope"></i>
-                    이메일 <span class="required">*</span>
+                    メールアドレス <span class="required">*</span>
                 </label>
                 <input type="email" class="form-control" id="email" name="email"
                        placeholder="example@company.com" required>
                 <div class="invalid-feedback"></div>
-                <div class="valid-feedback">유효한 이메일 형식입니다</div>
+                <div class="valid-feedback">有効なメールアドレス形式です</div>
             </div>
 
-            <!-- 비밀번호 -->
+            <!-- パスワード -->
             <div class="form-group">
                 <label for="password" class="form-label">
                     <i class="fas fa-lock"></i>
-                    비밀번호 <span class="required">*</span>
+                    パスワード <span class="required">*</span>
                 </label>
                 <input type="password" class="form-control" id="password" name="password"
-                       placeholder="영문, 숫자, 특수문자 포함 8자 이상" required>
+                       placeholder="英数字、特殊文字を含む8文字以上" required>
                 <div class="password-strength">
                     <div class="strength-bar">
                         <div class="strength-fill"></div>
                     </div>
-                    <div class="strength-text">비밀번호 강도: <span id="strengthLevel">-</span></div>
+                    <div class="strength-text">パスワード強度: <span id="strengthLevel">-</span></div>
                 </div>
                 <div class="invalid-feedback"></div>
             </div>
 
             <div class="row">
-                <!-- 부서 -->
+                <!-- 部署 -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="department" class="form-label">
                             <i class="fas fa-building"></i>
-                            부서
+                            部署
                         </label>
                         <select class="form-select" id="department" name="department">
-                            <option value="">부서를 선택하세요</option>
-                            <option value="PHARMACY">약국</option>
-                            <option value="WAREHOUSE">창고</option>
-                            <option value="ADMIN">관리부서</option>
-                            <option value="IT">IT부서</option>
-                            <option value="MEDICAL">의료부서</option>
-                            <option value="FINANCE">재무부서</option>
+                            <option value="">部署を選択してください</option>
+                            <option value="PHARMACY">薬局</option>
+                            <option value="WAREHOUSE">倉庫</option>
+                            <option value="ADMIN">管理部署</option>
+                            <option value="IT">IT部署</option>
+                            <option value="MEDICAL">医療部署</option>
+                            <option value="FINANCE">財務部署</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- 직급 -->
+                <!-- 役職 -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="position" class="form-label">
                             <i class="fas fa-briefcase"></i>
-                            직급
+                            役職
                         </label>
                         <input type="text" class="form-control" id="position" name="position"
-                               placeholder="예: 주임, 대리, 과장">
+                               placeholder="例: 主任, 係長, 課長">
                     </div>
                 </div>
             </div>
 
             <div class="row">
-                <!-- 권한 -->
+                <!-- 権限 -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="role" class="form-label">
                             <i class="fas fa-shield-alt"></i>
-                            권한 <span class="required">*</span>
+                            権限 <span class="required">*</span>
                         </label>
                         <select class="form-select" id="role" name="role" required>
-                            <option value="">권한을 선택하세요</option>
-                            <option value="USER">일반사용자</option>
-                            <option value="STAFF">직원</option>
-                            <option value="PHARMACIST">약사</option>
-                            <option value="MANAGER">매니저</option>
-                            <option value="ADMIN">관리자</option>
+                            <option value="">権限を選択してください</option>
+                            <option value="USER">一般ユーザー</option>
+                            <option value="STAFF">スタッフ</option>
+                            <option value="PHARMACIST">薬剤師</option>
+                            <option value="MANAGER">マネージャー</option>
+                            <option value="ADMIN">管理者</option>
                         </select>
                         <div class="invalid-feedback"></div>
                     </div>
                 </div>
 
-                <!-- 전화번호 -->
+                <!-- 電話番号 -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="phoneNumber" class="form-label">
                             <i class="fas fa-phone"></i>
-                            전화번호
+                            電話番号
                         </label>
                         <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber"
-                               placeholder="010-1234-5678">
+                               placeholder="090-1234-5678">
                         <div class="invalid-feedback"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- 사원번호 (선택사항) -->
+            <!-- 社員番号 (任意) -->
             <div class="form-group">
                 <label for="employeeId" class="form-label">
                     <i class="fas fa-id-badge"></i>
-                    사원번호
+                    社員番号
                 </label>
                 <input type="text" class="form-control" id="employeeId" name="employeeId"
-                       placeholder="사원번호 (선택사항)">
+                       placeholder="社員番号 (任意)">
             </div>
 
-            <!-- 회원가입 버튼 -->
+            <!-- 会員登録ボタン -->
             <button type="submit" class="btn btn-register" id="registerBtn">
                 <div class="loading-spinner"></div>
                 <span class="btn-text">
                         <i class="fas fa-user-plus me-2"></i>
-                        회원가입
+                        会員登録
                     </span>
             </button>
         </form>
 
-        <!-- 로그인 링크 -->
+        <!-- ログインリンク -->
         <div class="login-link">
-            <p>이미 계정이 있으신가요? <a href="/login">로그인하기</a></p>
+            <p>すでにアカウントをお持ちですか？ <a href="/login">ログイン</a></p>
         </div>
     </div>
 </div>
@@ -526,7 +526,7 @@
         initializeEventListeners() {
             this.form.addEventListener('submit', (e) => this.handleSubmit(e));
 
-            // 실시간 유효성 검사
+            // リアルタイムバリデーション
             const inputs = this.form.querySelectorAll('input, select');
             inputs.forEach(input => {
                 input.addEventListener('blur', () => this.validateField(input));
@@ -542,7 +542,7 @@
         }
 
         initializeValidation() {
-            // 비밀번호 강도 초기화
+            // パスワード強度の初期化
             this.updatePasswordStrength('');
         }
 
@@ -550,7 +550,7 @@
             e.preventDefault();
 
             if (!this.validateForm()) {
-                this.showAlert('입력 정보를 확인해주세요.', 'danger');
+                this.showAlert('入力情報を確認してください。', 'danger');
                 return;
             }
 
@@ -560,7 +560,7 @@
                 const formData = this.getFormData();
                 const response = await this.submitRegistration(formData);
 
-                this.showAlert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.', 'success');
+                this.showAlert('会員登録が完了しました！ログインページに移動します。', 'success');
 
                 setTimeout(() => {
                     window.location.href = '/login';
@@ -568,7 +568,7 @@
 
             } catch (error) {
                 console.error('Registration error:', error);
-                this.showAlert(error.message || '회원가입 중 오류가 발생했습니다.', 'danger');
+                this.showAlert(error.message || '会員登録中にエラーが発生しました。', 'danger');
             } finally {
                 this.setLoading(false);
             }
@@ -586,7 +586,7 @@
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || data.error || '회원가입에 실패했습니다.');
+                throw new Error(data.message || data.error || '会員登録に失敗しました。');
             }
 
             return data;
@@ -624,20 +624,20 @@
             let isValid = true;
             let message = '';
 
-            // 필수 필드 검사
+            // 必須フィールドのチェック
             if (input.required && !value) {
                 isValid = false;
-                message = '이 필드는 필수입니다.';
+                message = 'このフィールドは必須です。';
             } else {
-                // 개별 필드 유효성 검사
+                // 個別フィールドのバリデーション
                 switch (name) {
                     case 'username':
                         if (value.length < 3 || value.length > 50) {
                             isValid = false;
-                            message = '사용자명은 3-50자 사이여야 합니다.';
+                            message = 'ユーザー名は3〜50文字である必要があります。';
                         } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
                             isValid = false;
-                            message = '영문, 숫자, 언더스코어만 사용 가능합니다.';
+                            message = '英数字とアンダースコアのみ使用できます。';
                         }
                         break;
 
@@ -645,31 +645,31 @@
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         if (!emailRegex.test(value)) {
                             isValid = false;
-                            message = '올바른 이메일 형식이 아닙니다.';
+                            message = '有効なメールアドレス形式ではありません。';
                         }
                         break;
 
                     case 'password':
                         if (value.length < 8) {
                             isValid = false;
-                            message = '비밀번호는 최소 8자 이상이어야 합니다.';
+                            message = 'パスワードは8文字以上である必要があります。';
                         } else if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/.test(value)) {
                             isValid = false;
-                            message = '영문, 숫자, 특수문자를 포함해야 합니다.';
+                            message = '英字、数字、特殊文字を含める必要があります。';
                         }
                         break;
 
                     case 'phoneNumber':
                         if (value && !/^[0-9-]+$/.test(value)) {
                             isValid = false;
-                            message = '숫자와 하이픈만 사용 가능합니다.';
+                            message = '数字とハイフンのみ使用できます。';
                         }
                         break;
 
                     case 'fullName':
                         if (value.length > 100) {
                             isValid = false;
-                            message = '실명은 100자를 초과할 수 없습니다.';
+                            message = '氏名は100文字を超えることはできません。';
                         }
                         break;
                 }
@@ -712,16 +712,16 @@
             if (strength === 0) {
                 level = '-';
             } else if (strength <= 2) {
-                level = '약함';
+                level = '弱い';
                 strengthBar.classList.add('strength-weak');
             } else if (strength === 3) {
-                level = '보통';
+                level = '普通';
                 strengthBar.classList.add('strength-fair');
             } else if (strength === 4) {
-                level = '좋음';
+                level = '良好';
                 strengthBar.classList.add('strength-good');
             } else {
-                level = '강함';
+                level = '強力';
                 strengthBar.classList.add('strength-strong');
             }
 
@@ -733,10 +733,10 @@
 
             if (isLoading) {
                 this.loadingSpinner.style.display = 'inline-block';
-                this.btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>회원가입 중...';
+                this.btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>登録中...';
             } else {
                 this.loadingSpinner.style.display = 'none';
-                this.btnText.innerHTML = '<i class="fas fa-user-plus me-2"></i>회원가입';
+                this.btnText.innerHTML = '<i class="fas fa-user-plus me-2"></i>会員登録';
             }
         }
 
@@ -754,7 +754,7 @@
             this.alertContainer.innerHTML = '';
             this.alertContainer.appendChild(alert);
 
-            // 자동 제거 (성공 메시지가 아닌 경우)
+            // 自動削除 (成功メッセージでない場合)
             if (type !== 'success') {
                 setTimeout(() => {
                     alert.remove();
@@ -763,16 +763,16 @@
         }
     }
 
-    // 페이지 로드 완료 시 초기화
+    // ページ読み込み完了時に初期化
     document.addEventListener('DOMContentLoaded', function() {
         new RegisterForm();
     });
 
-    // 키보드 단축키
+    // キーボードショートカット
     document.addEventListener('keydown', function(e) {
-        // Escape로 홈으로 이동
+        // Escapeキーでホームに移動
         if (e.key === 'Escape') {
-            if (confirm('회원가입을 취소하고 홈페이지로 이동하시겠습니까?')) {
+            if (confirm('会員登録をキャンセルしてホームページに移動しますか？')) {
                 window.location.href = '/';
             }
         }

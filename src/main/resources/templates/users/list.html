@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko"
+<html lang="ja"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/base}">
 <head>
-    <title>사용자 관리 - 의약품 재고관리 시스템</title>
+    <title>ユーザー管理 - 医薬品在庫管理システム</title>
 </head>
 
 <th:block layout:fragment="css">
     <style>
-        /* 사용자 목록 특화 스타일 */
+        /* ユーザーリスト特化スタイル */
         .page-header {
             background: white;
             border-radius: 16px;
@@ -98,7 +98,7 @@
             border-bottom: 1px solid var(--border-color);
             background: #f8fafc;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -362,7 +362,7 @@
             border-top: 1px solid var(--border-color);
             background: #f8fafc;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -413,7 +413,7 @@
             cursor: not-allowed;
         }
 
-        /* 반응형 디자인 */
+        /* レスポンシブデザイン */
         @media (max-width: 768px) {
             .stats-row {
                 grid-template-columns: repeat(2, 1fr);
@@ -455,30 +455,30 @@
 </th:block>
 
 <div layout:fragment="content">
-    <!-- 페이지 헤더 -->
+    <!-- ページヘッダー -->
     <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h1 class="page-title">사용자 관리</h1>
-                <p class="page-subtitle">시스템 사용자를 관리하고 권한을 설정할 수 있습니다.</p>
+                <h1 class="page-title">ユーザー管理</h1>
+                <p class="page-subtitle">システムユーザーを管理し、権限を設定できます。</p>
             </div>
             <div>
                 <a href="/users/new" class="btn btn-success" sec:authorize="hasRole('ADMIN')">
                     <i class="fas fa-user-plus"></i>
-                    새 사용자 등록
+                    新規ユーザー登録
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- 통계 카드 -->
+    <!-- 統計カード -->
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-card-icon total">
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-card-value" th:text="${userStats?.totalUsers ?: 0}">0</div>
-            <div class="stat-card-label">전체 사용자</div>
+            <div class="stat-card-label">全ユーザー</div>
         </div>
 
         <div class="stat-card">
@@ -486,7 +486,7 @@
                 <i class="fas fa-user-check"></i>
             </div>
             <div class="stat-card-value" th:text="${userStats?.activeUsers ?: 0}">0</div>
-            <div class="stat-card-label">활성 사용자</div>
+            <div class="stat-card-label">有効なユーザー</div>
         </div>
 
         <div class="stat-card">
@@ -494,7 +494,7 @@
                 <i class="fas fa-user-shield"></i>
             </div>
             <div class="stat-card-value" th:text="${userStats?.adminUsers ?: 0}">0</div>
-            <div class="stat-card-label">관리자</div>
+            <div class="stat-card-label">管理者</div>
         </div>
 
         <div class="stat-card">
@@ -502,21 +502,21 @@
                 <i class="fas fa-user-times"></i>
             </div>
             <div class="stat-card-value" th:text="${userStats?.inactiveUsers ?: 0}">0</div>
-            <div class="stat-card-label">비활성 사용자</div>
+            <div class="stat-card-label">無効なユーザー</div>
         </div>
     </div>
 
-    <!-- 사용자 목록 -->
+    <!-- ユーザーリスト -->
     <div class="content-card" id="usersContainer">
         <div class="content-header">
             <h2 class="content-title">
-                사용자 목록
+                ユーザー一覧
                 <span class="badge bg-primary" th:text="${users?.totalElements ?: 0}">0</span>
             </h2>
             <div class="content-actions">
                 <button class="btn btn-outline-secondary" onclick="location.reload()">
                     <i class="fas fa-sync-alt"></i>
-                    새로고침
+                    更新
                 </button>
             </div>
         </div>
@@ -525,23 +525,23 @@
             <table class="users-table" th:if="${users != null and users.hasContent()}">
                 <thead>
                 <tr>
-                    <th>사용자 정보</th>
-                    <th>사용자ID</th>
-                    <th>권한</th>
-                    <th>부서</th>
-                    <th>마지막 로그인</th>
-                    <th>상태</th>
-                    <th>등록일</th>
-                    <th>작업</th>
+                    <th>ユーザー情報</th>
+                    <th>ユーザーID</th>
+                    <th>権限</th>
+                    <th>部署</th>
+                    <th>最終ログイン</th>
+                    <th>ステータス</th>
+                    <th>登録日</th>
+                    <th>操作</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="user : ${users.content}">
                     <td>
                         <div class="user-info">
-                            <div class="user-avatar" th:text="${#strings.substring(user.fullName ?: user.username ?: 'U', 0, 1)}">김</div>
+                            <div class="user-avatar" th:text="${#strings.substring(user.fullName ?: user.username ?: 'U', 0, 1)}">K</div>
                             <div class="user-details">
-                                <div class="user-name" th:text="${user.fullName ?: user.username ?: 'N/A'}">김약사</div>
+                                <div class="user-name" th:text="${user.fullName ?: user.username ?: 'N/A'}">キム・ヤクサ</div>
                                 <div class="user-email" th:text="${user.email ?: 'N/A'}">kim@pharmacy.com</div>
                             </div>
                         </div>
@@ -552,19 +552,19 @@
                     <td>
                         <span class="role-badge"
                               th:classappend="${user.role?.name()}"
-                              th:text="${user.roleDescription ?: user.role?.name() ?: 'N/A'}">약사</span>
+                              th:text="${user.roleDescription ?: user.role?.name() ?: 'N/A'}">薬剤師</span>
                     </td>
-                    <td th:text="${user.departmentDescription ?: user.department ?: '-'}">약국</td>
+                    <td th:text="${user.departmentDescription ?: user.department ?: '-'}">薬局</td>
                     <td>
                         <span th:if="${user.lastLoginAt}"
                               th:text="${#temporals.format(user.lastLoginAt, 'yyyy-MM-dd HH:mm')}">2024-01-20 14:30</span>
-                        <span th:unless="${user.lastLoginAt}" class="text-muted">로그인 기록 없음</span>
+                        <span th:unless="${user.lastLoginAt}" class="text-muted">ログイン記録なし</span>
                     </td>
                     <td>
                         <span class="status-badge"
                               th:classappend="${user.isActive ? 'active' : 'inactive'}">
                             <span class="status-indicator" th:classappend="${user.isActive ? 'active' : 'inactive'}"></span>
-                            <span th:text="${user.statusDescription ?: (user.isActive ? '활성' : '비활성')}">활성</span>
+                            <span th:text="${user.statusDescription ?: (user.isActive ? '有効' : '無効')}">有効</span>
                         </span>
                     </td>
                     <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}" th:if="${user.createdAt}">2024-01-15</td>
@@ -573,13 +573,13 @@
                         <div class="action-buttons">
                             <a th:href="@{/users/{id}(id=${user.id})}"
                                class="btn btn-outline-primary btn-sm"
-                               title="상세 보기">
+                               title="詳細表示">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a th:href="@{/users/{id}/edit(id=${user.id})}"
                                class="btn btn-outline-warning btn-sm"
                                sec:authorize="hasRole('ADMIN')"
-                               title="수정">
+                               title="修正">
                                 <i class="fas fa-edit"></i>
                             </a>
                         </div>
@@ -588,25 +588,25 @@
                 </tbody>
             </table>
 
-            <!-- 빈 상태 -->
+            <!-- 空の状態 -->
             <div class="empty-state" th:if="${users == null or !users.hasContent()}">
                 <div class="empty-state-icon">
                     <i class="fas fa-users"></i>
                 </div>
-                <h3 class="empty-state-title">등록된 사용자가 없습니다</h3>
-                <p class="empty-state-description">새로운 사용자를 등록하거나 검색 조건을 변경해 보세요.</p>
+                <h3 class="empty-state-title">登録されたユーザーがいません</h3>
+                <p class="empty-state-description">新しいユーザーを登録するか、検索条件を変更してみてください。</p>
                 <a href="/users/new" class="btn btn-success" sec:authorize="hasRole('ADMIN')">
                     <i class="fas fa-user-plus"></i>
-                    사용자 등록하기
+                    ユーザーを登録する
                 </a>
             </div>
         </div>
 
-        <!-- 페이지네이션 -->
+        <!-- ページネーション -->
         <div class="pagination-container" th:if="${users != null and users.totalPages > 1}">
             <div class="pagination-info">
-                <span th:text="|총 ${users.totalElements}개 중 ${users.number * users.size + 1}-${users.number * users.size + #lists.size(users.content)}개 표시|">
-                    총 0개 중 1-20개 표시
+                <span th:text="|全 ${users.totalElements}件中 ${users.number * users.size + 1} - ${users.number * users.size + #lists.size(users.content)}件を表示|">
+                    全 0件中 1-20件を表示
                 </span>
             </div>
 
@@ -660,13 +660,13 @@
 <th:block layout:fragment="javascript">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('사용자 목록 페이지 로드됨');
+            console.log('ユーザーリストページがロードされました');
 
-            // 사용자 수 표시
+            // ユーザー数の表示
             const users = /*[[${users}]]*/ null;
             if (users && users.content) {
-                console.log('로드된 사용자 수:', users.content.length);
-                console.log('전체 사용자 수:', users.totalElements);
+                console.log('ロードされたユーザー数:', users.content.length);
+                console.log('全ユーザー数:', users.totalElements);
             }
         });
     </script>

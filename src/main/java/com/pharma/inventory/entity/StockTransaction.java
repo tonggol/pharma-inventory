@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * 재고 입출고 트랜잭션 엔티티
- * 모든 재고 변동 이력을 기록
+ * 在庫取引エンティティ
+ * すべての在庫変動履歴を記録
  */
 @Entity
 @Table(name = "stock_transactions",
@@ -29,52 +29,52 @@ public class StockTransaction extends BaseEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medicine_id", nullable = false)
-    private Medicine medicine;  // 의약품
+    private Medicine medicine;  // 医薬品
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_id")
-    private Stock stock;  // 재고 (로트번호별)
+    private Stock stock;  // 在庫 (ロット番号別)
     
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false, length = 20)
-    private TransactionType transactionType;  // 거래 유형
+    private TransactionType transactionType;  // 取引タイプ
     
     @Column(nullable = false)
-    private Integer quantity;  // 수량
+    private Integer quantity;  // 数量
     
     @Column(name = "before_quantity")
-    private Integer beforeQuantity;  // 변경 전 수량
+    private Integer beforeQuantity;  // 変更前の数量
     
     @Column(name = "after_quantity")
-    private Integer afterQuantity;  // 변경 후 수량
+    private Integer afterQuantity;  // 変更後の数量
     
     @Column(name = "transaction_date", nullable = false)
-    private LocalDateTime transactionDate;  // 거래 일시
+    private LocalDateTime transactionDate;  // 取引日時
     
     @Column(name = "reference_number", length = 50)
-    private String referenceNumber;  // 참조 번호 (주문번호, 처방전번호 등)
+    private String referenceNumber;  // 参照番号 (注文番号、処方箋番号など)
     
     @Column(name = "department", length = 50)
-    private String department;  // 부서/진료과
+    private String department;  // 部署/診療科
     
     @Column(name = "requester_name", length = 50)
-    private String requesterName;  // 요청자
+    private String requesterName;  // 依頼者
     
     @Column(name = "approver_name", length = 50)
-    private String approverName;  // 승인자
+    private String approverName;  // 承認者
     
     @Enumerated(EnumType.STRING)
     @Column(name = "reason", length = 30)
-    private TransactionReason reason;  // 입출고 사유
+    private TransactionReason reason;  // 入出庫事由
     
     @Column(columnDefinition = "TEXT")
-    private String remarks;  // 비고
+    private String remarks;  // 備考
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
-    private User createdBy;  // 작성자
+    private User createdBy;  // 作成者
     
-    // === 생성자 ===
+    // === コンストラクタ ===
     public StockTransaction(Medicine medicine, Stock stock, TransactionType type, 
                           Integer quantity, TransactionReason reason, User createdBy) {
         validateTransaction(medicine, type, quantity, createdBy);
@@ -87,7 +87,7 @@ public class StockTransaction extends BaseEntity {
         this.transactionDate = LocalDateTime.now();
     }
     
-    // === 전체 필드 생성자 (Service용) ===
+    // === 全フィールドコンストラクタ (Service用) ===
     public StockTransaction(Medicine medicine, Stock stock, TransactionType transactionType,
                           Integer quantity, Integer beforeQuantity, Integer afterQuantity,
                           LocalDateTime transactionDate, TransactionReason reason) {
@@ -105,10 +105,10 @@ public class StockTransaction extends BaseEntity {
         return this.id;
     }
     
-    // === 비즈니스 메소드 ===
+    // === ビジネスメソッド ===
     
     /**
-     * 재고 수량 기록
+     * 在庫数量を記録
      */
     public void recordQuantityChange(Integer before, Integer after) {
         this.beforeQuantity = before;
@@ -116,7 +116,7 @@ public class StockTransaction extends BaseEntity {
     }
     
     /**
-     * 참조 정보 설정
+     * 参照情報を設定
      */
     public void setReferenceInfo(String referenceNumber, String department) {
         this.referenceNumber = referenceNumber;
@@ -124,7 +124,7 @@ public class StockTransaction extends BaseEntity {
     }
     
     /**
-     * 요청자/승인자 설정
+     * 依頼者/承認者を設定
      */
     public void setRequesterInfo(String requesterName, String approverName) {
         this.requesterName = requesterName;
@@ -132,26 +132,33 @@ public class StockTransaction extends BaseEntity {
     }
     
     /**
-     * 비고 설정
+     * 備考を設定
      */
     public void addRemarks(String remarks) {
         this.remarks = remarks;
     }
+
+    /**
+     * 作成者を設定
+     */
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
     
-    // === Validation ===
+    // === バリデーション ===
     private void validateTransaction(Medicine medicine, TransactionType type, 
                                     Integer quantity, User createdBy) {
         if (medicine == null) {
-            throw new IllegalArgumentException("의약품 정보는 필수입니다");
+            throw new IllegalArgumentException("医薬品情報は必須です");
         }
         if (type == null) {
-            throw new IllegalArgumentException("거래 유형은 필수입니다");
+            throw new IllegalArgumentException("取引タイプは必須です");
         }
         if (quantity == null || quantity <= 0) {
-            throw new IllegalArgumentException("수량은 0보다 커야 합니다");
+            throw new IllegalArgumentException("数量は0より大きい必要があります");
         }
         if (createdBy == null) {
-            throw new IllegalArgumentException("작성자 정보는 필수입니다");
+            throw new IllegalArgumentException("作成者情報は必須です");
         }
     }
     
