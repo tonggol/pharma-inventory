@@ -382,8 +382,6 @@
                     <span th:text="${#strings.substring(#authentication.principal.fullName ?: #authentication.principal.username, 0, 1)?.toUpperCase()}">U</span>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="/users/profile"><i class="fas fa-user me-2"></i>プロフィール</a></li>
-                    <li><a class="dropdown-item" href="/auth/change-password"><i class="fas fa-key me-2"></i>パスワード変更</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>ログアウト</a></li>
                 </ul>
