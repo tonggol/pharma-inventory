@@ -68,12 +68,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
      * CORS 설정
-     * API 엔드포인트에 대한 교차 출처 요청 허용
+     * 모든 경로에 대한 교차 출처 요청 허용
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000", "http://localhost:8080")
+        registry.addMapping("/**") // 모든 경로에 대해 CORS 설정 적용
+                .allowedOriginPatterns("*") // 모든 출처에서의 요청을 허용. 운영 환경에서는 특정 도메인으로 제한해야 합니다.
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
