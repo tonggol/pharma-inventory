@@ -4,7 +4,8 @@
 
 中小規模の製薬会社向けに開発された、Webベースの医薬品在庫管理システムです。このシステムは、医薬品の在庫を効率的かつ正確に管理し、日々の業務をサポートすることを目的としています。
 
-**デプロイ先:** [https://pharma-inventory-645890639261.asia-northeast2.run.app/](https://pharma-inventory-645890639261.asia-northeast2.run.app/)
+**デプロイ先:** [[https://pharma-inventory-645890639261.asia-northeast2.run.app/](https://pharma-inventory-645890639261.asia-northeast2.run.app/)](https://pharma-backend-877543033848.asia-northeast2.run.app)
+https://pharma-backend-877543033848.asia-northeast2.run.app/swagger-ui/index.html
 
 ---
 
